@@ -16,6 +16,7 @@ shader_parameter/macro_world_size = 55.0
 shader_parameter/macro_strength = 0.075
 shader_parameter/blend_noise_strength = 0.72
 shader_parameter/detail_rotation_mix = 0.32
+shader_parameter/palette_saturation = 0.82
 shader_parameter/grid_size = Vector2(160, 190)
 shader_parameter/grid_visible = false
 shader_parameter/show_trails = true

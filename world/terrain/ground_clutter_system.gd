@@ -13,9 +13,9 @@ const ASSETS: Array[Dictionary] = [
 	{"name": "DryGrass", "file": "dry_grass_clump_01_cutout.png", "size": Vector2(0.86, 0.76), "min_scale": 0.5, "max_scale": 1.55},
 	{"name": "Weed01", "file": "weed_01_cutout.png", "size": Vector2(0.62, 0.82), "min_scale": 0.42, "max_scale": 1.48},
 	{"name": "Weed02", "file": "weed_02_cutout.png", "size": Vector2(0.68, 0.88), "min_scale": 0.4, "max_scale": 1.5},
-	{"name": "Pebbles", "file": "pebble_cluster_01_cutout.png", "size": Vector2(0.52, 0.34), "min_scale": 0.38, "max_scale": 1.42},
-	{"name": "SmallRock", "file": "small_rock_01_cutout.png", "size": Vector2(0.56, 0.48), "min_scale": 0.4, "max_scale": 1.55},
-	{"name": "Twigs", "file": "twig_clutter_01_cutout.png", "size": Vector2(0.72, 0.36), "min_scale": 0.4, "max_scale": 1.5},
+	{"name": "Pebbles", "file": "pebble_cluster_01_cutout.png", "size": Vector2(0.76, 0.46), "min_scale": 0.48, "max_scale": 1.62},
+	{"name": "SmallRock", "file": "small_rock_01_cutout.png", "size": Vector2(0.82, 0.68), "min_scale": 0.5, "max_scale": 1.72},
+	{"name": "Twigs", "file": "twig_clutter_01_cutout.png", "size": Vector2(0.94, 0.46), "min_scale": 0.48, "max_scale": 1.64},
 ]
 
 var _terrain_prototype: TerrainTestPrototype
@@ -60,10 +60,10 @@ func _rebuild_battle() -> void:
 		var definition: Dictionary = ASSETS[asset_id]
 		var scale_value := rng.randf_range(float(definition["min_scale"]), float(definition["max_scale"]))
 		var lateral_scale := rng.randf_range(0.86, 1.14)
-		var basis := Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(lateral_scale * scale_value, scale_value, scale_value))
+		var instance_basis := Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(lateral_scale * scale_value, scale_value, scale_value))
 		var height := float(_battle_grid.call("terrain_height", position_2d.x, position_2d.y))
 		var vertical_offset := float((definition["size"] as Vector2).y) * scale_value * 0.48
-		transforms_by_asset[asset_id].append(Transform3D(basis, Vector3(position_2d.x, height + vertical_offset, position_2d.y)))
+		transforms_by_asset[asset_id].append(Transform3D(instance_basis, Vector3(position_2d.x, height + vertical_offset, position_2d.y)))
 		placed += 1
 	for asset_id: int in range(ASSETS.size()):
 		_create_multimesh(asset_id, transforms_by_asset[asset_id])
@@ -126,10 +126,10 @@ func _rebuild() -> void:
 		var definition: Dictionary = ASSETS[asset_id]
 		var scale_value := rng.randf_range(float(definition["min_scale"]), float(definition["max_scale"]))
 		var lateral_scale := rng.randf_range(0.86, 1.14)
-		var basis := Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(lateral_scale * scale_value, scale_value, scale_value))
+		var instance_basis := Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(lateral_scale * scale_value, scale_value, scale_value))
 		var height := _terrain_prototype.terrain.data.get_height(Vector3(position_2d.x, 0.0, position_2d.y))
 		var vertical_offset := float((definition["size"] as Vector2).y) * scale_value * 0.48
-		transforms_by_asset[asset_id].append(Transform3D(basis, Vector3(position_2d.x, height + vertical_offset, position_2d.y)))
+		transforms_by_asset[asset_id].append(Transform3D(instance_basis, Vector3(position_2d.x, height + vertical_offset, position_2d.y)))
 		placed += 1
 	for asset_id: int in range(ASSETS.size()):
 		_create_multimesh(asset_id, transforms_by_asset[asset_id])
@@ -142,11 +142,11 @@ func _density_for_surface(weights: Vector3) -> float:
 
 func _choose_asset(weights: Vector3, rng: RandomNumberGenerator) -> int:
 	var roll := rng.randf()
-	if weights.z > 0.52:
-		if roll < 0.34: return 5
-		if roll < 0.58: return 7
-		if roll < 0.78: return 6
-		if roll < 0.91: return 2
+	if weights.z > 0.32:
+		if roll < 0.31: return 5
+		if roll < 0.56: return 7
+		if roll < 0.8: return 6
+		if roll < 0.92: return 2
 		return 3
 	if weights.y > 0.42:
 		if roll < 0.48: return 2
@@ -154,10 +154,13 @@ func _choose_asset(weights: Vector3, rng: RandomNumberGenerator) -> int:
 		if roll < 0.79: return 4
 		if roll < 0.9: return 5
 		return rng.randi_range(0, 1)
-	if roll < 0.39: return 0
-	if roll < 0.74: return 1
-	if roll < 0.86: return 3
-	if roll < 0.95: return 4
+	if roll < 0.34: return 0
+	if roll < 0.64: return 1
+	if roll < 0.76: return 3
+	if roll < 0.86: return 4
+	if roll < 0.92: return 5
+	if roll < 0.96: return 7
+	if roll < 0.985: return 6
 	return 2
 
 func _create_multimesh(asset_id: int, transforms: Array) -> void:
@@ -182,14 +185,24 @@ func _create_multimesh(asset_id: int, transforms: Array) -> void:
 	instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(instance)
 
-func _create_billboard_material(texture_path: String) -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.albedo_texture = load(texture_path) as Texture2D
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
-	material.alpha_scissor_threshold = 0.5
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-	material.billboard_mode = BaseMaterial3D.BILLBOARD_DISABLED
-	material.roughness = 0.92
-	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+func _create_billboard_material(texture_path: String) -> ShaderMaterial:
+	var shader := Shader.new()
+	shader.code = """
+shader_type spatial;
+render_mode cull_disabled, depth_draw_opaque, diffuse_burley;
+uniform sampler2D source_texture : source_color, filter_linear_mipmap_anisotropic;
+uniform vec3 palette_tint : source_color = vec3(0.78, 0.80, 0.72);
+uniform float saturation : hint_range(0.0, 1.0) = 0.72;
+uniform float alpha_cutoff : hint_range(0.0, 1.0) = 0.5;
+void fragment() {
+	vec4 sample_color = texture(source_texture, UV);
+	if (sample_color.a < alpha_cutoff) { discard; }
+	float luminance = dot(sample_color.rgb, vec3(0.299, 0.587, 0.114));
+	ALBEDO = mix(vec3(luminance), sample_color.rgb, saturation) * palette_tint;
+	ROUGHNESS = 0.94;
+}
+"""
+	var material := ShaderMaterial.new()
+	material.shader = shader
+	material.set_shader_parameter("source_texture", load(texture_path) as Texture2D)
 	return material

@@ -16,6 +16,7 @@ uniform float macro_world_size : hint_range(10.0, 160.0, 1.0) = 55.0;
 uniform float macro_strength : hint_range(0.0, 0.25, 0.005) = 0.075;
 uniform float blend_noise_strength : hint_range(0.0, 2.0, 0.01) = 0.72;
 uniform float detail_rotation_mix : hint_range(0.0, 1.0, 0.01) = 0.32;
+uniform float palette_saturation : hint_range(0.0, 1.0, 0.01) = 0.82;
 uniform vec2 grid_size = vec2(160.0, 190.0);
 uniform bool grid_visible = false;
 uniform bool show_trails = true;
@@ -76,6 +77,8 @@ void fragment() {
 	ground = mix(ground, dirt, max(dirt_patch, trail_mask));
 	float macro = value_noise(p / macro_world_size) * 2.0 - 1.0;
 	ground *= 1.0 + macro * macro_strength;
+	float ground_luminance = dot(ground, vec3(0.299, 0.587, 0.114));
+	ground = mix(vec3(ground_luminance), ground, palette_saturation) * vec3(0.96, 0.98, 0.93);
 
 	vec2 cell = fract(p);
 	vec2 edge = min(cell, vec2(1.0) - cell);
