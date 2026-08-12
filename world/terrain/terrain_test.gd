@@ -4,6 +4,7 @@ extends Node3D
 
 const TERRAIN_SIZE: int = 256
 const TEXTURE_WORLD_SIZE: float = 2.5
+const NEUTRAL_NORMAL_ROUGHNESS_PATH := "res://assets/textures/terrain/paint/flat_normal_roughness_1024.png"
 const TEXTURE_DEFINITIONS: Array[Dictionary] = [
 	{"name": "Grass", "path": "res://assets/textures/terrain/grass/grass_albedo.png", "roughness": 0.88},
 	{"name": "Dry Grass", "path": "res://assets/textures/terrain/dry_grass/dry_grass_albedo.png", "roughness": 0.9},
@@ -26,35 +27,25 @@ func _ready() -> void:
 	if region == null:
 		region = terrain.data.add_region_blank(Vector2i.ZERO, false)
 		_build_meadow()
-	terrain.material.show_colormap = true
+	terrain.material.show_colormap = false
 	terrain.material.update()
+	$GroundClutter.setup(self)
 
 func _configure_assets() -> void:
 	var texture_assets: Array[Terrain3DTextureAsset] = []
+	var neutral_normal_roughness := load(NEUTRAL_NORMAL_ROUGHNESS_PATH) as Texture2D
 	for texture_id: int in range(TEXTURE_DEFINITIONS.size()):
 		var definition: Dictionary = TEXTURE_DEFINITIONS[texture_id]
 		var asset := Terrain3DTextureAsset.new()
 		asset.id = texture_id
 		asset.name = str(definition["name"])
-		asset.albedo_texture = _load_terrain_texture(str(definition["path"]))
+		asset.albedo_texture = load(str(definition["path"])) as Texture2D
+		asset.normal_texture = neutral_normal_roughness
 		asset.uv_scale = 1.0 / texture_world_size
 		asset.roughness = float(definition["roughness"])
 		texture_assets.append(asset)
 	terrain.assets.set_texture_list(texture_assets)
 	terrain.assets.update_texture_list()
-
-func _load_terrain_texture(path: String) -> Texture2D:
-	var imported := load(path) as Texture2D
-	if imported == null:
-		push_error("Could not load terrain texture: %s" % path)
-		return null
-	var image := imported.get_image()
-	if image.is_empty():
-		push_error("Could not load terrain texture: %s" % path)
-		return null
-	if not image.has_mipmaps():
-		image.generate_mipmaps()
-	return ImageTexture.create_from_image(image)
 
 func _build_meadow() -> void:
 	for z: int in range(TERRAIN_SIZE):
@@ -96,6 +87,21 @@ func _meadow_height(x: float, z: float) -> float:
 		+ sin((x + z) * 0.071) * 0.32
 		+ (_value_noise(Vector2(x, z) / macro_world_size) - 0.5) * 1.8
 	)
+
+func get_surface_weights(x: float, z: float) -> Vector3:
+	var point := Vector2(x, z)
+	var boundary_noise := (_value_noise(point / 4.8) - 0.5) * blend_noise_strength
+	var dry_field := _value_noise(point / 31.0 + Vector2(7.1, 19.4))
+	var dirt_field := _value_noise(point / 43.0 + Vector2(22.8, 3.6))
+	var dry_weight := smoothstep(0.52, 0.78, dry_field + boundary_noise * 0.12)
+	var dirt_weight := smoothstep(0.72, 0.88, dirt_field + boundary_noise * 0.1) * 0.72
+	var path_center := 128.0 + sin(z * 0.037) * 24.0 + sin(z * 0.091) * 7.0
+	var path_edge := (_value_noise(point / 4.2) - 0.5) * blend_noise_strength * 3.0
+	var path_weight := 1.0 - smoothstep(2.2 + path_edge, 5.2 + path_edge, absf(x - path_center))
+	dirt_weight = maxf(dirt_weight, path_weight)
+	var grass_weight := maxf(0.0, 1.0 - maxf(dry_weight, dirt_weight))
+	var total := maxf(grass_weight + dry_weight + dirt_weight, 0.001)
+	return Vector3(grass_weight, dry_weight, dirt_weight) / total
 
 func _value_noise(point: Vector2) -> float:
 	var cell := Vector2(floorf(point.x), floorf(point.y))

@@ -1,0 +1,38 @@
+Pracujesz w aktualnie otwartym projekcie Godot 4.6.1. Najpierw przeanalizuj istniejącą scenę świata/terenu i nie niszcz żadnych istniejących node'ów ani ustawień.
+
+W projekcie znajduje się katalog:
+res://assets/ground_clutter_pack/
+
+W nim użyj przede wszystkim tekstur z:
+res://assets/ground_clutter_pack/billboards_alpha/
+
+Pliki:
+- grass_clump_01.png
+- grass_clump_02.png
+- dry_grass_clump_01.png
+- weed_01.png
+- weed_02.png
+- pebble_cluster_01.png
+- small_rock_01.png
+- twig_clutter_01.png
+
+CEL: przygotuj bezpieczny prototyp systemu ground clutter dla terenu, bez ręcznego tworzenia tysięcy node'ów.
+
+Wymagania:
+1. Utwórz osobny katalog res://systems/ground_clutter/.
+2. Utwórz GroundClutterSpawner.gd i opcjonalną scenę GroundClutterSpawner.tscn.
+3. Do masowego renderowania użyj MultiMeshInstance3D / MultiMesh, osobnego dla każdego typu assetu. Nie twórz tysięcy MeshInstance3D/Sprite3D.
+4. Te PNG są renderami 2D z góry, więc na tym etapie traktuj je jako PROTOTYPOWE ground cards/decale ułożone prawie płasko na powierzchni terenu. Nie udawaj, że są prawdziwymi meshami 3D.
+5. Dla każdego typu utwórz QuadMesh z materiałem StandardMaterial3D używającym odpowiedniej tekstury PNG. Włącz transparency/alpha scissor tak, aby przezroczyste tło działało prawidłowo. Wyłącz niepotrzebne cienie dla bardzo drobnych kart, jeśli poprawi to wydajność.
+6. Ustaw quad w płaszczyźnie XZ, minimalnie nad powierzchnią (np. 0.01-0.03 m), żeby ograniczyć z-fighting.
+7. Rozmieszczaj instancje pseudo-losowo z seedem, ale deterministycznie. Parametry mają być eksportowane w Inspectorze: seed, area_size, density, min_scale, max_scale, max_slope_degrees i random_y_rotation.
+8. Losuj obrót Y 0-360 stopni i skalę w rozsądnym zakresie. Dla trawy/chwastów użyj większej gęstości; dla kamieni/gałązek mniejszej.
+9. Pozycję Y dopasuj do istniejącego terenu. Najpierw sprawdź, jakiego systemu terrain używa projekt (np. Terrain3D lub własny mesh). Użyj istniejącego API, jeśli jest dostępne; w przeciwnym razie zastosuj bezpieczny downward raycast podczas generowania instancji. Nie wykonuj raycastu co klatkę.
+10. Nie rozmieszczaj clutteru na bardzo stromych powierzchniach. Dla trawy ogranicz nachylenie mocniej niż dla kamieni.
+11. Dodaj prosty distance culling / visibility range tak, żeby drobne assety znikały w oddali. Zacznij od ok. 35-50 m dla grass/weed i 60-80 m dla rock/twig/pebble; parametry mają być łatwe do zmiany.
+12. Jeśli w projekcie jest już Terrain3D lub system foliage, najpierw sprawdź jego możliwości i wykorzystaj istniejący system zamiast duplikować funkcjonalność, jeśli jest to bezpieczne.
+13. Dodaj GroundClutterSpawner do testowego fragmentu aktualnej sceny terenu na małym obszarze około 30 x 30 m, tak żeby można było od razu ocenić efekt.
+14. Nie modyfikuj innych systemów gry, UI, postaci ani logiki walki.
+15. Po wykonaniu podaj listę utworzonych/zmienionych plików i krótko opisz, gdzie w Inspectorze zmienia się density oraz render distance.
+
+Docelowo te 2D ground cards zostaną zastąpione prawdziwymi foliage cards/meshami 3D, więc napisz system tak, żeby później można było łatwo podmienić QuadMesh na PackedScene/Mesh bez przebudowy całej logiki scatteringu.

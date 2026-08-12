@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://world/terrain/terrain_test.gd" id="1_script"]
+[ext_resource type="Script" path="res://world/terrain/ground_clutter_system.gd" id="2_clutter"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSky_test"]
 sky_top_color = Color(0.18, 0.34, 0.55, 1)
@@ -30,6 +31,9 @@ vertex_spacing = 1.0
 mesh_size = 48
 mesh_lods = 6
 collision_mode = 1
+
+[node name="GroundClutter" type="Node3D" parent="."]
+script = ExtResource("2_clutter")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_test")
