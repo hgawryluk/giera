@@ -8,14 +8,14 @@ const EDGE_MARGIN: float = 2.0
 const BATTLE_SIZE := Vector2(160.0, 190.0)
 
 const ASSETS: Array[Dictionary] = [
-	{"name": "GrassClump01", "file": "grass_clump_01.png", "size": Vector2(0.82, 0.72), "min_scale": 0.72, "max_scale": 1.28},
-	{"name": "GrassClump02", "file": "grass_clump_02.png", "size": Vector2(0.94, 0.82), "min_scale": 0.68, "max_scale": 1.22},
-	{"name": "DryGrass", "file": "dry_grass_clump_01.png", "size": Vector2(0.86, 0.76), "min_scale": 0.72, "max_scale": 1.24},
-	{"name": "Weed01", "file": "weed_01.png", "size": Vector2(0.62, 0.82), "min_scale": 0.68, "max_scale": 1.18},
-	{"name": "Weed02", "file": "weed_02.png", "size": Vector2(0.68, 0.88), "min_scale": 0.66, "max_scale": 1.16},
-	{"name": "Pebbles", "file": "pebble_cluster_01.png", "size": Vector2(0.52, 0.34), "min_scale": 0.62, "max_scale": 1.18},
-	{"name": "SmallRock", "file": "small_rock_01.png", "size": Vector2(0.56, 0.48), "min_scale": 0.58, "max_scale": 1.25},
-	{"name": "Twigs", "file": "twig_clutter_01.png", "size": Vector2(0.72, 0.36), "min_scale": 0.62, "max_scale": 1.22},
+	{"name": "GrassClump01", "file": "grass_clump_01_cutout.png", "size": Vector2(0.82, 0.72), "min_scale": 0.48, "max_scale": 1.62},
+	{"name": "GrassClump02", "file": "grass_clump_02_cutout.png", "size": Vector2(0.94, 0.82), "min_scale": 0.44, "max_scale": 1.58},
+	{"name": "DryGrass", "file": "dry_grass_clump_01_cutout.png", "size": Vector2(0.86, 0.76), "min_scale": 0.5, "max_scale": 1.55},
+	{"name": "Weed01", "file": "weed_01_cutout.png", "size": Vector2(0.62, 0.82), "min_scale": 0.42, "max_scale": 1.48},
+	{"name": "Weed02", "file": "weed_02_cutout.png", "size": Vector2(0.68, 0.88), "min_scale": 0.4, "max_scale": 1.5},
+	{"name": "Pebbles", "file": "pebble_cluster_01_cutout.png", "size": Vector2(0.52, 0.34), "min_scale": 0.38, "max_scale": 1.42},
+	{"name": "SmallRock", "file": "small_rock_01_cutout.png", "size": Vector2(0.56, 0.48), "min_scale": 0.4, "max_scale": 1.55},
+	{"name": "Twigs", "file": "twig_clutter_01_cutout.png", "size": Vector2(0.72, 0.36), "min_scale": 0.4, "max_scale": 1.5},
 ]
 
 var _terrain_prototype: TerrainTestPrototype
@@ -186,11 +186,10 @@ func _create_billboard_material(texture_path: String) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_texture = load(texture_path) as Texture2D
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
-	material.alpha_scissor_threshold = 0.42
+	material.alpha_scissor_threshold = 0.5
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-	material.billboard_keep_scale = true
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_DISABLED
 	material.roughness = 0.92
 	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	return material
