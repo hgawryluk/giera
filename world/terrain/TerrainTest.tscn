@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://world/terrain/terrain_test.gd" id="1_script"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSky_test"]
+sky_top_color = Color(0.18, 0.34, 0.55, 1)
+sky_horizon_color = Color(0.72, 0.79, 0.82, 1)
+ground_bottom_color = Color(0.08, 0.075, 0.065, 1)
+ground_horizon_color = Color(0.48, 0.5, 0.46, 1)
+
+[sub_resource type="Sky" id="Sky_test"]
+sky_material = SubResource("ProceduralSky_test")
+
+[sub_resource type="Environment" id="Environment_test"]
+background_mode = 2
+sky = SubResource("Sky_test")
+sky_contribution = 0.82
+ambient_light_source = 3
+ambient_light_color = Color(0.72, 0.78, 0.84, 1)
+ambient_light_energy = 0.58
+reflected_light_source = 2
+tonemap_mode = 2
+
+[node name="TerrainTest" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Terrain3D" type="Terrain3D" parent="."]
+region_size = 256
+vertex_spacing = 1.0
+mesh_size = 48
+mesh_lods = 6
+collision_mode = 1
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_test")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-48, -32, 0)
+light_color = Color(1, 0.93, 0.82, 1)
+light_energy = 1.05
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 128, 82, 206)
+current = true
+far = 700.0

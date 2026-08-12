@@ -1,0 +1,112 @@
+@tool
+class_name TerrainTestPrototype
+extends Node3D
+
+const TERRAIN_SIZE: int = 256
+const TEXTURE_WORLD_SIZE: float = 2.5
+const TEXTURE_DEFINITIONS: Array[Dictionary] = [
+	{"name": "Grass", "path": "res://assets/textures/terrain/grass/grass_albedo.png", "roughness": 0.88},
+	{"name": "Dry Grass", "path": "res://assets/textures/terrain/dry_grass/dry_grass_albedo.png", "roughness": 0.9},
+	{"name": "Dirt", "path": "res://assets/textures/terrain/dirt/dirt_albedo.png", "roughness": 0.94},
+]
+
+@export_range(0.5, 8.0, 0.1) var texture_world_size: float = TEXTURE_WORLD_SIZE
+@export_range(10.0, 160.0, 1.0) var macro_world_size: float = 55.0
+@export_range(0.0, 0.25, 0.005) var macro_variation_strength: float = 0.075
+@export_range(0.0, 2.0, 0.01) var blend_noise_strength: float = 0.72
+
+@onready var terrain: Terrain3D = $Terrain3D
+
+func _ready() -> void:
+	_configure_assets()
+	if Engine.is_editor_hint():
+		return
+	await get_tree().process_frame
+	var region := terrain.data.get_region(Vector2i.ZERO)
+	if region == null:
+		region = terrain.data.add_region_blank(Vector2i.ZERO, false)
+		_build_meadow()
+	terrain.material.show_colormap = true
+	terrain.material.update()
+
+func _configure_assets() -> void:
+	var texture_assets: Array[Terrain3DTextureAsset] = []
+	for texture_id: int in range(TEXTURE_DEFINITIONS.size()):
+		var definition: Dictionary = TEXTURE_DEFINITIONS[texture_id]
+		var asset := Terrain3DTextureAsset.new()
+		asset.id = texture_id
+		asset.name = str(definition["name"])
+		asset.albedo_texture = _load_terrain_texture(str(definition["path"]))
+		asset.uv_scale = 1.0 / texture_world_size
+		asset.roughness = float(definition["roughness"])
+		texture_assets.append(asset)
+	terrain.assets.set_texture_list(texture_assets)
+	terrain.assets.update_texture_list()
+
+func _load_terrain_texture(path: String) -> Texture2D:
+	var imported := load(path) as Texture2D
+	if imported == null:
+		push_error("Could not load terrain texture: %s" % path)
+		return null
+	var image := imported.get_image()
+	if image.is_empty():
+		push_error("Could not load terrain texture: %s" % path)
+		return null
+	if not image.has_mipmaps():
+		image.generate_mipmaps()
+	return ImageTexture.create_from_image(image)
+
+func _build_meadow() -> void:
+	for z: int in range(TERRAIN_SIZE):
+		for x: int in range(TERRAIN_SIZE):
+			var point := Vector3(float(x), 0.0, float(z))
+			terrain.data.set_height(point, _meadow_height(float(x), float(z)))
+			var dry_field := _value_noise(Vector2(float(x), float(z)) / 31.0 + Vector2(7.1, 19.4))
+			var dirt_field := _value_noise(Vector2(float(x), float(z)) / 43.0 + Vector2(22.8, 3.6))
+			var path_center := 128.0 + sin(float(z) * 0.037) * 24.0 + sin(float(z) * 0.091) * 7.0
+			var edge_noise := (_value_noise(Vector2(float(x), float(z)) / 4.2) - 0.5) * blend_noise_strength * 3.0
+			var path_blend := 1.0 - smoothstep(2.2 + edge_noise, 5.2 + edge_noise, absf(float(x) - path_center))
+			if path_blend > 0.05:
+				terrain.data.set_control_base_id(point, 1)
+				terrain.data.set_control_overlay_id(point, 2)
+				terrain.data.set_control_blend(point, path_blend)
+			elif dirt_field > 0.77:
+				terrain.data.set_control_base_id(point, 0)
+				terrain.data.set_control_overlay_id(point, 2)
+				terrain.data.set_control_blend(point, smoothstep(0.72, 0.88, dirt_field))
+			elif dry_field > 0.58:
+				terrain.data.set_control_base_id(point, 0)
+				terrain.data.set_control_overlay_id(point, 1)
+				terrain.data.set_control_blend(point, smoothstep(0.52, 0.78, dry_field))
+			else:
+				terrain.data.set_control_base_id(point, 0)
+				terrain.data.set_control_overlay_id(point, 0)
+				terrain.data.set_control_blend(point, 0.0)
+			terrain.data.set_control_auto(point, false)
+	var region := terrain.data.get_region(Vector2i.ZERO)
+	if region != null:
+		region.calc_height_range()
+	terrain.data.update_maps(Terrain3DRegion.TYPE_HEIGHT, false, false)
+	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, false, false)
+
+func _meadow_height(x: float, z: float) -> float:
+	return (
+		sin(x * 0.035) * 1.25
+		+ cos(z * 0.029) * 0.85
+		+ sin((x + z) * 0.071) * 0.32
+		+ (_value_noise(Vector2(x, z) / macro_world_size) - 0.5) * 1.8
+	)
+
+func _value_noise(point: Vector2) -> float:
+	var cell := Vector2(floorf(point.x), floorf(point.y))
+	var local := Vector2(point.x - floorf(point.x), point.y - floorf(point.y))
+	local = local * local * (Vector2.ONE * 3.0 - local * 2.0)
+	var a := _hash(cell)
+	var b := _hash(cell + Vector2.RIGHT)
+	var c := _hash(cell + Vector2.DOWN)
+	var d := _hash(cell + Vector2.ONE)
+	return lerpf(lerpf(a, b, local.x), lerpf(c, d, local.x), local.y)
+
+func _hash(point: Vector2) -> float:
+	var value := sin(point.dot(Vector2(127.1, 311.7))) * 43758.5453
+	return value - floorf(value)
