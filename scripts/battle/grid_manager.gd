@@ -6,6 +6,7 @@ const GRID_HEIGHT: int = 190
 const CELL_SIZE: float = 1.0
 const UNIT_SCENE: PackedScene = preload("res://scenes/units/unit.tscn")
 const TERRAIN_GROUND_MATERIAL: ShaderMaterial = preload("res://world/terrain/materials/terrain_ground_material.tres")
+const GROUND_CLUTTER_SCRIPT := preload("res://world/terrain/ground_clutter_system.gd")
 const DIRECTIONS: Array[Vector2i] = [
 	Vector2i.LEFT,
 	Vector2i.RIGHT,
@@ -154,6 +155,11 @@ func _build_grid() -> void:
 	floor_shape.shape = terrain_mesh.create_trimesh_shape()
 	floor_body.add_child(floor_shape)
 	add_child(floor_body)
+
+	var ground_clutter := GROUND_CLUTTER_SCRIPT.new() as GroundClutterSystem
+	ground_clutter.name = "GroundClutter"
+	add_child(ground_clutter)
+	ground_clutter.setup_battle(self, _arena_rect.has_area())
 
 func spawn_enemy_at(character_type: StringName, cell: Vector2i) -> TacticalUnit:
 	var catalog := get_node("/root/TeamSaveManager") as TeamSaveService
