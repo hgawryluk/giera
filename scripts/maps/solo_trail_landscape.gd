@@ -80,12 +80,18 @@ func _scatter_rocks() -> void:
 			continue
 		var rock := ROCK_SCENES[rng.randi_range(0, ROCK_SCENES.size() - 1)].instantiate() as Node3D
 		rock.name = "Rock_%03d" % placed
-		rock.position = Vector3(x, height - rng.randf_range(0.03, 0.22), z)
-		rock.rotation = Vector3(rng.randf_range(-0.10, 0.10), rng.randf_range(0.0, TAU), rng.randf_range(-0.08, 0.08))
 		var scale_value := rng.randf_range(0.55, 1.65)
 		if height > 18.0 or slope > 0.48:
 			scale_value *= rng.randf_range(1.4, 2.6)
-		rock.scale = Vector3(scale_value, scale_value * rng.randf_range(0.75, 1.25), scale_value)
+		var vertical_scale := scale_value * rng.randf_range(0.75, 1.25)
+		rock.scale = Vector3(scale_value, vertical_scale, scale_value)
+		var terrain_normal := _terrain_normal(x, z)
+		var yaw := rng.randf_range(0.0, TAU)
+		rock.basis = _basis_aligned_to_normal(terrain_normal, yaw).scaled(rock.scale)
+		# Boulders look grounded when their lower silhouette crosses the terrain.
+		# The burial amount grows with size and slope, preventing downhill edges from floating.
+		var burial := vertical_scale * (0.13 + clampf(slope, 0.0, 1.4) * 0.09)
+		rock.position = Vector3(x, height - burial, z)
 		_apply_rock_material(rock)
 		add_child(rock)
 		placed += 1
@@ -95,6 +101,24 @@ func _estimate_slope(x: float, z: float) -> float:
 	var dx := _grid_manager.terrain_height(x + 1.0, z) - _grid_manager.terrain_height(x - 1.0, z)
 	var dz := _grid_manager.terrain_height(x, z + 1.0) - _grid_manager.terrain_height(x, z - 1.0)
 	return Vector2(dx, dz).length() * 0.5
+
+
+func _terrain_normal(x: float, z: float) -> Vector3:
+	var sample_radius := 1.15
+	var left := _grid_manager.terrain_height(x - sample_radius, z)
+	var right := _grid_manager.terrain_height(x + sample_radius, z)
+	var back := _grid_manager.terrain_height(x, z - sample_radius)
+	var forward := _grid_manager.terrain_height(x, z + sample_radius)
+	return Vector3(left - right, sample_radius * 2.0, back - forward).normalized()
+
+
+func _basis_aligned_to_normal(normal: Vector3, yaw: float) -> Basis:
+	var tangent := Vector3.FORWARD.cross(normal).normalized()
+	if tangent.length_squared() < 0.001:
+		tangent = Vector3.RIGHT
+	var forward := normal.cross(tangent).normalized()
+	var aligned := Basis(tangent, normal, forward).orthonormalized()
+	return Basis(normal, yaw) * aligned
 
 
 func _apply_rock_material(root: Node) -> void:

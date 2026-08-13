@@ -36,8 +36,10 @@ func _process(delta: float) -> void:
 
 func clamp_world_position(world_position: Vector3) -> Vector3:
 	if not _enabled:
-		world_position.x = clampf(world_position.x, 0.5, SECTOR_SIZE.x - 0.5)
-		world_position.z = clampf(world_position.z, 0.5, SECTOR_SIZE.y - 0.5)
+		var grid_manager := get_tree().get_first_node_in_group("grid_manager") as GridManager
+		var bounds := grid_manager.get_exploration_world_size() if grid_manager != null else SECTOR_SIZE
+		world_position.x = clampf(world_position.x, 0.5, bounds.x - 0.5)
+		world_position.z = clampf(world_position.z, 0.5, bounds.y - 0.5)
 		return world_position
 	world_position.x = clampf(world_position.x, MIN_SECTOR.x * SECTOR_SIZE.x + 0.5, (MAX_SECTOR.x + 1) * SECTOR_SIZE.x - 0.5)
 	world_position.z = clampf(world_position.z, MIN_SECTOR.y * SECTOR_SIZE.y + 0.5, (MAX_SECTOR.y + 1) * SECTOR_SIZE.y - 0.5)
