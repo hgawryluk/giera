@@ -167,6 +167,17 @@ func get_first_person_eye_height() -> float:
 func get_first_person_body_radius() -> float:
 	return 0.62 if footprint_size != Vector2i.ONE else 0.32
 
+func get_first_person_skin_color() -> Color:
+	if character_id == &"ogre":
+		return Color(0.38, 0.48, 0.19)
+	if _definition_color.a > 0.0:
+		return _definition_color.lerp(Color(0.56, 0.34, 0.22), 0.48)
+	return Color(0.50, 0.29, 0.18)
+
+func set_first_person_body_hidden(hidden: bool) -> void:
+	if _visual_root != null and _visual_root != self:
+		_visual_root.visible = not hidden
+
 func _get_visual_top() -> float:
 	var maximum_y: float = -INF
 	for node: Node in find_children("*", "MeshInstance3D", true, false):

@@ -27,6 +27,9 @@ var _sprint_heading: float = 0.0
 var _sprint_momentum_active: bool = false
 var _walk_cycle: float = 0.0
 
+func get_walk_cycle() -> float:
+	return _walk_cycle
+
 func _ready() -> void:
 	add_to_group("exploration_player")
 	_sector_streamer = get_tree().get_first_node_in_group("world_sector_streamer") as WorldSectorStreamer

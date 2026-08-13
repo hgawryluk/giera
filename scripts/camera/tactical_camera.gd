@@ -34,6 +34,7 @@ var _torch_light: SpotLight3D
 var _torch_fill_light: OmniLight3D
 var _torch_enabled: bool = false
 var _spotted_mobs: Dictionary[WorldMob, bool] = {}
+var _first_person_arms: FirstPersonArms
 
 func _ready() -> void:
 	projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -121,12 +122,16 @@ func _enter_first_person() -> void:
 	_exploration_controller.name = "FirstPersonExplorationController"
 	get_tree().current_scene.add_child(_exploration_controller)
 	_exploration_controller.configure(_active_unit, _first_person_yaw)
+	_active_unit.set_first_person_body_hidden(true)
+	_create_first_person_arms()
 	exploration_mode_changed.emit(true, _active_unit, _active_unit.global_position)
 	_apply_first_person_transform()
 	_set_torch_visibility()
 
 func _leave_first_person() -> void:
 	var exploration_position := _active_unit.global_position if _active_unit != null and is_instance_valid(_active_unit) else Vector3.ZERO
+	if _active_unit != null and is_instance_valid(_active_unit):
+		_active_unit.set_first_person_body_hidden(false)
 	_first_person_mode = false
 	_is_rotating = false
 	_spotted_mobs.clear()
@@ -135,6 +140,7 @@ func _leave_first_person() -> void:
 		exploration_position = _exploration_controller.global_position
 		_exploration_controller.queue_free()
 		_exploration_controller = null
+	_destroy_first_person_arms()
 	exploration_mode_changed.emit(false, _active_unit, exploration_position)
 	projection = Camera3D.PROJECTION_ORTHOGONAL
 	size = 75.0
@@ -156,6 +162,26 @@ func _apply_first_person_transform() -> void:
 		_exploration_controller.current_camera_height + _exploration_controller.camera_bob_offset
 	)
 	global_rotation = Vector3(_first_person_pitch, _first_person_yaw, 0.0)
+	if _first_person_arms != null:
+		var horizontal_speed := Vector2(
+			_exploration_controller.velocity.x,
+			_exploration_controller.velocity.z
+		).length()
+		_first_person_arms.set_movement(horizontal_speed, _exploration_controller.get_walk_cycle())
+
+func _create_first_person_arms() -> void:
+	_destroy_first_person_arms()
+	if _active_unit == null or not is_instance_valid(_active_unit):
+		return
+	_first_person_arms = FirstPersonArms.new()
+	_first_person_arms.name = "FirstPersonArms"
+	add_child(_first_person_arms)
+	_first_person_arms.setup(_active_unit)
+
+func _destroy_first_person_arms() -> void:
+	if _first_person_arms != null:
+		_first_person_arms.queue_free()
+		_first_person_arms = null
 
 func _look_around_first_person(mouse_delta: Vector2) -> void:
 	var sensitivity_multiplier: float = 1.0
