@@ -144,6 +144,30 @@ func is_moving() -> bool:
 func is_dead() -> bool:
 	return not is_alive or current_health <= 0
 
+func get_first_person_eye_height() -> float:
+	var visual_top: float = _get_visual_top()
+	if visual_top > 0.1:
+		return clampf(visual_top * 0.87, 1.2, 6.0)
+	return 2.35 if footprint_size != Vector2i.ONE else 1.55
+
+func get_first_person_body_radius() -> float:
+	return 0.62 if footprint_size != Vector2i.ONE else 0.32
+
+func _get_visual_top() -> float:
+	var maximum_y: float = -INF
+	for node: Node in find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh == null or mesh_instance.name in ["SelectionMarker", "ActiveTurnMarker"]:
+			continue
+		var bounds := mesh_instance.get_aabb()
+		for x_side: float in [0.0, 1.0]:
+			for y_side: float in [0.0, 1.0]:
+				for z_side: float in [0.0, 1.0]:
+					var mesh_corner := bounds.position + bounds.size * Vector3(x_side, y_side, z_side)
+					var unit_corner := to_local(mesh_instance.to_global(mesh_corner))
+					maximum_y = maxf(maximum_y, unit_corner.y)
+	return maximum_y
+
 func reset_action_points() -> void:
 	current_action_points = max_action_points
 	_process_turn_statuses()

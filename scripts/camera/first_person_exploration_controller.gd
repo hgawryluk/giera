@@ -45,7 +45,12 @@ func configure(unit: TacticalUnit, yaw: float) -> void:
 	view_yaw = yaw
 	_sprint_heading = yaw
 	global_position = unit.global_position
-	current_camera_height = standing_height - 0.15
+	var eye_height := unit.get_first_person_eye_height()
+	standing_height = eye_height + 0.15
+	crouching_height = maxf(0.8, standing_height * 0.62)
+	_capsule.radius = unit.get_first_person_body_radius()
+	_update_collider(standing_height)
+	current_camera_height = eye_height
 
 func request_jump() -> void:
 	_jump_requested = true
