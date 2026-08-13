@@ -29,7 +29,7 @@ var _far_field: MultiMeshInstance3D
 
 
 func _ready() -> void:
-	if GameSession.selected_map_id == "builtin:arena":
+	if GameSession.selected_map_id in ["builtin:arena", "builtin:solo_trail"]:
 		set_process(false)
 		return
 	_grid_manager = get_node_or_null(grid_manager_path) as GridManager

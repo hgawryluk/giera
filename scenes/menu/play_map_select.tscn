@@ -70,14 +70,14 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(650, 112)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Nocny Las\nKlasyczna rozgrywka dwoch graczy"
+text = "Nocny Las\nJeden gracz - Wojownik - start w FPP"
 
 [node name="SoloTrailButton" type="Button" parent="Center/Panel/Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(650, 112)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Samotny Szlak\nJeden gracz - start bezposrednio w FPP"
+text = "Samotny Szlak\nPusta zielona plansza - Ogr - start w FPP"
 
 [node name="BackButton" type="Button" parent="Center/Panel/Content"]
 unique_name_in_owner = true

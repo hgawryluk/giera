@@ -21,6 +21,7 @@ uniform vec2 grid_size = vec2(160.0, 190.0);
 uniform bool grid_visible = false;
 uniform bool show_trails = true;
 uniform bool is_arena = false;
+uniform bool plain_green = false;
 
 varying vec3 world_position;
 
@@ -79,6 +80,10 @@ void fragment() {
 	ground *= 1.0 + macro * macro_strength;
 	float ground_luminance = dot(ground, vec3(0.299, 0.587, 0.114));
 	ground = mix(vec3(ground_luminance), ground, palette_saturation) * vec3(0.96, 0.98, 0.93);
+	if (plain_green) {
+		float green_variation = value_noise(p / 42.0) * 0.035;
+		ground = vec3(0.19, 0.42, 0.14) * (0.98 + green_variation);
+	}
 
 	vec2 cell = fract(p);
 	vec2 edge = min(cell, vec2(1.0) - cell);

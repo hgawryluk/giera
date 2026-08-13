@@ -43,10 +43,16 @@ func _ready() -> void:
 	if _arena_rect.has_area() and _terrain_material != null:
 		_terrain_material.set_shader_parameter("show_trails", false)
 		_terrain_material.set_shader_parameter("is_arena", true)
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.selected_map_id == "builtin:solo_trail" and _terrain_material != null:
+		_terrain_material.set_shader_parameter("plain_green", true)
 
 func _load_selected_terrain() -> void:
 	var session := get_node_or_null("/root/GameSession") as GameSessionState
-	if session == null or session.selected_map_id in ["builtin:forest", "builtin:solo_fpp"]:
+	if session == null or session.selected_map_id == "builtin:forest":
+		return
+	if session.selected_map_id == "builtin:solo_trail":
+		_use_procedural_features = false
 		return
 	if session.selected_map_id == "builtin:arena":
 		const ARENA_RECTS: Array[Rect2i] = [
@@ -156,10 +162,12 @@ func _build_grid() -> void:
 	floor_body.add_child(floor_shape)
 	add_child(floor_body)
 
-	var ground_clutter := GROUND_CLUTTER_SCRIPT.new() as GroundClutterSystem
-	ground_clutter.name = "GroundClutter"
-	add_child(ground_clutter)
-	ground_clutter.setup_battle(self, _arena_rect.has_area())
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session == null or session.selected_map_id != "builtin:solo_trail":
+		var ground_clutter := GROUND_CLUTTER_SCRIPT.new() as GroundClutterSystem
+		ground_clutter.name = "GroundClutter"
+		add_child(ground_clutter)
+		ground_clutter.setup_battle(self, _arena_rect.has_area())
 
 func spawn_enemy_at(character_type: StringName, cell: Vector2i) -> TacticalUnit:
 	var catalog := get_node("/root/TeamSaveManager") as TeamSaveService

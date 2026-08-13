@@ -23,11 +23,13 @@ func _ready() -> void:
 
 func _apply_selected_map() -> void:
 	var session := get_node("/root/GameSession") as GameSessionState
-	if session.selected_map_id in ["builtin:forest", "builtin:solo_fpp"]:
+	if session.selected_map_id == "builtin:forest":
 		var road_ogre := ROAD_OGRE_SCRIPT.new() as RoadOgreWalker
 		road_ogre.name = "PlayMapRoamingOgre"
 		add_child(road_ogre)
 		road_ogre.setup(grid_manager)
+		return
+	if session.selected_map_id == "builtin:solo_trail":
 		return
 	var data: Dictionary = get_node("/root/MapCatalog").load_map(session.selected_map_id)
 	if data.is_empty():

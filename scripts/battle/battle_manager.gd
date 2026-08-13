@@ -50,10 +50,10 @@ func _ready() -> void:
 	call_deferred("_start_battle")
 
 func _start_battle() -> void:
-	if game_session.selected_map_id == "builtin:arena":
+	if game_session.selected_map_id in ["builtin:arena", "builtin:solo_trail"]:
 		for mob: Node in get_tree().get_nodes_in_group("world_mobs"):
 			mob.queue_free()
-	if game_session.selected_map_id == "builtin:solo_fpp":
+	if game_session.selected_map_id in ["builtin:forest", "builtin:solo_trail"] and game_session.auto_start_first_person:
 		var composition := game_session.get_composition(1)
 		var character_id: StringName = composition[0] if not composition.is_empty() else &"warrior"
 		grid_manager.spawn_solo_unit(character_id)

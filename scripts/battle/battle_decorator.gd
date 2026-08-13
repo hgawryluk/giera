@@ -35,6 +35,8 @@ var _rock_material: StandardMaterial3D
 func _ready() -> void:
 	_create_materials()
 	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.selected_map_id == "builtin:solo_trail":
+		return
 	if session != null and session.selected_map_id == "builtin:arena":
 		_create_arena_decoration()
 		return

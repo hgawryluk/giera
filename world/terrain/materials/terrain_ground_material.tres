@@ -21,3 +21,4 @@ shader_parameter/grid_size = Vector2(160, 190)
 shader_parameter/grid_visible = false
 shader_parameter/show_trails = true
 shader_parameter/is_arena = false
+shader_parameter/plain_green = false
