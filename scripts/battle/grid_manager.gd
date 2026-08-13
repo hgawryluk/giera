@@ -4,6 +4,7 @@ extends Node3D
 const GRID_WIDTH: int = 160
 const GRID_HEIGHT: int = 190
 const CELL_SIZE: float = 1.0
+const SOLO_TRAIL_SIZE: Vector2i = Vector2i(256, 256)
 const UNIT_SCENE: PackedScene = preload("res://scenes/units/unit.tscn")
 const TERRAIN_GROUND_MATERIAL: ShaderMaterial = preload("res://world/terrain/materials/terrain_ground_material.tres")
 const GROUND_CLUTTER_SCRIPT := preload("res://world/terrain/ground_clutter_system.gd")
@@ -37,6 +38,7 @@ var _terrain_material: ShaderMaterial
 var _grid_visible: bool = false
 
 func _ready() -> void:
+	add_to_group("grid_manager")
 	await _load_selected_terrain()
 	_initialize_terrain_features()
 	_build_grid()
@@ -45,7 +47,8 @@ func _ready() -> void:
 		_terrain_material.set_shader_parameter("is_arena", true)
 	var session := get_node_or_null("/root/GameSession") as GameSessionState
 	if session != null and session.selected_map_id == "builtin:solo_trail" and _terrain_material != null:
-		_terrain_material.set_shader_parameter("plain_green", true)
+		_terrain_material.set_shader_parameter("plain_green", false)
+		_terrain_material.set_shader_parameter("solo_trail_landscape", true)
 
 func _load_selected_terrain() -> void:
 	var session := get_node_or_null("/root/GameSession") as GameSessionState
@@ -53,6 +56,7 @@ func _load_selected_terrain() -> void:
 		return
 	if session.selected_map_id == "builtin:solo_trail":
 		_use_procedural_features = false
+		player_positions = [Vector2i(128, 148), Vector2i(132, 148)]
 		return
 	if session.selected_map_id == "builtin:arena":
 		const ARENA_RECTS: Array[Rect2i] = [
@@ -468,6 +472,8 @@ func is_inside_grid(cell: Vector2i) -> bool:
 func terrain_height(world_x: float, world_z: float) -> float:
 	if _terrain_surface != null:
 		return _terrain_surface.get_height(world_x, world_z)
+	if _is_solo_trail():
+		return _solo_trail_height(world_x, world_z)
 	var result: float = 0.018 * sin(world_x * 0.41 + world_z * 0.19)
 	result += 0.012 * cos(world_x * 0.23 - world_z * 0.37)
 	for feature: Vector4 in _terrain_features:
@@ -478,6 +484,46 @@ func terrain_height(world_x: float, world_z: float) -> float:
 		influence = influence * influence * (3.0 - 2.0 * influence)
 		result += feature.w * influence
 	return result
+
+func get_exploration_world_size() -> Vector2:
+	return Vector2(SOLO_TRAIL_SIZE) if _is_solo_trail() else Vector2(GRID_WIDTH, GRID_HEIGHT)
+
+func _is_solo_trail() -> bool:
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	return session != null and session.selected_map_id == "builtin:solo_trail"
+
+func _solo_trail_height(x: float, z: float) -> float:
+	var p := Vector2(x, z)
+	var rolling := sin(x * 0.052) * 1.7 + cos(z * 0.041) * 1.4
+	rolling += sin((x + z) * 0.021) * 2.1 + sin(x * 0.17 - z * 0.13) * 0.38
+	var height: float = 3.2 + rolling
+	# Mountain walls and individual summits frame the playable valley.
+	var edge_distance := minf(minf(x, z), minf(255.0 - x, 255.0 - z))
+	height += smoothstep(62.0, 5.0, edge_distance) * 22.0
+	height += _height_peak(p, Vector2(30.0, 38.0), 43.0, 28.0)
+	height += _height_peak(p, Vector2(218.0, 42.0), 36.0, 34.0)
+	height += _height_peak(p, Vector2(230.0, 205.0), 48.0, 31.0)
+	height += _height_peak(p, Vector2(35.0, 220.0), 33.0, 38.0)
+	# A broad meadow keeps the player spawn readable and walkable.
+	var clearing_weight := 1.0 - smoothstep(22.0, 46.0, p.distance_to(Vector2(130.0, 150.0)))
+	height = lerpf(height, 3.0 + sin(x * 0.11) * 0.22 + cos(z * 0.09) * 0.18, clearing_weight)
+	# The river cuts through the valley from west to east.
+	var river_center := 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
+	var river_weight := 1.0 - smoothstep(4.5, 11.0, absf(z - river_center))
+	height = lerpf(height, -2.8 + absf(z - river_center) * 0.12, river_weight)
+	# A narrow, dry ravine branches northward from the river.
+	var ravine_x := 72.0 + sin(z * 0.052) * 5.0
+	var ravine_extent := smoothstep(92.0, 116.0, z) * (1.0 - smoothstep(211.0, 230.0, z))
+	var ravine_weight := (1.0 - smoothstep(2.5, 8.5, absf(x - ravine_x))) * ravine_extent
+	height -= ravine_weight * 11.5
+	return height
+
+func _height_peak(point: Vector2, center: Vector2, amplitude: float, radius: float) -> float:
+	var normalized_distance := point.distance_to(center) / radius
+	if normalized_distance >= 1.0:
+		return 0.0
+	var profile := 1.0 - normalized_distance * normalized_distance
+	return amplitude * profile * profile
 
 func _initialize_terrain_features() -> void:
 	_terrain_features.clear()
@@ -507,8 +553,9 @@ func _create_terrain_mesh() -> ArrayMesh:
 	var vertices := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var uvs := PackedVector2Array()
-	for z: int in range(GRID_HEIGHT):
-		for x: int in range(GRID_WIDTH):
+	var terrain_size := SOLO_TRAIL_SIZE if _is_solo_trail() else Vector2i(GRID_WIDTH, GRID_HEIGHT)
+	for z: int in range(terrain_size.y):
+		for x: int in range(terrain_size.x):
 			var x0: float = float(x) - 0.5
 			var x1: float = float(x) + 0.5
 			var z0: float = float(z) - 0.5
@@ -543,7 +590,7 @@ func _append_terrain_vertex(
 
 func _create_terrain_material() -> ShaderMaterial:
 	var material := TERRAIN_GROUND_MATERIAL.duplicate() as ShaderMaterial
-	material.set_shader_parameter("grid_size", Vector2(GRID_WIDTH, GRID_HEIGHT))
+	material.set_shader_parameter("grid_size", get_exploration_world_size())
 	material.set_shader_parameter("grid_visible", _grid_visible)
 	return material
 

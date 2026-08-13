@@ -12,6 +12,7 @@ const ASSETS: Dictionary[String, String] = {
 }
 const OBSTACLE_TYPES: Array[String] = ["purple_tree_1", "purple_tree_2", "purple_tree_3", "large_tree"]
 const ROAD_OGRE_SCRIPT := preload("res://scripts/world/road_ogre_walker.gd")
+const SOLO_TRAIL_LANDSCAPE_SCRIPT := preload("res://scripts/maps/solo_trail_landscape.gd")
 
 @export var grid_manager: GridManager
 @export var decorator: Node3D
@@ -30,6 +31,10 @@ func _apply_selected_map() -> void:
 		road_ogre.setup(grid_manager)
 		return
 	if session.selected_map_id == "builtin:solo_trail":
+		var landscape := SOLO_TRAIL_LANDSCAPE_SCRIPT.new() as SoloTrailLandscape
+		landscape.name = "SoloTrailLandscape"
+		add_child(landscape)
+		landscape.setup(grid_manager)
 		return
 	var data: Dictionary = get_node("/root/MapCatalog").load_map(session.selected_map_id)
 	if data.is_empty():

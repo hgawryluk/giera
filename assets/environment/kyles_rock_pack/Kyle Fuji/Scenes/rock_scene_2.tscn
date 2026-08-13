@@ -1,0 +1,2516 @@
+[gd_scene load_steps=620 format=3 uid="uid://cx5qe38quowcn"]
+
+[ext_resource type="Script" uid="uid://b6oobwtp7lnw0" path="res://Kyle's Rock Pack/Kyle Fuji/Scenes/Scripts/rock_scene_material_changer.gd" id="1_s8487"]
+[ext_resource type="PackedScene" uid="uid://bdcwmr6rc7p0a" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_5_bl.tscn" id="2_5nlky"]
+[ext_resource type="PackedScene" uid="uid://dx0vdqpex8r4e" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_1_tr.tscn" id="3_miol0"]
+[ext_resource type="PackedScene" uid="uid://6xltvq76kj0m" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_1_bl.tscn" id="3_rtwdm"]
+[ext_resource type="PackedScene" uid="uid://cgllnww747ul6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_2_br.tscn" id="4_0fypw"]
+[ext_resource type="PackedScene" uid="uid://d0cnnq0s8erro" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_1_br.tscn" id="4_1dlry"]
+[ext_resource type="PackedScene" uid="uid://ytkiicbguylb" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_4_br.tscn" id="5_hrjnu"]
+[ext_resource type="PackedScene" uid="uid://bhpp1obhbjmyh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_1_tl.tscn" id="5_jfjf4"]
+[ext_resource type="PackedScene" uid="uid://bk117bykaj7h5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_4_tr.tscn" id="6_dhex7"]
+[ext_resource type="PackedScene" uid="uid://ej444p85cidl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_1_tr.tscn" id="6_ysr4b"]
+[ext_resource type="PackedScene" uid="uid://b1hp1f1ddjyjd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_2_bl.tscn" id="7_5oco2"]
+[ext_resource type="PackedScene" uid="uid://dle67ybsouk8i" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_5_tl.tscn" id="7_6hjrf"]
+[ext_resource type="PackedScene" uid="uid://b2vy1bp4fdopd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_6_tr.tscn" id="8_38vmf"]
+[ext_resource type="PackedScene" uid="uid://b8ika1674v1yj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_2_br.tscn" id="8_ksnd8"]
+[ext_resource type="PackedScene" uid="uid://dc17es86c3052" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_4_tl.tscn" id="9_2po6q"]
+[ext_resource type="PackedScene" uid="uid://bgthyi2h3vf1p" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_2_tl.tscn" id="9_cyxch"]
+[ext_resource type="PackedScene" uid="uid://cl252xj73vq0k" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_1_tl.tscn" id="10_cie8u"]
+[ext_resource type="PackedScene" uid="uid://dawrqm5fi306e" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_2_tr.tscn" id="10_tji17"]
+[ext_resource type="PackedScene" uid="uid://cup4srur5gck3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/plane_bl.tscn" id="11_1ywux"]
+[ext_resource type="PackedScene" uid="uid://cqglujx677fd1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_3_bl.tscn" id="11_5iky4"]
+[ext_resource type="PackedScene" uid="uid://broo6wjikfr82" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_3_br.tscn" id="12_k43ra"]
+[ext_resource type="PackedScene" uid="uid://dg7nnrwc8sbp5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_9_bl.tscn" id="12_sthfy"]
+[ext_resource type="PackedScene" uid="uid://dlruym2rgj5wu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_3_tl.tscn" id="13_8g8n0"]
+[ext_resource type="PackedScene" uid="uid://dhss8v43c4ino" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_1_bl.tscn" id="13_403r6"]
+[ext_resource type="PackedScene" uid="uid://qeh1fcrwx7i3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_3_tr.tscn" id="14_urg55"]
+[ext_resource type="PackedScene" uid="uid://bluueg6ote8cj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_4_bl.tscn" id="15_8gqf5"]
+[ext_resource type="Script" uid="uid://flm6ps54u0c4" path="res://Kyle's Rock Pack/Kyle Fuji/Scenes/Scripts/character_body_3d.gd" id="15_vfkoj"]
+[ext_resource type="PackedScene" uid="uid://gcfjtbbwbsji" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_4_br.tscn" id="16_m3y4k"]
+[ext_resource type="PackedScene" uid="uid://ddl1jhfbisyfm" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_4_tl.tscn" id="17_8hl6f"]
+[ext_resource type="PackedScene" uid="uid://dvpv21rcdvl30" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_4_tr.tscn" id="18_ejm0i"]
+[ext_resource type="PackedScene" uid="uid://jqua53nsqass" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_5_bl.tscn" id="19_reidj"]
+[ext_resource type="PackedScene" uid="uid://djo38djsda7eg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_5_br.tscn" id="20_12xvj"]
+[ext_resource type="PackedScene" uid="uid://d238iwgybgle4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_5_tl.tscn" id="21_5gtcq"]
+[ext_resource type="PackedScene" uid="uid://cm6vtdejqiyuw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_5_tr.tscn" id="22_c58sp"]
+[ext_resource type="PackedScene" uid="uid://dae7wn4d30rfd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_6_bl.tscn" id="23_yt31o"]
+[ext_resource type="PackedScene" uid="uid://bucapwtrr3fcx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_6_br.tscn" id="24_mjn8s"]
+[ext_resource type="PackedScene" uid="uid://ck0inkhfndxws" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_6_tl.tscn" id="25_q7pwr"]
+[ext_resource type="PackedScene" uid="uid://cj0m44ki0uors" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_6_tr.tscn" id="26_bu6lg"]
+[ext_resource type="PackedScene" uid="uid://d1yd2msp7o5wl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_7_bl.tscn" id="27_1ysd4"]
+[ext_resource type="PackedScene" uid="uid://s2dy6ddyyplt" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_7_br.tscn" id="28_1vekm"]
+[ext_resource type="PackedScene" uid="uid://cnrh7njob4qrl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_7_tl.tscn" id="29_wb8pr"]
+[ext_resource type="PackedScene" uid="uid://y0p25nevhc88" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_7_tr.tscn" id="30_steba"]
+[ext_resource type="PackedScene" uid="uid://cjcwbnnpqflyp" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_8_bl.tscn" id="31_mwpkk"]
+[ext_resource type="PackedScene" uid="uid://4h1tt7lslo0h" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_8_br.tscn" id="32_pduke"]
+[ext_resource type="PackedScene" uid="uid://cqbxbtrq5geqa" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_8_tl.tscn" id="33_m5ty4"]
+[ext_resource type="PackedScene" uid="uid://b2py07r5wq0le" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_8_tr.tscn" id="34_h7bag"]
+[ext_resource type="PackedScene" uid="uid://c0pn74dbutjki" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_9_bl.tscn" id="35_4e2y3"]
+[ext_resource type="PackedScene" uid="uid://sbkluvg3rbo8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_9_br.tscn" id="36_umt0j"]
+[ext_resource type="PackedScene" uid="uid://dyxhu3rdm17al" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_9_tl.tscn" id="37_4dvgm"]
+[ext_resource type="PackedScene" uid="uid://ph2sljilgoke" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/boulder_9_tr.tscn" id="38_q2ic7"]
+[ext_resource type="PackedScene" uid="uid://bdsq4wkrcs5yc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/plane_bl.tscn" id="39_qpb6e"]
+[ext_resource type="PackedScene" uid="uid://bcqqvflm5cp6t" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/plane_br.tscn" id="40_tqaav"]
+[ext_resource type="PackedScene" uid="uid://dl4fnk217l5y3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/plane_tl.tscn" id="41_tm4wb"]
+[ext_resource type="PackedScene" uid="uid://pwf4es33yjxu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/plane_tr.tscn" id="42_so34x"]
+[ext_resource type="PackedScene" uid="uid://chd1lhlfxs5f0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_1_bl.tscn" id="43_v0l3n"]
+[ext_resource type="PackedScene" uid="uid://coetr7glchsp2" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_1_br.tscn" id="44_x0ksh"]
+[ext_resource type="PackedScene" uid="uid://dag3e6v84lmlo" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_1_tl.tscn" id="45_j3nvh"]
+[ext_resource type="PackedScene" uid="uid://7dbue4khufq1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_1_tr.tscn" id="46_n5061"]
+[ext_resource type="PackedScene" uid="uid://dtfghecnxsxf7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_2_bl.tscn" id="47_wabb4"]
+[ext_resource type="PackedScene" uid="uid://dfvd443bh3yqv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_2_br.tscn" id="48_e40ar"]
+[ext_resource type="PackedScene" uid="uid://b7h1frdjmels4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_2_tl.tscn" id="49_s8f8y"]
+[ext_resource type="PackedScene" uid="uid://5k4yun3wnq26" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_2_tr.tscn" id="50_txm3h"]
+[ext_resource type="PackedScene" uid="uid://cutivlpa6a56c" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_3_bl.tscn" id="51_nns6l"]
+[ext_resource type="PackedScene" uid="uid://bv2au4wgbicss" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_3_br.tscn" id="52_jsgsa"]
+[ext_resource type="PackedScene" uid="uid://dl5br1ldt31x6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_3_tl.tscn" id="53_8eo6b"]
+[ext_resource type="PackedScene" uid="uid://obb5l8fxrbju" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_3_tr.tscn" id="54_ds3xc"]
+[ext_resource type="PackedScene" uid="uid://cp83t45b66slu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_4_bl.tscn" id="55_fqc4i"]
+[ext_resource type="PackedScene" uid="uid://ciatsf1k7tx36" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_4_br.tscn" id="56_dq8sq"]
+[ext_resource type="PackedScene" uid="uid://bhkusnslkiyos" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_4_tl.tscn" id="57_d0ar5"]
+[ext_resource type="PackedScene" uid="uid://xcqqj2mihexx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_4_tr.tscn" id="58_w1lqc"]
+[ext_resource type="PackedScene" uid="uid://c84pcxdat5xd8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_5_bl.tscn" id="59_6ktt7"]
+[ext_resource type="PackedScene" uid="uid://ceof0m3u4d1pd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_5_br.tscn" id="60_2jlxa"]
+[ext_resource type="PackedScene" uid="uid://bh85xf8ahwbyq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_5_tl.tscn" id="61_a6knx"]
+[ext_resource type="PackedScene" uid="uid://cxr3xvbbix10o" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_5_tr.tscn" id="62_mp8e2"]
+[ext_resource type="PackedScene" uid="uid://bbw4auoulauri" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_6_bl.tscn" id="63_i5eq3"]
+[ext_resource type="PackedScene" uid="uid://byxen1fbpp5c5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_6_br.tscn" id="64_bu8dm"]
+[ext_resource type="PackedScene" uid="uid://bkfqtghngh6pj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_6_tl.tscn" id="65_uoohd"]
+[ext_resource type="PackedScene" uid="uid://bb2xog0p80pe8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_6_tr.tscn" id="66_jn3ps"]
+[ext_resource type="PackedScene" uid="uid://cbb78w1wdsymh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_7_bl.tscn" id="67_r5uai"]
+[ext_resource type="PackedScene" uid="uid://cduyo4y24eeqp" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_7_br.tscn" id="68_ib22l"]
+[ext_resource type="PackedScene" uid="uid://bi3738nik6v3r" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_7_tl.tscn" id="69_x7xcm"]
+[ext_resource type="PackedScene" uid="uid://dsyas4ret41v8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 1/rock_7_tr.tscn" id="70_yqeb6"]
+[ext_resource type="PackedScene" uid="uid://bolpio0jynnvs" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_1_bl.tscn" id="71_pac34"]
+[ext_resource type="PackedScene" uid="uid://336sbu24itey" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_1_br.tscn" id="72_c0utv"]
+[ext_resource type="PackedScene" uid="uid://1lkpcwvw3vw5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_1_tl.tscn" id="73_w1yde"]
+[ext_resource type="PackedScene" uid="uid://dyc7siwd1ymoq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_1_tr.tscn" id="74_8g2c6"]
+[ext_resource type="PackedScene" uid="uid://rv827ua6pghh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_2_bl.tscn" id="75_bpuug"]
+[ext_resource type="PackedScene" uid="uid://dormu4tkxi3y3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_2_br.tscn" id="76_rf5pl"]
+[ext_resource type="PackedScene" uid="uid://hdd0k8akufkb" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_2_tl.tscn" id="77_216es"]
+[ext_resource type="PackedScene" uid="uid://dvv1gmwxx2jpg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_2_tr.tscn" id="78_xod0m"]
+[ext_resource type="PackedScene" uid="uid://co4b6l5d3k1u0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_3_bl.tscn" id="79_qc3fm"]
+[ext_resource type="PackedScene" uid="uid://8i3jm8h8kpoq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_3_br.tscn" id="80_4e02y"]
+[ext_resource type="PackedScene" uid="uid://cn7r46qyx5ya" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_3_tl.tscn" id="81_osfpi"]
+[ext_resource type="PackedScene" uid="uid://d3m4lqxm8q65u" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_3_tr.tscn" id="82_sw4vr"]
+[ext_resource type="PackedScene" uid="uid://7g1cg8yvbw5w" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_4_bl.tscn" id="83_xm1re"]
+[ext_resource type="PackedScene" uid="uid://dggd0rrs7mm50" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_4_br.tscn" id="84_6bk6m"]
+[ext_resource type="PackedScene" uid="uid://db2yndvbr7k7x" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_4_tl.tscn" id="85_tfg85"]
+[ext_resource type="PackedScene" uid="uid://c5pcydvec7dm5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_4_tr.tscn" id="86_5g0tj"]
+[ext_resource type="PackedScene" uid="uid://ce86cthqhsei4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_5_bl.tscn" id="87_kfoen"]
+[ext_resource type="PackedScene" uid="uid://cvun3iom8mqdv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_5_br.tscn" id="88_a6pqq"]
+[ext_resource type="PackedScene" uid="uid://d1dg0nvs7uxcx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_5_tl.tscn" id="89_o5gqc"]
+[ext_resource type="PackedScene" uid="uid://kuelr378wh36" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_5_tr.tscn" id="90_638d4"]
+[ext_resource type="PackedScene" uid="uid://gxhngfxcppre" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_6_bl.tscn" id="91_50ofa"]
+[ext_resource type="PackedScene" uid="uid://cn03fro1b8tbf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_6_br.tscn" id="92_ajdno"]
+[ext_resource type="PackedScene" uid="uid://iglp0p3m7tai" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_6_tl.tscn" id="93_63esg"]
+[ext_resource type="PackedScene" uid="uid://bbxwx6s0m8iet" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_6_tr.tscn" id="94_ys206"]
+[ext_resource type="PackedScene" uid="uid://co2qll3tbu2oq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_7_bl.tscn" id="95_ym66h"]
+[ext_resource type="PackedScene" uid="uid://ej1s3nj7w7yy" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_7_br.tscn" id="96_02ehj"]
+[ext_resource type="PackedScene" uid="uid://b5mn3un0gkskm" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_7_tl.tscn" id="97_pn5h8"]
+[ext_resource type="PackedScene" uid="uid://dmsivafbd7tno" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_7_tr.tscn" id="98_rrd1d"]
+[ext_resource type="PackedScene" uid="uid://cccppxev8gq8r" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_8_bl.tscn" id="99_nb5uk"]
+[ext_resource type="PackedScene" uid="uid://b3pdk4fc8opa0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_8_br.tscn" id="100_wybu0"]
+[ext_resource type="PackedScene" uid="uid://gsqoeoteqsad" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_8_tl.tscn" id="101_otv5l"]
+[ext_resource type="PackedScene" uid="uid://dsuh7wth8mecf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_8_tr.tscn" id="102_2yk54"]
+[ext_resource type="PackedScene" uid="uid://d3fqwosybcq2v" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_9_bl.tscn" id="103_wnbgb"]
+[ext_resource type="PackedScene" uid="uid://b46ssnj4o5g30" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_9_br.tscn" id="104_esb3b"]
+[ext_resource type="PackedScene" uid="uid://dsa2h2vhbjef3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_9_tl.tscn" id="105_5yqlj"]
+[ext_resource type="PackedScene" uid="uid://d4kesshpa28wx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/boulder_9_tr.tscn" id="106_tvqgh"]
+[ext_resource type="PackedScene" uid="uid://bisccgiqv26gf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/plane_bl.tscn" id="107_ej1n1"]
+[ext_resource type="PackedScene" uid="uid://m2hrstvpwxgu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/plane_br.tscn" id="108_oxlqp"]
+[ext_resource type="PackedScene" uid="uid://d2cqmjms6vf1y" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/plane_tl.tscn" id="109_shrbt"]
+[ext_resource type="PackedScene" uid="uid://bhcidr6h7wb5i" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/plane_tr.tscn" id="110_nnnke"]
+[ext_resource type="PackedScene" uid="uid://cb2kutdggury" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_1_bl.tscn" id="111_jhxxk"]
+[ext_resource type="PackedScene" uid="uid://10ljlh8spoow" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_1_br.tscn" id="112_pvmmo"]
+[ext_resource type="PackedScene" uid="uid://lxlwi2511ac7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_1_tl.tscn" id="113_kk8em"]
+[ext_resource type="PackedScene" uid="uid://r0bl72fwmbfm" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_1_tr.tscn" id="114_b1b1y"]
+[ext_resource type="PackedScene" uid="uid://ltpa36y0u16s" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_2_bl.tscn" id="115_wv6xr"]
+[ext_resource type="PackedScene" uid="uid://b2s1hj4blv6ny" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_2_br.tscn" id="116_h00wb"]
+[ext_resource type="PackedScene" uid="uid://cjgt2061uosbc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_2_tl.tscn" id="117_ns5u7"]
+[ext_resource type="PackedScene" uid="uid://c0383anvnhth8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_2_tr.tscn" id="118_htqg2"]
+[ext_resource type="PackedScene" uid="uid://skfrms2o4buh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_3_bl.tscn" id="119_lu8y8"]
+[ext_resource type="PackedScene" uid="uid://cwn6dg6jlu18n" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_3_br.tscn" id="120_tyvhq"]
+[ext_resource type="PackedScene" uid="uid://dbyq1h7cn6oxf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_3_tl.tscn" id="121_bm1oo"]
+[ext_resource type="PackedScene" uid="uid://q8o4m3dcuu1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_3_tr.tscn" id="122_v45b0"]
+[ext_resource type="PackedScene" uid="uid://cmjbfnjhelmo0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_4_bl.tscn" id="123_sexxl"]
+[ext_resource type="PackedScene" uid="uid://c76nqxpucijm2" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_4_br.tscn" id="124_s5flo"]
+[ext_resource type="PackedScene" uid="uid://qd2ufq532brf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_4_tl.tscn" id="125_3vf1k"]
+[ext_resource type="PackedScene" uid="uid://2dg3ksiwwjxh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_4_tr.tscn" id="126_tpa42"]
+[ext_resource type="PackedScene" uid="uid://bj5bkf18y4dfw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_5_bl.tscn" id="127_vbnsi"]
+[ext_resource type="PackedScene" uid="uid://rhawsafkm4ft" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_5_br.tscn" id="128_vpqq7"]
+[ext_resource type="PackedScene" uid="uid://d34k07rhr4sf8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_5_tl.tscn" id="129_57nu0"]
+[ext_resource type="PackedScene" uid="uid://bncjak1nwke01" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_5_tr.tscn" id="130_6f2cp"]
+[ext_resource type="PackedScene" uid="uid://dwpnhvigtyqqy" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_6_bl.tscn" id="131_jilnf"]
+[ext_resource type="PackedScene" uid="uid://b0jwp8q3y2k2l" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_6_br.tscn" id="132_8jufb"]
+[ext_resource type="PackedScene" uid="uid://7b72rj3qpd1a" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_6_tl.tscn" id="133_dnsmt"]
+[ext_resource type="PackedScene" uid="uid://ohusb5s8e250" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_6_tr.tscn" id="134_6ic6y"]
+[ext_resource type="PackedScene" uid="uid://dtcqxsirfv7tr" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_7_bl.tscn" id="135_d8a3q"]
+[ext_resource type="PackedScene" uid="uid://crcvhtg6lnx86" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_7_br.tscn" id="136_nl0au"]
+[ext_resource type="PackedScene" uid="uid://c157flxjfft47" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_7_tl.tscn" id="137_jnvt1"]
+[ext_resource type="PackedScene" uid="uid://cbagmx6j2iofx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 2/rock_7_tr.tscn" id="138_xfahv"]
+[ext_resource type="PackedScene" uid="uid://b12nc7ohcil1h" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_1_bl.tscn" id="139_px4rs"]
+[ext_resource type="PackedScene" uid="uid://b5cpy7wv2ko3f" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_1_br.tscn" id="140_gm8tx"]
+[ext_resource type="PackedScene" uid="uid://dju2c01fjai5h" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_1_tl.tscn" id="141_jvndb"]
+[ext_resource type="PackedScene" uid="uid://df5nj2ped2ow7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_1_tr.tscn" id="142_q7n24"]
+[ext_resource type="PackedScene" uid="uid://n4ns8h3svt3j" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_2_bl.tscn" id="143_72xq2"]
+[ext_resource type="PackedScene" uid="uid://ct1lsn1edxjsa" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_2_br.tscn" id="144_4y6r4"]
+[ext_resource type="PackedScene" uid="uid://cy2yopmci2geq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_2_tl.tscn" id="145_77okv"]
+[ext_resource type="PackedScene" uid="uid://do3pskoc823ej" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_2_tr.tscn" id="146_s5brw"]
+[ext_resource type="PackedScene" uid="uid://bp35c5muwjgxl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_3_bl.tscn" id="147_c7hbo"]
+[ext_resource type="PackedScene" uid="uid://ct2tpmtoj7vgd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_3_br.tscn" id="148_7thjm"]
+[ext_resource type="PackedScene" uid="uid://cqop7k57xp36d" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_3_tl.tscn" id="149_sf6t3"]
+[ext_resource type="PackedScene" uid="uid://b5qanolp0i7y4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_3_tr.tscn" id="150_h7f72"]
+[ext_resource type="PackedScene" uid="uid://cesdrlvlk0o0r" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_4_bl.tscn" id="151_b0ka4"]
+[ext_resource type="PackedScene" uid="uid://blnn7jmd77pyk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_4_br.tscn" id="152_4h6xy"]
+[ext_resource type="PackedScene" uid="uid://d4lv1iy5f7upn" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_4_tl.tscn" id="153_ahkql"]
+[ext_resource type="PackedScene" uid="uid://b6eayt6sokqcx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_4_tr.tscn" id="154_yrmys"]
+[ext_resource type="PackedScene" uid="uid://t4iyq8co1wha" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_5_bl.tscn" id="155_plml5"]
+[ext_resource type="PackedScene" uid="uid://ds31v8ak1asw1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_5_br.tscn" id="156_6vaw5"]
+[ext_resource type="PackedScene" uid="uid://dqj1xr2x45upm" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_5_tl.tscn" id="157_gebi3"]
+[ext_resource type="PackedScene" uid="uid://ctorj7bsl2oqe" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_5_tr.tscn" id="158_rfs3t"]
+[ext_resource type="PackedScene" uid="uid://bn4gesuq6dh83" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_6_bl.tscn" id="159_3g254"]
+[ext_resource type="PackedScene" uid="uid://b56kqco1letjl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_6_br.tscn" id="160_w2f0d"]
+[ext_resource type="PackedScene" uid="uid://d1sy23fbdo1rg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_6_tl.tscn" id="161_8rkku"]
+[ext_resource type="PackedScene" uid="uid://cdrskgynjt2xv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_6_tr.tscn" id="162_lia70"]
+[ext_resource type="PackedScene" uid="uid://beb1j3d3x7ugp" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_7_bl.tscn" id="163_7o80n"]
+[ext_resource type="PackedScene" uid="uid://d1lnt1tsufy6e" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_7_br.tscn" id="164_2r4s8"]
+[ext_resource type="PackedScene" uid="uid://fubhy2kr07yo" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_7_tl.tscn" id="165_40my8"]
+[ext_resource type="PackedScene" uid="uid://cslagnu5j4xtb" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_7_tr.tscn" id="166_bcr2q"]
+[ext_resource type="PackedScene" uid="uid://dtxgrct4mv8lw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_8_bl.tscn" id="167_q5m1h"]
+[ext_resource type="PackedScene" uid="uid://klm7c5i6h6mr" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_8_br.tscn" id="168_vme8e"]
+[ext_resource type="PackedScene" uid="uid://ptbh63ikn2pv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_8_tl.tscn" id="169_bonkk"]
+[ext_resource type="PackedScene" uid="uid://b22k1vvf637ls" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_8_tr.tscn" id="170_238i6"]
+[ext_resource type="PackedScene" uid="uid://dxa6s4d8xtase" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_9_bl.tscn" id="171_ikcv6"]
+[ext_resource type="PackedScene" uid="uid://6ebedpe3r677" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_9_br.tscn" id="172_wqj8l"]
+[ext_resource type="PackedScene" uid="uid://duwke7jcmr7sx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_9_tl.tscn" id="173_ga7cy"]
+[ext_resource type="PackedScene" uid="uid://d351mxrotmrvs" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/boulder_9_tr.tscn" id="174_e7vrg"]
+[ext_resource type="PackedScene" uid="uid://dlqdl8ogumo83" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/plane_bl.tscn" id="175_wgryo"]
+[ext_resource type="PackedScene" uid="uid://p7h8wbq8uqqh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/plane_br.tscn" id="176_qftti"]
+[ext_resource type="PackedScene" uid="uid://sghnrgg3rm82" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/plane_tl.tscn" id="177_g8b7o"]
+[ext_resource type="PackedScene" uid="uid://dg8kwfjh0kvc7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/plane_tr.tscn" id="178_uxhkc"]
+[ext_resource type="PackedScene" uid="uid://o4fpss22rlj7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_1_bl.tscn" id="179_d2d4v"]
+[ext_resource type="PackedScene" uid="uid://dv68uj4yym6t" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_1_br.tscn" id="180_fuck7"]
+[ext_resource type="PackedScene" uid="uid://dswxye6u3qced" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_1_tl.tscn" id="181_laxs5"]
+[ext_resource type="PackedScene" uid="uid://diu2updv283ay" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_1_tr.tscn" id="182_quuar"]
+[ext_resource type="PackedScene" uid="uid://b8kcn85tyv47a" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_2_bl.tscn" id="183_1e4fx"]
+[ext_resource type="PackedScene" uid="uid://dosg0tg2kr7c4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_2_br.tscn" id="184_iu8qr"]
+[ext_resource type="PackedScene" uid="uid://d2or8bsgeb6xu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_2_tl.tscn" id="185_k0bsm"]
+[ext_resource type="PackedScene" uid="uid://dqn2wslb867wj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_2_tr.tscn" id="186_3v2ti"]
+[ext_resource type="PackedScene" uid="uid://cqadlokygety2" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_3_bl.tscn" id="187_8g6k4"]
+[ext_resource type="PackedScene" uid="uid://75u0omlvyv5v" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_3_br.tscn" id="188_3doiq"]
+[ext_resource type="PackedScene" uid="uid://bjed6ox18jm8i" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_3_tl.tscn" id="189_50l2j"]
+[ext_resource type="PackedScene" uid="uid://b1akroinegux5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_3_tr.tscn" id="190_yknyb"]
+[ext_resource type="PackedScene" uid="uid://c3sodq0fhm0ce" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_4_bl.tscn" id="191_nkhc3"]
+[ext_resource type="PackedScene" uid="uid://dgiolixb1ayiv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_4_br.tscn" id="192_2r8tg"]
+[ext_resource type="PackedScene" uid="uid://bhxndau22g1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_4_tl.tscn" id="193_uisw3"]
+[ext_resource type="PackedScene" uid="uid://oatwac545mr6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_4_tr.tscn" id="194_o4u5e"]
+[ext_resource type="PackedScene" uid="uid://ckh886woivqts" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_5_bl.tscn" id="195_awcvq"]
+[ext_resource type="PackedScene" uid="uid://unuv8jybcjqv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_5_br.tscn" id="196_f7xih"]
+[ext_resource type="PackedScene" uid="uid://c8fo23dpd0dc3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_5_tl.tscn" id="197_5t84n"]
+[ext_resource type="PackedScene" uid="uid://bx4ec5u41axbw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_5_tr.tscn" id="198_7t703"]
+[ext_resource type="PackedScene" uid="uid://0nrbtujo0fip" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_6_bl.tscn" id="199_pfk0d"]
+[ext_resource type="PackedScene" uid="uid://bn1bneida5p3r" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_6_br.tscn" id="200_6nnj2"]
+[ext_resource type="PackedScene" uid="uid://cs50yb6e06fwy" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_6_tl.tscn" id="201_7f7ai"]
+[ext_resource type="PackedScene" uid="uid://k0d8jjacty88" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_6_tr.tscn" id="202_x7rdw"]
+[ext_resource type="PackedScene" uid="uid://d4kbpglvuq07j" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_7_bl.tscn" id="203_px3kw"]
+[ext_resource type="PackedScene" uid="uid://hox8oe5afbp4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_7_br.tscn" id="204_14kpc"]
+[ext_resource type="PackedScene" uid="uid://r5mhqfc2ft0e" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_7_tl.tscn" id="205_vci5d"]
+[ext_resource type="PackedScene" uid="uid://dypqmpfvbj2re" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 1/rock_7_tr.tscn" id="206_sj53o"]
+[ext_resource type="PackedScene" uid="uid://f80gxtjpayw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_1_bl.tscn" id="207_mmd3u"]
+[ext_resource type="PackedScene" uid="uid://1qesrdjbtnyn" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_1_br.tscn" id="208_hbtnh"]
+[ext_resource type="PackedScene" uid="uid://c37mhpn8sryli" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_1_tl.tscn" id="209_55nbg"]
+[ext_resource type="PackedScene" uid="uid://bc8stbmvpf2ne" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_1_tr.tscn" id="210_fmjt1"]
+[ext_resource type="PackedScene" uid="uid://ckobqyojo6s23" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_2_bl.tscn" id="211_gjhfb"]
+[ext_resource type="PackedScene" uid="uid://bjp4tt66810p2" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_2_br.tscn" id="212_fatpi"]
+[ext_resource type="PackedScene" uid="uid://mnj60ppq6q87" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_2_tl.tscn" id="213_3ormw"]
+[ext_resource type="PackedScene" uid="uid://qhrx5k8cflgc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_2_tr.tscn" id="214_rk6ok"]
+[ext_resource type="PackedScene" uid="uid://g3hqek4mc20j" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_3_bl.tscn" id="215_0fyoc"]
+[ext_resource type="PackedScene" uid="uid://c03n8gt5k1pti" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_3_br.tscn" id="216_xqe88"]
+[ext_resource type="PackedScene" uid="uid://bqgwksmmkdne4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_3_tl.tscn" id="217_jkf6c"]
+[ext_resource type="PackedScene" uid="uid://cl7ydy2jvit26" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_3_tr.tscn" id="218_8gl3y"]
+[ext_resource type="PackedScene" uid="uid://cl4mko86ypt7r" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_4_bl.tscn" id="219_hk723"]
+[ext_resource type="PackedScene" uid="uid://cgxbsuic3nt2d" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_4_br.tscn" id="220_5fcow"]
+[ext_resource type="PackedScene" uid="uid://byhbtikxk8cwc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_4_tl.tscn" id="221_474sb"]
+[ext_resource type="PackedScene" uid="uid://bpx6olicnh2mx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_4_tr.tscn" id="222_f2l1n"]
+[ext_resource type="PackedScene" uid="uid://pe52i8evb5j" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_5_bl.tscn" id="223_5iyxy"]
+[ext_resource type="PackedScene" uid="uid://5je8gx1d8300" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_5_br.tscn" id="224_pin2d"]
+[ext_resource type="PackedScene" uid="uid://cynn6rjfq7j7i" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_5_tl.tscn" id="225_xq5em"]
+[ext_resource type="PackedScene" uid="uid://crbw5g23kwycd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_5_tr.tscn" id="226_hk5jp"]
+[ext_resource type="PackedScene" uid="uid://daubh8o3qhap8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_6_bl.tscn" id="227_6hjsp"]
+[ext_resource type="PackedScene" uid="uid://cfmxxjvplp2t1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_6_br.tscn" id="228_y4h83"]
+[ext_resource type="PackedScene" uid="uid://rj2bdxpy7c24" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_6_tl.tscn" id="229_tokor"]
+[ext_resource type="PackedScene" uid="uid://cwc4n8ysqw5o5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_6_tr.tscn" id="230_0vyrf"]
+[ext_resource type="PackedScene" uid="uid://dm77vowvxyrea" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_7_bl.tscn" id="231_tx8eq"]
+[ext_resource type="PackedScene" uid="uid://bmpawp32ponp2" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_7_br.tscn" id="232_qpli8"]
+[ext_resource type="PackedScene" uid="uid://drmqcusfylydc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_7_tl.tscn" id="233_ymd6q"]
+[ext_resource type="PackedScene" uid="uid://be7o7nwprn574" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_7_tr.tscn" id="234_cluit"]
+[ext_resource type="PackedScene" uid="uid://eodjvs52usi0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_8_bl.tscn" id="235_giuhw"]
+[ext_resource type="PackedScene" uid="uid://cj7c157ydfamp" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_8_br.tscn" id="236_lefoj"]
+[ext_resource type="PackedScene" uid="uid://bp8jsl3pxpaxq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_8_tl.tscn" id="237_4x8sn"]
+[ext_resource type="PackedScene" uid="uid://qaexokojk2e7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_8_tr.tscn" id="238_41gx2"]
+[ext_resource type="PackedScene" uid="uid://bw6qjn75ggokg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_9_bl.tscn" id="239_tywlg"]
+[ext_resource type="PackedScene" uid="uid://d3aphm12omf5t" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_9_br.tscn" id="240_mfrln"]
+[ext_resource type="PackedScene" uid="uid://ce6cnnqqvgq34" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_9_tl.tscn" id="241_8lckt"]
+[ext_resource type="PackedScene" uid="uid://b71udrhdx6114" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/boulder_9_tr.tscn" id="242_wsa40"]
+[ext_resource type="PackedScene" uid="uid://ch4i8rjqlsyve" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/plane_bl.tscn" id="243_f8eo7"]
+[ext_resource type="PackedScene" uid="uid://icdeaxdw5b7g" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/plane_br.tscn" id="244_0pllx"]
+[ext_resource type="PackedScene" uid="uid://cl2inidf3au3p" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/plane_tl.tscn" id="245_27xqy"]
+[ext_resource type="PackedScene" uid="uid://so0n8qqsx0t4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/plane_tr.tscn" id="246_0kg6u"]
+[ext_resource type="PackedScene" uid="uid://dxv6y4g3ttaou" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_1_bl.tscn" id="247_wdu46"]
+[ext_resource type="PackedScene" uid="uid://crl7mrbgeavom" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_1_br.tscn" id="248_3uklk"]
+[ext_resource type="PackedScene" uid="uid://dkjps44ubh0aw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_1_tl.tscn" id="249_ej64n"]
+[ext_resource type="PackedScene" uid="uid://bwlfmwl5hievi" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_1_tr.tscn" id="250_lk4u3"]
+[ext_resource type="PackedScene" uid="uid://ce06pqxkr1tqo" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_2_bl.tscn" id="251_eckxr"]
+[ext_resource type="PackedScene" uid="uid://cbv2u1vngyvyk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_2_br.tscn" id="252_7fdkx"]
+[ext_resource type="PackedScene" uid="uid://8u3ae6eunx3y" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_2_tl.tscn" id="253_ohwpq"]
+[ext_resource type="PackedScene" uid="uid://u1nklr1lthp7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_2_tr.tscn" id="254_a8pd3"]
+[ext_resource type="PackedScene" uid="uid://d21kc5ydgor1o" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_3_bl.tscn" id="255_nvogf"]
+[ext_resource type="PackedScene" uid="uid://dv6afxvf3k1l3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_3_br.tscn" id="256_2l4x7"]
+[ext_resource type="PackedScene" uid="uid://ns5xooahteh1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_3_tl.tscn" id="257_rk6vf"]
+[ext_resource type="PackedScene" uid="uid://c4a7he8q3tlae" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_3_tr.tscn" id="258_ruo7u"]
+[ext_resource type="PackedScene" uid="uid://ckyhoyncdbgos" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_4_bl.tscn" id="259_uvitm"]
+[ext_resource type="PackedScene" uid="uid://cp8kc0rumyn7f" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_4_br.tscn" id="260_tma3a"]
+[ext_resource type="PackedScene" uid="uid://qme5ssfqkurt" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_4_tl.tscn" id="261_6nl6d"]
+[ext_resource type="PackedScene" uid="uid://dhibke0ya440v" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_4_tr.tscn" id="262_a6t0m"]
+[ext_resource type="PackedScene" uid="uid://b8ysf5fmtxsa1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_5_bl.tscn" id="263_gycnc"]
+[ext_resource type="PackedScene" uid="uid://tyllg323yw8x" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_5_br.tscn" id="264_sitsi"]
+[ext_resource type="PackedScene" uid="uid://bm4exq4trswo4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_5_tl.tscn" id="265_cbvn4"]
+[ext_resource type="PackedScene" uid="uid://hsr5l482ujg3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_5_tr.tscn" id="266_4128r"]
+[ext_resource type="PackedScene" uid="uid://dtpavyot2k8i5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_6_bl.tscn" id="267_s1jou"]
+[ext_resource type="PackedScene" uid="uid://b4j18fuxyt8tc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_6_br.tscn" id="268_5f0xn"]
+[ext_resource type="PackedScene" uid="uid://eqjrqi6g7b0x" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_6_tl.tscn" id="269_yqt33"]
+[ext_resource type="PackedScene" uid="uid://c513i15ftob16" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_6_tr.tscn" id="270_rqemy"]
+[ext_resource type="PackedScene" uid="uid://da2ipb5qgswtx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_7_bl.tscn" id="271_jt2ek"]
+[ext_resource type="PackedScene" uid="uid://ldtnfutp1v6e" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_7_br.tscn" id="272_542tp"]
+[ext_resource type="PackedScene" uid="uid://be6sh4s3hgutl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_7_tl.tscn" id="273_pldv1"]
+[ext_resource type="PackedScene" uid="uid://3h2lmrx7pxkg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Mossy Rocks 2/rock_7_tr.tscn" id="274_18bxr"]
+[ext_resource type="PackedScene" uid="uid://c2u1vui31s7d2" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_1_bl.tscn" id="275_0a8ln"]
+[ext_resource type="PackedScene" uid="uid://cxbmyasfqeodg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_1_br.tscn" id="276_5awc7"]
+[ext_resource type="PackedScene" uid="uid://payvlp00kvyk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_1_tl.tscn" id="277_mo6gp"]
+[ext_resource type="PackedScene" uid="uid://buruimqovv1v2" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_1_tr.tscn" id="278_keb42"]
+[ext_resource type="PackedScene" uid="uid://dbhjcabld7qbo" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_2_bl.tscn" id="279_d4010"]
+[ext_resource type="PackedScene" uid="uid://cyh1tno7dk5t4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_2_br.tscn" id="280_r6ih0"]
+[ext_resource type="PackedScene" uid="uid://cn1gg4o4rb7l2" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_2_tl.tscn" id="281_lng8u"]
+[ext_resource type="PackedScene" uid="uid://cl7vse57x5sk6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_2_tr.tscn" id="282_lc8q0"]
+[ext_resource type="PackedScene" uid="uid://bfng7v10w5g8m" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_3_bl.tscn" id="283_wdule"]
+[ext_resource type="PackedScene" uid="uid://e6vajcsfs7wg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_3_br.tscn" id="284_komtj"]
+[ext_resource type="PackedScene" uid="uid://dxtkjnmyfwf5g" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_3_tl.tscn" id="285_e6hrw"]
+[ext_resource type="PackedScene" uid="uid://cnm0uspag0nhw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_3_tr.tscn" id="286_phttf"]
+[ext_resource type="PackedScene" uid="uid://8fg1ohqwvws8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_4_bl.tscn" id="287_mk2fi"]
+[ext_resource type="PackedScene" uid="uid://bu20hps3vo50g" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_4_br.tscn" id="288_pme1c"]
+[ext_resource type="PackedScene" uid="uid://cv01p4phfhx7w" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_4_tl.tscn" id="289_jsv8g"]
+[ext_resource type="PackedScene" uid="uid://bdicnk1vu4418" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_4_tr.tscn" id="290_6nbn5"]
+[ext_resource type="PackedScene" uid="uid://du5ojd6njeq66" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_5_bl.tscn" id="291_jf1dp"]
+[ext_resource type="PackedScene" uid="uid://c3bx1agynpkdj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_5_br.tscn" id="292_xfjwi"]
+[ext_resource type="PackedScene" uid="uid://8ybmbx6ji23r" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_5_tl.tscn" id="293_lgnie"]
+[ext_resource type="PackedScene" uid="uid://c0roxb2c16qcf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_5_tr.tscn" id="294_ycv4v"]
+[ext_resource type="PackedScene" uid="uid://db34iqmwclokc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_6_bl.tscn" id="295_tufco"]
+[ext_resource type="PackedScene" uid="uid://ctsm85rouc0kx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_6_br.tscn" id="296_dwogh"]
+[ext_resource type="PackedScene" uid="uid://bdd4g1qx3addc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_6_tl.tscn" id="297_0u5ia"]
+[ext_resource type="PackedScene" uid="uid://xfr63lwy6emv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_6_tr.tscn" id="298_628oe"]
+[ext_resource type="PackedScene" uid="uid://b8t1uoapx5bhy" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_7_bl.tscn" id="299_uth0y"]
+[ext_resource type="PackedScene" uid="uid://isjtj6iw3hto" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_7_br.tscn" id="300_08mes"]
+[ext_resource type="PackedScene" uid="uid://hjgyep4w3u0t" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_7_tl.tscn" id="301_m8wi5"]
+[ext_resource type="PackedScene" uid="uid://l6o4066j0xbe" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_7_tr.tscn" id="302_jll4u"]
+[ext_resource type="PackedScene" uid="uid://diiwvyk7p4hqy" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_8_bl.tscn" id="303_047ub"]
+[ext_resource type="PackedScene" uid="uid://bf5piaokmym12" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_8_br.tscn" id="304_s4sgo"]
+[ext_resource type="PackedScene" uid="uid://dfltd7qxeufs6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_8_tl.tscn" id="305_iqv5y"]
+[ext_resource type="PackedScene" uid="uid://du4e5daevs5o6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_8_tr.tscn" id="306_by4qv"]
+[ext_resource type="PackedScene" uid="uid://bjryclw8l6u51" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_9_bl.tscn" id="307_5787s"]
+[ext_resource type="PackedScene" uid="uid://cs3l6rm2cak0f" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_9_br.tscn" id="308_ova63"]
+[ext_resource type="PackedScene" uid="uid://4rmjh7g0s4em" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_9_tl.tscn" id="309_jrxsc"]
+[ext_resource type="PackedScene" uid="uid://f0m1rob37k2r" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/boulder_9_tr.tscn" id="310_yi3y5"]
+[ext_resource type="PackedScene" uid="uid://drjwcgqrqeuii" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/plane_bl.tscn" id="311_q6esb"]
+[ext_resource type="PackedScene" uid="uid://dlwi54i5x4w2r" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/plane_br.tscn" id="312_p1mvw"]
+[ext_resource type="PackedScene" uid="uid://gk35gsm8rhxa" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/plane_tl.tscn" id="313_a5f3m"]
+[ext_resource type="PackedScene" uid="uid://b72h54vu8okx1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/plane_tr.tscn" id="314_olxn8"]
+[ext_resource type="PackedScene" uid="uid://c7w75siq3npfh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_1_bl.tscn" id="315_2p5ex"]
+[ext_resource type="PackedScene" uid="uid://d2hl2yohu27ui" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_1_br.tscn" id="316_gx4k0"]
+[ext_resource type="PackedScene" uid="uid://b1flqm1ljupud" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_1_tl.tscn" id="317_n5ha3"]
+[ext_resource type="PackedScene" uid="uid://egbfpg3r8qt8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_1_tr.tscn" id="318_padyl"]
+[ext_resource type="PackedScene" uid="uid://co1fr53iqjy20" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_2_bl.tscn" id="319_uati2"]
+[ext_resource type="PackedScene" uid="uid://j7dklu2brf40" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_2_br.tscn" id="320_p0r5p"]
+[ext_resource type="PackedScene" uid="uid://7hsnwqxkuaxb" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_2_tl.tscn" id="321_lnvyu"]
+[ext_resource type="PackedScene" uid="uid://ba8wm2gf634wc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_2_tr.tscn" id="322_rd0cx"]
+[ext_resource type="PackedScene" uid="uid://nh6l667sdyq3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_3_bl.tscn" id="323_fmq1d"]
+[ext_resource type="PackedScene" uid="uid://blpqsdtfeggk5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_3_br.tscn" id="324_7ql11"]
+[ext_resource type="PackedScene" uid="uid://dg6xkfj5m75c4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_3_tl.tscn" id="325_gry04"]
+[ext_resource type="PackedScene" uid="uid://dsccraeechuuw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_3_tr.tscn" id="326_rwc70"]
+[ext_resource type="PackedScene" uid="uid://bb3d85b8agkmw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_4_bl.tscn" id="327_ot3vx"]
+[ext_resource type="PackedScene" uid="uid://b3xxumy75ev38" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_4_br.tscn" id="328_7g6tx"]
+[ext_resource type="PackedScene" uid="uid://cwfi2itx14k1p" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_4_tl.tscn" id="329_3hr33"]
+[ext_resource type="PackedScene" uid="uid://dbxhfcytk60qq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_4_tr.tscn" id="330_rmulb"]
+[ext_resource type="PackedScene" uid="uid://dryd25qos38os" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_5_bl.tscn" id="331_rna6a"]
+[ext_resource type="PackedScene" uid="uid://c70wv32ggxpel" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_5_br.tscn" id="332_yptlc"]
+[ext_resource type="PackedScene" uid="uid://rnho67rr2ody" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_5_tl.tscn" id="333_n5qlv"]
+[ext_resource type="PackedScene" uid="uid://dl1x4sq3hhsnw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_5_tr.tscn" id="334_fjgr5"]
+[ext_resource type="PackedScene" uid="uid://cs7vdtbsfmnfg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_6_bl.tscn" id="335_of3gi"]
+[ext_resource type="PackedScene" uid="uid://cedfehwcxrfdi" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_6_br.tscn" id="336_ylkje"]
+[ext_resource type="PackedScene" uid="uid://d03fs7icehl7w" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_6_tl.tscn" id="337_1bqit"]
+[ext_resource type="PackedScene" uid="uid://c1285v7dx8kue" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_6_tr.tscn" id="338_nd1ks"]
+[ext_resource type="PackedScene" uid="uid://b01pnaafaiumh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_7_bl.tscn" id="339_0o1q7"]
+[ext_resource type="PackedScene" uid="uid://b85u8kr3yc36n" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_7_br.tscn" id="340_bk25v"]
+[ext_resource type="PackedScene" uid="uid://bxclicwq7p0vg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_7_tl.tscn" id="341_te4mx"]
+[ext_resource type="PackedScene" uid="uid://rpf1evjxyxby" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Arid Rocks 3/rock_7_tr.tscn" id="342_2yxyx"]
+[ext_resource type="PackedScene" uid="uid://gfs152cbgyso" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_1_bl.tscn" id="343_oxoax"]
+[ext_resource type="PackedScene" uid="uid://dibgunkmv43hf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_1_br.tscn" id="344_arc5w"]
+[ext_resource type="PackedScene" uid="uid://diui3xgpr7pcf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_1_tl.tscn" id="345_tn3ri"]
+[ext_resource type="PackedScene" uid="uid://cikdp6bn40wrj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_1_tr.tscn" id="346_5etn6"]
+[ext_resource type="PackedScene" uid="uid://colp1h1y45c4y" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_2_bl.tscn" id="347_gqlnn"]
+[ext_resource type="PackedScene" uid="uid://s8f7ywtvhfqe" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_2_br.tscn" id="348_rgeoo"]
+[ext_resource type="PackedScene" uid="uid://v7wph3cylnag" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_2_tl.tscn" id="349_hwgro"]
+[ext_resource type="PackedScene" uid="uid://b00j75jwd7e47" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_2_tr.tscn" id="350_pq171"]
+[ext_resource type="PackedScene" uid="uid://bhspkllnqyehm" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_3_bl.tscn" id="351_x8l0b"]
+[ext_resource type="PackedScene" uid="uid://72k45q6ytl8g" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_3_br.tscn" id="352_rq51a"]
+[ext_resource type="PackedScene" uid="uid://dgdllvmvys63a" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_3_tl.tscn" id="353_0japa"]
+[ext_resource type="PackedScene" uid="uid://dv0qkhdqfykuv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_3_tr.tscn" id="354_sc3qg"]
+[ext_resource type="PackedScene" uid="uid://dqeh41bn6wfdq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_4_bl.tscn" id="355_hi88h"]
+[ext_resource type="PackedScene" uid="uid://clseiwiy1irlu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_4_br.tscn" id="356_u3oim"]
+[ext_resource type="PackedScene" uid="uid://kylu31mt6aho" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_4_tl.tscn" id="357_pkqob"]
+[ext_resource type="PackedScene" uid="uid://dxwowiy8liecs" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_4_tr.tscn" id="358_yyiii"]
+[ext_resource type="PackedScene" uid="uid://dk1nl4fc6vjjl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_5_bl.tscn" id="359_dloeb"]
+[ext_resource type="PackedScene" uid="uid://bbujn1cexriri" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_5_br.tscn" id="360_r3ymt"]
+[ext_resource type="PackedScene" uid="uid://dsse1smkxjoiw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_5_tl.tscn" id="361_gfywi"]
+[ext_resource type="PackedScene" uid="uid://c5kaclgr6lbol" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_5_tr.tscn" id="362_wnou3"]
+[ext_resource type="PackedScene" uid="uid://cqgrg8fd5qo1l" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_6_bl.tscn" id="363_0jxaf"]
+[ext_resource type="PackedScene" uid="uid://bika4f6krtc1p" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_6_br.tscn" id="364_p57qt"]
+[ext_resource type="PackedScene" uid="uid://cshvcy1im8bci" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_6_tl.tscn" id="365_wwr64"]
+[ext_resource type="PackedScene" uid="uid://b5j8wf0p08i4s" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_6_tr.tscn" id="366_4wvkm"]
+[ext_resource type="PackedScene" uid="uid://bqsg3hmxr7jl6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_7_bl.tscn" id="367_v1bty"]
+[ext_resource type="PackedScene" uid="uid://ychsibpi1u5t" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_7_br.tscn" id="368_2jfxi"]
+[ext_resource type="PackedScene" uid="uid://bxkrtnnuh8d5p" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_7_tl.tscn" id="369_65foe"]
+[ext_resource type="PackedScene" uid="uid://bggqlhamxnf80" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_7_tr.tscn" id="370_a2y7u"]
+[ext_resource type="PackedScene" uid="uid://bp7myhqlhw80x" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_8_bl.tscn" id="371_mpn6r"]
+[ext_resource type="PackedScene" uid="uid://bcdt2n5e5wnsi" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_8_br.tscn" id="372_fx3tb"]
+[ext_resource type="PackedScene" uid="uid://bhae1wshfjp8h" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_8_tl.tscn" id="373_wtgqr"]
+[ext_resource type="PackedScene" uid="uid://xr4qk2w0w7xc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_8_tr.tscn" id="374_dt4vi"]
+[ext_resource type="PackedScene" uid="uid://cur84del43it3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_9_bl.tscn" id="375_46cw7"]
+[ext_resource type="PackedScene" uid="uid://bqt82yjc2yr87" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_9_br.tscn" id="376_8g4uu"]
+[ext_resource type="PackedScene" uid="uid://dsqj8u10drsr7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_9_tl.tscn" id="377_0c1qy"]
+[ext_resource type="PackedScene" uid="uid://csnei7eb0dj8i" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/boulder_9_tr.tscn" id="378_lplql"]
+[ext_resource type="PackedScene" uid="uid://cye7xs3tj3ock" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/plane_bl.tscn" id="379_j3uru"]
+[ext_resource type="PackedScene" uid="uid://knbiwpee7gg7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/plane_br.tscn" id="380_wsxmj"]
+[ext_resource type="PackedScene" uid="uid://c7ncupbq0tgbn" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/plane_tl.tscn" id="381_cflmd"]
+[ext_resource type="PackedScene" uid="uid://oc0ygsjm1bxv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/plane_tr.tscn" id="382_1lspf"]
+[ext_resource type="PackedScene" uid="uid://cumlkbb2btqfu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_1_bl.tscn" id="383_jctcw"]
+[ext_resource type="PackedScene" uid="uid://cxcs4lnjlybcn" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_1_br.tscn" id="384_4x1di"]
+[ext_resource type="PackedScene" uid="uid://bh8ub7oiym8d1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_1_tl.tscn" id="385_xjnaf"]
+[ext_resource type="PackedScene" uid="uid://dg3vy4etinb6x" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_1_tr.tscn" id="386_bnlyw"]
+[ext_resource type="PackedScene" uid="uid://d4d47f2xqetdc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_2_bl.tscn" id="387_82s5n"]
+[ext_resource type="PackedScene" uid="uid://btr452hhmgdrk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_2_br.tscn" id="388_pwnlt"]
+[ext_resource type="PackedScene" uid="uid://bkci8u0mggqob" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_2_tl.tscn" id="389_bj54f"]
+[ext_resource type="PackedScene" uid="uid://d2uxm6bfrqyui" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_2_tr.tscn" id="390_xbrff"]
+[ext_resource type="PackedScene" uid="uid://b7w541m1h5k6k" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_3_bl.tscn" id="391_17873"]
+[ext_resource type="PackedScene" uid="uid://bc2v5s16uqyg3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_3_br.tscn" id="392_pvqth"]
+[ext_resource type="PackedScene" uid="uid://0lce5isf4fsv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_3_tl.tscn" id="393_dv33a"]
+[ext_resource type="PackedScene" uid="uid://bdvcwkkre4n0v" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_3_tr.tscn" id="394_hut07"]
+[ext_resource type="PackedScene" uid="uid://c7ia1qpr625ud" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_4_bl.tscn" id="395_r554v"]
+[ext_resource type="PackedScene" uid="uid://dfy60yml4ywhf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_4_br.tscn" id="396_6jktv"]
+[ext_resource type="PackedScene" uid="uid://dbencd5ltl8nt" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_4_tl.tscn" id="397_iil40"]
+[ext_resource type="PackedScene" uid="uid://cqxtsg5xawrwf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_4_tr.tscn" id="398_7e4fe"]
+[ext_resource type="PackedScene" uid="uid://f8excmxfjjhr" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_5_bl.tscn" id="399_4pljv"]
+[ext_resource type="PackedScene" uid="uid://cj4lifgwypic0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_5_br.tscn" id="400_euyju"]
+[ext_resource type="PackedScene" uid="uid://gymi3vw2fpnh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_5_tl.tscn" id="401_sg204"]
+[ext_resource type="PackedScene" uid="uid://chcyjndeqdne7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_5_tr.tscn" id="402_vv7qp"]
+[ext_resource type="PackedScene" uid="uid://bvyocakini1qy" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_6_bl.tscn" id="403_4m3es"]
+[ext_resource type="PackedScene" uid="uid://boanu17vmv8h1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_6_br.tscn" id="404_da3co"]
+[ext_resource type="PackedScene" uid="uid://bc0efl2b4jcfp" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_6_tl.tscn" id="405_7jx8m"]
+[ext_resource type="PackedScene" uid="uid://crkrsob7ui0ao" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_6_tr.tscn" id="406_1omxr"]
+[ext_resource type="PackedScene" uid="uid://kdcinq54h02q" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_7_bl.tscn" id="407_5qmti"]
+[ext_resource type="PackedScene" uid="uid://dmd7vgisi4vse" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_7_br.tscn" id="408_5cwlc"]
+[ext_resource type="PackedScene" uid="uid://wvbx44hwuhci" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_7_tl.tscn" id="409_05yu1"]
+[ext_resource type="PackedScene" uid="uid://dx5ihsfq6ecpg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Sand Stone Rocks/rock_7_tr.tscn" id="410_641co"]
+[ext_resource type="PackedScene" uid="uid://jy0i3lpysx8g" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_1_bl.tscn" id="411_yeknp"]
+[ext_resource type="PackedScene" uid="uid://digwu7qxu0ud3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_1_br.tscn" id="412_ka04x"]
+[ext_resource type="PackedScene" uid="uid://d0juktmraxo6n" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_2_bl.tscn" id="415_nlr5j"]
+[ext_resource type="PackedScene" uid="uid://bcpdfguo0jlgg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_2_tl.tscn" id="417_ixihw"]
+[ext_resource type="PackedScene" uid="uid://wg16kb63mwqt" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_2_tr.tscn" id="418_3y6sx"]
+[ext_resource type="PackedScene" uid="uid://b56fqoonx5tem" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_3_bl.tscn" id="419_0j6f3"]
+[ext_resource type="PackedScene" uid="uid://bai4tvpys2wxj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_3_br.tscn" id="420_j3ybh"]
+[ext_resource type="PackedScene" uid="uid://cvuaea7p0yymv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_3_tl.tscn" id="421_spctw"]
+[ext_resource type="PackedScene" uid="uid://cagvy6t7gs261" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_3_tr.tscn" id="422_ecp5r"]
+[ext_resource type="PackedScene" uid="uid://ycau6fojkkta" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_4_bl.tscn" id="423_8k0ed"]
+[ext_resource type="PackedScene" uid="uid://lnky0oqblmjf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_4_tl.tscn" id="425_ibvts"]
+[ext_resource type="PackedScene" uid="uid://bh6igfyj4iuq7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_5_br.tscn" id="428_mem5q"]
+[ext_resource type="PackedScene" uid="uid://clo4d2u5ywspd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_5_tr.tscn" id="430_4tfhb"]
+[ext_resource type="PackedScene" uid="uid://5vg5rppuyga4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_6_bl.tscn" id="431_5f8by"]
+[ext_resource type="PackedScene" uid="uid://dg664u573vncl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_6_br.tscn" id="432_kvm0m"]
+[ext_resource type="PackedScene" uid="uid://dv7ndbvvcpw3d" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_6_tl.tscn" id="433_orom5"]
+[ext_resource type="PackedScene" uid="uid://bg3s4li7lcqoq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_7_bl.tscn" id="435_c0gc6"]
+[ext_resource type="PackedScene" uid="uid://dg0tnu38e6d7u" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_7_br.tscn" id="436_c2xjp"]
+[ext_resource type="PackedScene" uid="uid://c5d5dvdvr5du3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_7_tl.tscn" id="437_nnlik"]
+[ext_resource type="PackedScene" uid="uid://cueriliw85a4v" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_7_tr.tscn" id="438_6kfnh"]
+[ext_resource type="PackedScene" uid="uid://dro1y83axc0ge" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_8_bl.tscn" id="439_6cvde"]
+[ext_resource type="PackedScene" uid="uid://buwtxtixhiocd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_8_br.tscn" id="440_xwygv"]
+[ext_resource type="PackedScene" uid="uid://t221qfywckoj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_8_tl.tscn" id="441_xqni6"]
+[ext_resource type="PackedScene" uid="uid://bs6ksjs3vco4h" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_8_tr.tscn" id="442_da4ik"]
+[ext_resource type="PackedScene" uid="uid://du2iup3lpsi7n" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_9_br.tscn" id="444_1dwy4"]
+[ext_resource type="PackedScene" uid="uid://5us6bd1p7kxg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_9_tl.tscn" id="445_8ud2m"]
+[ext_resource type="PackedScene" uid="uid://befufyxv6wdpf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/boulder_9_tr.tscn" id="446_pux03"]
+[ext_resource type="PackedScene" uid="uid://clpcwojwpn35u" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/plane_br.tscn" id="448_xtwmd"]
+[ext_resource type="PackedScene" uid="uid://xl7byxcbevdi" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/plane_tl.tscn" id="449_sal74"]
+[ext_resource type="PackedScene" uid="uid://bc0k080wyw40p" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/plane_tr.tscn" id="450_mjf2x"]
+[ext_resource type="PackedScene" uid="uid://mlo6bsfqsv34" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_1_br.tscn" id="452_nl80p"]
+[ext_resource type="PackedScene" uid="uid://bs4gmdat3dv12" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_1_tl.tscn" id="453_x1iwa"]
+[ext_resource type="PackedScene" uid="uid://b0ykpfooybly" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_1_tr.tscn" id="454_h4au7"]
+[ext_resource type="PackedScene" uid="uid://capmsc4tfcc5w" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_2_bl.tscn" id="455_evgpw"]
+[ext_resource type="PackedScene" uid="uid://dpi8p3b8th6wu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_2_br.tscn" id="456_nv0rk"]
+[ext_resource type="PackedScene" uid="uid://7f1vkw187ask" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_2_tl.tscn" id="457_c18hh"]
+[ext_resource type="PackedScene" uid="uid://e3xaociuaywu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_2_tr.tscn" id="458_31w8a"]
+[ext_resource type="PackedScene" uid="uid://dtj36u6d062st" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_3_bl.tscn" id="459_df31g"]
+[ext_resource type="PackedScene" uid="uid://cehfvefmq3k22" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_3_br.tscn" id="460_ocgvp"]
+[ext_resource type="PackedScene" uid="uid://cwrt5ytqe0ak4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_3_tl.tscn" id="461_2akqt"]
+[ext_resource type="PackedScene" uid="uid://caov25dctgjxw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_3_tr.tscn" id="462_xc3f5"]
+[ext_resource type="PackedScene" uid="uid://bxhdkxdecl8j6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_4_bl.tscn" id="463_4q2qc"]
+[ext_resource type="PackedScene" uid="uid://7nd7ou3d5ay6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_4_br.tscn" id="464_5nfvu"]
+[ext_resource type="PackedScene" uid="uid://cjbwo1x34ltwo" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_4_tr.tscn" id="466_fg7p4"]
+[ext_resource type="PackedScene" uid="uid://bmqnyrfu2bn8l" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_5_bl.tscn" id="467_27g1n"]
+[ext_resource type="PackedScene" uid="uid://bylwb3e4ncaj0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_5_br.tscn" id="468_hqhhj"]
+[ext_resource type="PackedScene" uid="uid://lwgakqf8gn88" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_5_tl.tscn" id="469_b1fg0"]
+[ext_resource type="PackedScene" uid="uid://1wo6ddllfwx7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_5_tr.tscn" id="470_wpp3e"]
+[ext_resource type="PackedScene" uid="uid://ddh0m2tj7mu41" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_6_bl.tscn" id="471_axeut"]
+[ext_resource type="PackedScene" uid="uid://bkslke8fv6dju" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_6_br.tscn" id="472_d7uaj"]
+[ext_resource type="PackedScene" uid="uid://jjfs2lsovkuj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_6_tl.tscn" id="473_w3i5r"]
+[ext_resource type="PackedScene" uid="uid://da46844luj7k0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_6_tr.tscn" id="474_yigs5"]
+[ext_resource type="PackedScene" uid="uid://c8gv6ssbesdnn" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_7_bl.tscn" id="475_bmhda"]
+[ext_resource type="PackedScene" uid="uid://e415f4pfvcgk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_7_br.tscn" id="476_4kadf"]
+[ext_resource type="PackedScene" uid="uid://c5ro7dt7sluw0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_7_tl.tscn" id="477_qqqx6"]
+[ext_resource type="PackedScene" uid="uid://cdcgkfttvcvo8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 1/rock_7_tr.tscn" id="478_tcer4"]
+[ext_resource type="PackedScene" uid="uid://enuqgqy1r56u" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_1_bl.tscn" id="479_r37dt"]
+[ext_resource type="PackedScene" uid="uid://dvfviyo5dij14" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_1_br.tscn" id="480_huik3"]
+[ext_resource type="PackedScene" uid="uid://cxqcr8cuegi66" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_1_tl.tscn" id="481_n0pv3"]
+[ext_resource type="PackedScene" uid="uid://bkfmwylslkljk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_1_tr.tscn" id="482_h6dwm"]
+[ext_resource type="PackedScene" uid="uid://6bwgi5xbnag6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_2_bl.tscn" id="483_iirpv"]
+[ext_resource type="PackedScene" uid="uid://2u030lwid70v" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_2_br.tscn" id="484_obpx8"]
+[ext_resource type="PackedScene" uid="uid://c5sb1dn0htmvo" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_2_tl.tscn" id="485_kcdje"]
+[ext_resource type="PackedScene" uid="uid://dfta65ffntoub" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_2_tr.tscn" id="486_4bnl6"]
+[ext_resource type="PackedScene" uid="uid://cgx3xh6y4dp7b" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_3_bl.tscn" id="487_52ffo"]
+[ext_resource type="PackedScene" uid="uid://6ebav2mtyvde" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_3_br.tscn" id="488_8gveq"]
+[ext_resource type="PackedScene" uid="uid://brrb7skl76lo8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_3_tl.tscn" id="489_s5mrj"]
+[ext_resource type="PackedScene" uid="uid://fvvbm3mqrr0e" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_3_tr.tscn" id="490_27sco"]
+[ext_resource type="PackedScene" uid="uid://rib3pidulfgm" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_4_bl.tscn" id="491_16kgo"]
+[ext_resource type="PackedScene" uid="uid://o6malytq2wns" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_4_br.tscn" id="492_ltrop"]
+[ext_resource type="PackedScene" uid="uid://ctklpgj7tse3p" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_4_tl.tscn" id="493_ti5un"]
+[ext_resource type="PackedScene" uid="uid://blcltmlpoeu70" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_4_tr.tscn" id="494_oan5x"]
+[ext_resource type="PackedScene" uid="uid://dmkobn5tblfcq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_5_bl.tscn" id="495_m5xlj"]
+[ext_resource type="PackedScene" uid="uid://cuv6f0cf8071v" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_5_br.tscn" id="496_23exp"]
+[ext_resource type="PackedScene" uid="uid://bwi2borrrivaw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_5_tl.tscn" id="497_hyyb4"]
+[ext_resource type="PackedScene" uid="uid://2v5ardhpjent" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_5_tr.tscn" id="498_tby7p"]
+[ext_resource type="PackedScene" uid="uid://dy4rekvpoq5yk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_6_bl.tscn" id="499_k4p6k"]
+[ext_resource type="PackedScene" uid="uid://dbt1bq4k3e1dk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_6_br.tscn" id="500_b163k"]
+[ext_resource type="PackedScene" uid="uid://cqlw1tbifpcvj" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_6_tl.tscn" id="501_eccrx"]
+[ext_resource type="PackedScene" uid="uid://5l3381m4q7yi" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_6_tr.tscn" id="502_bymel"]
+[ext_resource type="PackedScene" uid="uid://xlh56y4qs5i6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_7_bl.tscn" id="503_dw774"]
+[ext_resource type="PackedScene" uid="uid://3ypiycnt04pc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_7_br.tscn" id="504_yyyva"]
+[ext_resource type="PackedScene" uid="uid://vg3y3w62nqfc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_7_tl.tscn" id="505_dheh1"]
+[ext_resource type="PackedScene" uid="uid://depwogtfjr8w1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_7_tr.tscn" id="506_ght3n"]
+[ext_resource type="PackedScene" uid="uid://boubt7srtlwrq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_8_bl.tscn" id="507_qaan6"]
+[ext_resource type="PackedScene" uid="uid://dfegks7pfp6mb" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_8_br.tscn" id="508_7bptx"]
+[ext_resource type="PackedScene" uid="uid://dlr1tt0sx3u3q" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_8_tl.tscn" id="509_2ubpw"]
+[ext_resource type="PackedScene" uid="uid://d2bnud6xxr6lh" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_8_tr.tscn" id="510_gmwni"]
+[ext_resource type="PackedScene" uid="uid://o7gehlqr7wvf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_9_bl.tscn" id="511_mdl17"]
+[ext_resource type="PackedScene" uid="uid://c0egnuo01whoi" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_9_br.tscn" id="512_4jsfj"]
+[ext_resource type="PackedScene" uid="uid://n4dcobwfqfyu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_9_tl.tscn" id="513_23mcv"]
+[ext_resource type="PackedScene" uid="uid://bg3xhh47tnipy" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/boulder_9_tr.tscn" id="514_hu2oo"]
+[ext_resource type="PackedScene" uid="uid://dygk1cb2q7by3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/plane_bl.tscn" id="515_m7j22"]
+[ext_resource type="PackedScene" uid="uid://cheq5cdpas8wi" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/plane_br.tscn" id="516_q03ks"]
+[ext_resource type="PackedScene" uid="uid://yb2dd1vie2ip" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/plane_tl.tscn" id="517_j8kdv"]
+[ext_resource type="PackedScene" uid="uid://bo3un27np7byn" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/plane_tr.tscn" id="518_g2qh3"]
+[ext_resource type="PackedScene" uid="uid://b58qf7eph8vj5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_1_bl.tscn" id="519_sbj76"]
+[ext_resource type="PackedScene" uid="uid://p7cs86awlnnd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_1_br.tscn" id="520_ksbwu"]
+[ext_resource type="PackedScene" uid="uid://cxuil87n504lr" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_1_tl.tscn" id="521_qj8qx"]
+[ext_resource type="PackedScene" uid="uid://dqa82ac5yjq62" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_1_tr.tscn" id="522_b5hag"]
+[ext_resource type="PackedScene" uid="uid://bwtgjoweejo2v" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_2_bl.tscn" id="523_sj4fe"]
+[ext_resource type="PackedScene" uid="uid://cnbvvbksxestf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_2_br.tscn" id="524_wwjmh"]
+[ext_resource type="PackedScene" uid="uid://dmlhxpfrykfdf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_2_tl.tscn" id="525_hytfa"]
+[ext_resource type="PackedScene" uid="uid://cmu32oik55l63" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_2_tr.tscn" id="526_6btrr"]
+[ext_resource type="PackedScene" uid="uid://cucmwwjlmdd0i" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_3_bl.tscn" id="527_m5h0w"]
+[ext_resource type="PackedScene" uid="uid://7f8kgs6l16ii" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_3_br.tscn" id="528_hxa5u"]
+[ext_resource type="PackedScene" uid="uid://yp5pbaqa6uwd" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_3_tl.tscn" id="529_sru1a"]
+[ext_resource type="PackedScene" uid="uid://b2b3k1ejvgffw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_3_tr.tscn" id="530_vwsbr"]
+[ext_resource type="PackedScene" uid="uid://crgg4qk0l8hcm" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_4_bl.tscn" id="531_qg031"]
+[ext_resource type="PackedScene" uid="uid://bs0tleg3t1cmc" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_4_br.tscn" id="532_w00cj"]
+[ext_resource type="PackedScene" uid="uid://bu0e7nuihp0s3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_4_tl.tscn" id="533_54a34"]
+[ext_resource type="PackedScene" uid="uid://c3aueocg27w73" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_4_tr.tscn" id="534_sn7ky"]
+[ext_resource type="PackedScene" uid="uid://bf3usg87diyfl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_5_bl.tscn" id="535_qqgc0"]
+[ext_resource type="PackedScene" uid="uid://dj22u0ba00d22" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_5_br.tscn" id="536_k0myp"]
+[ext_resource type="PackedScene" uid="uid://b3wvm3lbtvf3l" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_5_tl.tscn" id="537_w4p1u"]
+[ext_resource type="PackedScene" uid="uid://cisjx0r8oe608" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_5_tr.tscn" id="538_q2nf2"]
+[ext_resource type="PackedScene" uid="uid://cg1t0m83b2pwn" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_6_bl.tscn" id="539_rdbrm"]
+[ext_resource type="PackedScene" uid="uid://b0imttvg0iij5" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_6_br.tscn" id="540_xulf5"]
+[ext_resource type="PackedScene" uid="uid://dcmeki6erx2ay" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_6_tl.tscn" id="541_fcppy"]
+[ext_resource type="PackedScene" uid="uid://djb05acsgjddp" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_6_tr.tscn" id="542_upabt"]
+[ext_resource type="PackedScene" uid="uid://dqc78aaofrrsw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_7_bl.tscn" id="543_dpxg6"]
+[ext_resource type="PackedScene" uid="uid://2035gq3i364c" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_7_br.tscn" id="544_oapda"]
+[ext_resource type="PackedScene" uid="uid://w1h8dibxawxy" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_7_tl.tscn" id="545_lxli6"]
+[ext_resource type="PackedScene" uid="uid://byk3d5qw8gom3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 2/rock_7_tr.tscn" id="546_exmwa"]
+[ext_resource type="PackedScene" uid="uid://cva6oxgi57mxk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_1_bl.tscn" id="547_ri5it"]
+[ext_resource type="PackedScene" uid="uid://cwabtys76fpk7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_1_br.tscn" id="548_mtehx"]
+[ext_resource type="PackedScene" uid="uid://croasoq6xng0o" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_1_tl.tscn" id="549_qps74"]
+[ext_resource type="PackedScene" uid="uid://qq3k0e25lfr" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_1_tr.tscn" id="550_iqtax"]
+[ext_resource type="PackedScene" uid="uid://bjl2ikvvlnttu" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_2_bl.tscn" id="551_o6331"]
+[ext_resource type="PackedScene" uid="uid://bywmbbp7v7hlm" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_2_br.tscn" id="552_k1coe"]
+[ext_resource type="PackedScene" uid="uid://bqir8rf6apqn7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_2_tl.tscn" id="553_7kx2x"]
+[ext_resource type="PackedScene" uid="uid://c67tx5xl64jd3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_2_tr.tscn" id="554_bnqv6"]
+[ext_resource type="PackedScene" uid="uid://elh320ehbefk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_3_bl.tscn" id="555_xyhq0"]
+[ext_resource type="PackedScene" uid="uid://sllyy8syfuxy" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_3_br.tscn" id="556_8w504"]
+[ext_resource type="PackedScene" uid="uid://ca6nbcybfbe5i" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_3_tl.tscn" id="557_kow5e"]
+[ext_resource type="PackedScene" uid="uid://6hnlivgcww43" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_3_tr.tscn" id="558_58xax"]
+[ext_resource type="PackedScene" uid="uid://r2mejv4d4fq3" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_4_bl.tscn" id="559_5x7vb"]
+[ext_resource type="PackedScene" uid="uid://wh1mks7axj61" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_4_br.tscn" id="560_aqd6e"]
+[ext_resource type="PackedScene" uid="uid://58ov2j04or5t" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_4_tl.tscn" id="561_d1ihk"]
+[ext_resource type="PackedScene" uid="uid://d0krqw2mwyvjr" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_4_tr.tscn" id="562_k53qd"]
+[ext_resource type="PackedScene" uid="uid://ci4ho1746hyj6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_5_bl.tscn" id="563_n0cm5"]
+[ext_resource type="PackedScene" uid="uid://dn64vlow4puxk" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_5_br.tscn" id="564_l8d17"]
+[ext_resource type="PackedScene" uid="uid://yhrk2kwe0u5o" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_5_tl.tscn" id="565_f5n8o"]
+[ext_resource type="PackedScene" uid="uid://bdjlrxwf7jx5l" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_5_tr.tscn" id="566_rwp80"]
+[ext_resource type="PackedScene" uid="uid://drytnn38ycdd6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_6_bl.tscn" id="567_at50u"]
+[ext_resource type="PackedScene" uid="uid://vnqbp6r0mlau" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_6_br.tscn" id="568_mh7ly"]
+[ext_resource type="PackedScene" uid="uid://dywdrulgvraqa" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_6_tl.tscn" id="569_xmitu"]
+[ext_resource type="PackedScene" uid="uid://drvenhuecdxwn" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_6_tr.tscn" id="570_v1jki"]
+[ext_resource type="PackedScene" uid="uid://bu1awxvixexiw" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_7_bl.tscn" id="571_7u0fw"]
+[ext_resource type="PackedScene" uid="uid://crm4ytcu4mbey" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_7_br.tscn" id="572_n1cfa"]
+[ext_resource type="PackedScene" uid="uid://doc1n5154xkmb" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_7_tl.tscn" id="573_m61ar"]
+[ext_resource type="PackedScene" uid="uid://cq3qody788v2p" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_7_tr.tscn" id="574_vjjc2"]
+[ext_resource type="PackedScene" uid="uid://qx2fadh3g0em" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_8_bl.tscn" id="575_xltto"]
+[ext_resource type="PackedScene" uid="uid://bow22617ojqc2" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_8_br.tscn" id="576_2unxe"]
+[ext_resource type="PackedScene" uid="uid://dcy0ww0mtvc5d" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_8_tl.tscn" id="577_vt80j"]
+[ext_resource type="PackedScene" uid="uid://d1sc2peauq2bf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_8_tr.tscn" id="578_w3u1q"]
+[ext_resource type="PackedScene" uid="uid://cbju43fjjq7w1" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_9_bl.tscn" id="579_2ytpj"]
+[ext_resource type="PackedScene" uid="uid://cijt7gauu4s5h" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_9_br.tscn" id="580_axfpj"]
+[ext_resource type="PackedScene" uid="uid://1ic6r7ic4yn7" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_9_tl.tscn" id="581_gdlrs"]
+[ext_resource type="PackedScene" uid="uid://c8lbiy053utdg" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/boulder_9_tr.tscn" id="582_efmfr"]
+[ext_resource type="PackedScene" uid="uid://cp0x1x1sgvt0t" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/plane_bl.tscn" id="583_xhsvv"]
+[ext_resource type="PackedScene" uid="uid://cab61xtrv13gm" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/plane_br.tscn" id="584_nv08o"]
+[ext_resource type="PackedScene" uid="uid://qd0th1vc0ndp" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/plane_tl.tscn" id="585_1s0aw"]
+[ext_resource type="PackedScene" uid="uid://c2ixl4x4gq4b8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/plane_tr.tscn" id="586_jvd6h"]
+[ext_resource type="PackedScene" uid="uid://devp1oeu710ae" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_1_bl.tscn" id="587_nvjax"]
+[ext_resource type="PackedScene" uid="uid://cdtdolfy1dier" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_1_br.tscn" id="588_q43pn"]
+[ext_resource type="PackedScene" uid="uid://ht7qebi2dko6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_1_tl.tscn" id="589_7wmmc"]
+[ext_resource type="PackedScene" uid="uid://dsludhifhlhbi" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_1_tr.tscn" id="590_kf1x6"]
+[ext_resource type="PackedScene" uid="uid://b2gmq10kt4lnx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_2_bl.tscn" id="591_v316a"]
+[ext_resource type="PackedScene" uid="uid://dqp8no60dhy7w" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_2_br.tscn" id="592_k2br5"]
+[ext_resource type="PackedScene" uid="uid://bnwfschog4n0p" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_2_tl.tscn" id="593_cdu8b"]
+[ext_resource type="PackedScene" uid="uid://b7oktnf7lhncx" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_2_tr.tscn" id="594_7q1wf"]
+[ext_resource type="PackedScene" uid="uid://cdlbyc6pc5vkf" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_3_bl.tscn" id="595_3ne8o"]
+[ext_resource type="PackedScene" uid="uid://ctxqfrlgb847m" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_3_br.tscn" id="596_2xnt4"]
+[ext_resource type="PackedScene" uid="uid://br5udyayxkt8q" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_3_tl.tscn" id="597_2vqlh"]
+[ext_resource type="PackedScene" uid="uid://b0q0c3l4k5xvq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_3_tr.tscn" id="598_ncmv6"]
+[ext_resource type="PackedScene" uid="uid://c5vj262c3yws8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_4_bl.tscn" id="599_hfin7"]
+[ext_resource type="PackedScene" uid="uid://840pnjhal0fl" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_4_br.tscn" id="600_nn87w"]
+[ext_resource type="PackedScene" uid="uid://cbaodmqfeddps" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_4_tl.tscn" id="601_02m02"]
+[ext_resource type="PackedScene" uid="uid://csya866b6oxwp" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_4_tr.tscn" id="602_nhnlg"]
+[ext_resource type="PackedScene" uid="uid://d10v03513c72g" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_5_bl.tscn" id="603_dpp5r"]
+[ext_resource type="PackedScene" uid="uid://b1yqrn5mak4i0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_5_br.tscn" id="604_o5nph"]
+[ext_resource type="PackedScene" uid="uid://bh0xliiwsntlb" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_5_tl.tscn" id="605_gl2jm"]
+[ext_resource type="PackedScene" uid="uid://jqps46uw7hiv" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_5_tr.tscn" id="606_sb465"]
+[ext_resource type="PackedScene" uid="uid://bnvtpe3cl7dew" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_6_bl.tscn" id="607_yoiuk"]
+[ext_resource type="PackedScene" uid="uid://vrp7w77cy7e6" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_6_br.tscn" id="608_5mmiv"]
+[ext_resource type="PackedScene" uid="uid://iha033015e6q" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_6_tl.tscn" id="609_iaoo4"]
+[ext_resource type="PackedScene" uid="uid://swfluln7l4kq" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_6_tr.tscn" id="610_i2qsb"]
+[ext_resource type="PackedScene" uid="uid://cg3vmlvbq2w7u" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_7_bl.tscn" id="611_vnu4y"]
+[ext_resource type="PackedScene" uid="uid://ci0st5wctfdl8" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_7_br.tscn" id="612_r5fbh"]
+[ext_resource type="PackedScene" uid="uid://bkk76rr8gxms0" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_7_tl.tscn" id="613_5scqn"]
+[ext_resource type="PackedScene" uid="uid://bmbgtgjc7smh4" path="res://Kyle's Rock Pack/Kyle Fuji/Prefabs/Snow Rocks 3/rock_7_tr.tscn" id="614_q2otx"]
+
+[sub_resource type="Environment" id="Environment_xuito"]
+background_mode = 1
+background_color = Color(0.5882353, 0.74509805, 1, 1)
+background_energy_multiplier = 0.15
+fog_enabled = true
+fog_light_color = Color(0.5882353, 0.74509805, 1, 1)
+fog_density = 0.0
+fog_depth_begin = 0.0
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
+volumetric_fog_albedo = Color(0.5882353, 0.74509805, 1, 1)
+volumetric_fog_emission = Color(0.5882353, 0.74509805, 1, 1)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nclf5"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_818bn"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_4or78"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rtwdm"]
+size = Vector3(1.9976807, 0.0034179688, 1.9835205)
+
+[node name="RockScene" type="Node3D"]
+script = ExtResource("1_s8487")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_xuito")
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+transform = Transform3D(-0.2888313, 0, 0.95738, 0, 1, 0, -0.95738, 0, -0.2888313, 145.18446, 6.1374083, 4.936062)
+script = ExtResource("15_vfkoj")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+shape = SubResource("CapsuleShape3D_nclf5")
+
+[node name="Pivot" type="Node3D" parent="CharacterBody3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D/Pivot"]
+cast_shadow = 0
+mesh = SubResource("CapsuleMesh_818bn")
+skeleton = NodePath("")
+
+[node name="Camera3D" type="Camera3D" parent="CharacterBody3D/Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1862869, 0)
+
+[node name="Node3D" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(210.43968, 0, 0, 0, 34.780586, 0, 0, 0, 34.780586, 93.063835, 0, 0)
+mesh = SubResource("PlaneMesh_4or78")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Node3D/MeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node3D/MeshInstance3D/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00018310547, -0.0017089894, -0.006774922)
+shape = SubResource("BoxShape3D_rtwdm")
+
+[node name="boulder_1_bl" parent="." instance=ExtResource("3_rtwdm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, 0)
+
+[node name="boulder_1_br" parent="." instance=ExtResource("4_1dlry")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, 0)
+
+[node name="boulder_1_tl" parent="." instance=ExtResource("5_jfjf4")]
+
+[node name="boulder_1_tr" parent="." instance=ExtResource("6_ysr4b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, 0)
+
+[node name="boulder_2_bl" parent="." instance=ExtResource("7_5oco2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, 2.0744596)
+
+[node name="boulder_2_br" parent="." instance=ExtResource("8_ksnd8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, 2.0744596)
+
+[node name="boulder_2_tl" parent="." instance=ExtResource("9_cyxch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.0744596)
+
+[node name="boulder_2_tr" parent="." instance=ExtResource("10_tji17")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, 2.0744596)
+
+[node name="boulder_3_bl" parent="." instance=ExtResource("11_5iky4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, 4.189553)
+
+[node name="boulder_3_br" parent="." instance=ExtResource("12_k43ra")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, 4.189553)
+
+[node name="boulder_3_tl" parent="." instance=ExtResource("13_8g8n0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.189553)
+
+[node name="boulder_3_tr" parent="." instance=ExtResource("14_urg55")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, 4.189553)
+
+[node name="boulder_4_bl" parent="." instance=ExtResource("15_8gqf5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, 6.7635264)
+
+[node name="boulder_4_br" parent="." instance=ExtResource("16_m3y4k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, 6.7635264)
+
+[node name="boulder_4_tl" parent="." instance=ExtResource("17_8hl6f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6.7635264)
+
+[node name="boulder_4_tr" parent="." instance=ExtResource("18_ejm0i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, 6.7635264)
+
+[node name="boulder_5_bl" parent="." instance=ExtResource("19_reidj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, 8.863033)
+
+[node name="boulder_5_br" parent="." instance=ExtResource("20_12xvj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, 8.863033)
+
+[node name="boulder_5_tl" parent="." instance=ExtResource("21_5gtcq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8.863033)
+
+[node name="boulder_5_tr" parent="." instance=ExtResource("22_c58sp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, 8.863033)
+
+[node name="boulder_6_bl" parent="." instance=ExtResource("23_yt31o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, 10.656214)
+
+[node name="boulder_6_br" parent="." instance=ExtResource("24_mjn8s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, 10.656214)
+
+[node name="boulder_6_tl" parent="." instance=ExtResource("25_q7pwr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10.656214)
+
+[node name="boulder_6_tr" parent="." instance=ExtResource("26_bu6lg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, 10.656214)
+
+[node name="boulder_7_bl" parent="." instance=ExtResource("27_1ysd4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, 13.26763)
+
+[node name="boulder_7_br" parent="." instance=ExtResource("28_1vekm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, 13.26763)
+
+[node name="boulder_7_tl" parent="." instance=ExtResource("29_wb8pr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 13.26763)
+
+[node name="boulder_7_tr" parent="." instance=ExtResource("30_steba")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, 13.26763)
+
+[node name="boulder_8_bl" parent="." instance=ExtResource("31_mwpkk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, 15.397501)
+
+[node name="boulder_8_br" parent="." instance=ExtResource("32_pduke")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, 15.397501)
+
+[node name="boulder_8_tl" parent="." instance=ExtResource("33_m5ty4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 15.397501)
+
+[node name="boulder_8_tr" parent="." instance=ExtResource("34_h7bag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, 15.397501)
+
+[node name="boulder_9_bl" parent="." instance=ExtResource("35_4e2y3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, 17.972912)
+
+[node name="boulder_9_br" parent="." instance=ExtResource("36_umt0j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, 17.972912)
+
+[node name="boulder_9_tl" parent="." instance=ExtResource("37_4dvgm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 17.972912)
+
+[node name="boulder_9_tr" parent="." instance=ExtResource("38_q2ic7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, 17.972912)
+
+[node name="plane_bl" parent="." instance=ExtResource("39_qpb6e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0.014437199, -1.9943504)
+
+[node name="plane_br" parent="." instance=ExtResource("40_tqaav")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0.014437199, -1.9943504)
+
+[node name="plane_tl" parent="." instance=ExtResource("41_tm4wb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.014437199, -1.9943504)
+
+[node name="plane_tr" parent="." instance=ExtResource("42_so34x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0.014437199, -1.9943504)
+
+[node name="rock_1_bl" parent="." instance=ExtResource("43_v0l3n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, -3.5673199)
+
+[node name="rock_1_br" parent="." instance=ExtResource("44_x0ksh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, -3.5673199)
+
+[node name="rock_1_tl" parent="." instance=ExtResource("45_j3nvh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.5673199)
+
+[node name="rock_1_tr" parent="." instance=ExtResource("46_n5061")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, -3.5673199)
+
+[node name="rock_2_bl" parent="." instance=ExtResource("47_wabb4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, -5.3122964)
+
+[node name="rock_2_br" parent="." instance=ExtResource("48_e40ar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, -5.3122964)
+
+[node name="rock_2_tl" parent="." instance=ExtResource("49_s8f8y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.3122964)
+
+[node name="rock_2_tr" parent="." instance=ExtResource("50_txm3h")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, -5.3122964)
+
+[node name="rock_3_bl" parent="." instance=ExtResource("51_nns6l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, -6.818489)
+
+[node name="rock_3_br" parent="." instance=ExtResource("52_jsgsa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, -6.818489)
+
+[node name="rock_3_tl" parent="." instance=ExtResource("53_8eo6b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.818489)
+
+[node name="rock_3_tr" parent="." instance=ExtResource("54_ds3xc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, -6.818489)
+
+[node name="rock_4_bl" parent="." instance=ExtResource("55_fqc4i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, -8.160453)
+
+[node name="rock_4_br" parent="." instance=ExtResource("56_dq8sq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, -8.160453)
+
+[node name="rock_4_tl" parent="." instance=ExtResource("57_d0ar5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8.160453)
+
+[node name="rock_4_tr" parent="." instance=ExtResource("58_w1lqc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, -8.160453)
+
+[node name="rock_5_bl" parent="." instance=ExtResource("59_6ktt7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, -9.551767)
+
+[node name="rock_5_br" parent="." instance=ExtResource("60_2jlxa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, -9.551767)
+
+[node name="rock_5_tl" parent="." instance=ExtResource("61_a6knx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -9.551767)
+
+[node name="rock_5_tr" parent="." instance=ExtResource("62_mp8e2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, -9.551767)
+
+[node name="rock_6_bl" parent="." instance=ExtResource("63_i5eq3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, -10.444042)
+
+[node name="rock_6_br" parent="." instance=ExtResource("64_bu8dm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, -10.444042)
+
+[node name="rock_6_tl" parent="." instance=ExtResource("65_uoohd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10.444042)
+
+[node name="rock_6_tr" parent="." instance=ExtResource("66_jn3ps")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, -10.444042)
+
+[node name="rock_7_bl" parent="." instance=ExtResource("67_r5uai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.151825, 0, -11.417706)
+
+[node name="rock_7_br" parent="." instance=ExtResource("68_ib22l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.992905, 0, -11.417706)
+
+[node name="rock_7_tl" parent="." instance=ExtResource("69_x7xcm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -11.417706)
+
+[node name="rock_7_tr" parent="." instance=ExtResource("70_yqeb6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9878998, 0, -11.417706)
+
+[node name="boulder_1_bl2" parent="." instance=ExtResource("71_pac34")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, 0)
+
+[node name="boulder_1_br2" parent="." instance=ExtResource("72_c0utv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, 0)
+
+[node name="boulder_1_tl2" parent="." instance=ExtResource("73_w1yde")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, 0)
+
+[node name="boulder_1_tr2" parent="." instance=ExtResource("74_8g2c6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, 0)
+
+[node name="boulder_2_bl2" parent="." instance=ExtResource("75_bpuug")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, 2.0744596)
+
+[node name="boulder_2_br2" parent="." instance=ExtResource("76_rf5pl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, 2.0744596)
+
+[node name="boulder_2_tl2" parent="." instance=ExtResource("77_216es")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, 2.0744596)
+
+[node name="boulder_2_tr2" parent="." instance=ExtResource("78_xod0m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, 2.0744596)
+
+[node name="boulder_3_bl2" parent="." instance=ExtResource("79_qc3fm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, 4.189553)
+
+[node name="boulder_3_br2" parent="." instance=ExtResource("80_4e02y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, 4.189553)
+
+[node name="boulder_3_tl2" parent="." instance=ExtResource("81_osfpi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, 4.189553)
+
+[node name="boulder_3_tr2" parent="." instance=ExtResource("82_sw4vr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, 4.189553)
+
+[node name="boulder_4_bl2" parent="." instance=ExtResource("83_xm1re")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, 6.7635264)
+
+[node name="boulder_4_br2" parent="." instance=ExtResource("84_6bk6m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, 6.7635264)
+
+[node name="boulder_4_tl2" parent="." instance=ExtResource("85_tfg85")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, 6.7635264)
+
+[node name="boulder_4_tr2" parent="." instance=ExtResource("86_5g0tj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, 6.7635264)
+
+[node name="boulder_5_bl2" parent="." instance=ExtResource("87_kfoen")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, 8.863033)
+
+[node name="boulder_5_br2" parent="." instance=ExtResource("88_a6pqq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, 8.863033)
+
+[node name="boulder_5_tl2" parent="." instance=ExtResource("89_o5gqc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, 8.863033)
+
+[node name="boulder_5_tr2" parent="." instance=ExtResource("90_638d4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, 8.863033)
+
+[node name="boulder_6_bl2" parent="." instance=ExtResource("91_50ofa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, 10.656214)
+
+[node name="boulder_6_br2" parent="." instance=ExtResource("92_ajdno")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, 10.656214)
+
+[node name="boulder_6_tl2" parent="." instance=ExtResource("93_63esg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, 10.656214)
+
+[node name="boulder_6_tr2" parent="." instance=ExtResource("94_ys206")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, 10.656214)
+
+[node name="boulder_7_bl2" parent="." instance=ExtResource("95_ym66h")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, 13.26763)
+
+[node name="boulder_7_br2" parent="." instance=ExtResource("96_02ehj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, 13.26763)
+
+[node name="boulder_7_tl2" parent="." instance=ExtResource("97_pn5h8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, 13.26763)
+
+[node name="boulder_7_tr2" parent="." instance=ExtResource("98_rrd1d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, 13.26763)
+
+[node name="boulder_8_bl2" parent="." instance=ExtResource("99_nb5uk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, 15.397501)
+
+[node name="boulder_8_br2" parent="." instance=ExtResource("100_wybu0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, 15.397501)
+
+[node name="boulder_8_tl2" parent="." instance=ExtResource("101_otv5l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, 15.397501)
+
+[node name="boulder_8_tr2" parent="." instance=ExtResource("102_2yk54")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, 15.397501)
+
+[node name="boulder_9_bl2" parent="." instance=ExtResource("103_wnbgb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, 17.972912)
+
+[node name="boulder_9_br2" parent="." instance=ExtResource("104_esb3b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, 17.972912)
+
+[node name="boulder_9_tl2" parent="." instance=ExtResource("105_5yqlj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, 17.972912)
+
+[node name="boulder_9_tr2" parent="." instance=ExtResource("106_tvqgh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, 17.972912)
+
+[node name="plane_bl2" parent="." instance=ExtResource("107_ej1n1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0.014437199, -1.9943504)
+
+[node name="plane_br2" parent="." instance=ExtResource("108_oxlqp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0.014437199, -1.9943504)
+
+[node name="plane_tl2" parent="." instance=ExtResource("109_shrbt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0.014437199, -1.9943504)
+
+[node name="plane_tr2" parent="." instance=ExtResource("110_nnnke")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0.014437199, -1.9943504)
+
+[node name="rock_1_bl2" parent="." instance=ExtResource("111_jhxxk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, -3.5673199)
+
+[node name="rock_1_br2" parent="." instance=ExtResource("112_pvmmo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, -3.5673199)
+
+[node name="rock_1_tl2" parent="." instance=ExtResource("113_kk8em")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, -3.5673199)
+
+[node name="rock_1_tr2" parent="." instance=ExtResource("114_b1b1y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, -3.5673199)
+
+[node name="rock_2_bl2" parent="." instance=ExtResource("115_wv6xr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, -5.3122964)
+
+[node name="rock_2_br2" parent="." instance=ExtResource("116_h00wb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, -5.3122964)
+
+[node name="rock_2_tl2" parent="." instance=ExtResource("117_ns5u7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, -5.3122964)
+
+[node name="rock_2_tr2" parent="." instance=ExtResource("118_htqg2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, -5.3122964)
+
+[node name="rock_3_bl2" parent="." instance=ExtResource("119_lu8y8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, -6.818489)
+
+[node name="rock_3_br2" parent="." instance=ExtResource("120_tyvhq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, -6.818489)
+
+[node name="rock_3_tl2" parent="." instance=ExtResource("121_bm1oo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, -6.818489)
+
+[node name="rock_3_tr2" parent="." instance=ExtResource("122_v45b0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, -6.818489)
+
+[node name="rock_4_bl2" parent="." instance=ExtResource("123_sexxl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, -8.160453)
+
+[node name="rock_4_br2" parent="." instance=ExtResource("124_s5flo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, -8.160453)
+
+[node name="rock_4_tl2" parent="." instance=ExtResource("125_3vf1k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, -8.160453)
+
+[node name="rock_4_tr2" parent="." instance=ExtResource("126_tpa42")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, -8.160453)
+
+[node name="rock_5_bl2" parent="." instance=ExtResource("127_vbnsi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, -9.551767)
+
+[node name="rock_5_br2" parent="." instance=ExtResource("128_vpqq7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, -9.551767)
+
+[node name="rock_5_tl2" parent="." instance=ExtResource("129_57nu0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, -9.551767)
+
+[node name="rock_5_tr2" parent="." instance=ExtResource("130_6f2cp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, -9.551767)
+
+[node name="rock_6_bl2" parent="." instance=ExtResource("131_jilnf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, -10.444042)
+
+[node name="rock_6_br2" parent="." instance=ExtResource("132_8jufb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, -10.444042)
+
+[node name="rock_6_tl2" parent="." instance=ExtResource("133_dnsmt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, -10.444042)
+
+[node name="rock_6_tr2" parent="." instance=ExtResource("134_6ic6y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, -10.444042)
+
+[node name="rock_7_bl2" parent="." instance=ExtResource("135_d8a3q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24.140514, 0, -11.417706)
+
+[node name="rock_7_br2" parent="." instance=ExtResource("136_nl0au")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.981594, 0, -11.417706)
+
+[node name="rock_7_tl2" parent="." instance=ExtResource("137_jnvt1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.988689, 0, -11.417706)
+
+[node name="rock_7_tr2" parent="." instance=ExtResource("138_xfahv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.97659, 0, -11.417706)
+
+[node name="boulder_1_bl3" parent="." instance=ExtResource("139_px4rs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, 0)
+
+[node name="boulder_1_br3" parent="." instance=ExtResource("140_gm8tx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, 0)
+
+[node name="boulder_1_tl3" parent="." instance=ExtResource("141_jvndb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, 0)
+
+[node name="boulder_1_tr3" parent="." instance=ExtResource("142_q7n24")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, 0)
+
+[node name="boulder_2_bl3" parent="." instance=ExtResource("143_72xq2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, 2.0744596)
+
+[node name="boulder_2_br3" parent="." instance=ExtResource("144_4y6r4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, 2.0744596)
+
+[node name="boulder_2_tl3" parent="." instance=ExtResource("145_77okv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, 2.0744596)
+
+[node name="boulder_2_tr3" parent="." instance=ExtResource("146_s5brw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, 2.0744596)
+
+[node name="boulder_3_bl3" parent="." instance=ExtResource("147_c7hbo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, 4.189553)
+
+[node name="boulder_3_br3" parent="." instance=ExtResource("148_7thjm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, 4.189553)
+
+[node name="boulder_3_tl3" parent="." instance=ExtResource("149_sf6t3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, 4.189553)
+
+[node name="boulder_3_tr3" parent="." instance=ExtResource("150_h7f72")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, 4.189553)
+
+[node name="boulder_4_bl3" parent="." instance=ExtResource("151_b0ka4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, 6.7635264)
+
+[node name="boulder_4_br3" parent="." instance=ExtResource("152_4h6xy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, 6.7635264)
+
+[node name="boulder_4_tl3" parent="." instance=ExtResource("153_ahkql")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, 6.7635264)
+
+[node name="boulder_4_tr3" parent="." instance=ExtResource("154_yrmys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, 6.7635264)
+
+[node name="boulder_5_bl3" parent="." instance=ExtResource("155_plml5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, 8.863033)
+
+[node name="boulder_5_br3" parent="." instance=ExtResource("156_6vaw5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, 8.863033)
+
+[node name="boulder_5_tl3" parent="." instance=ExtResource("157_gebi3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, 8.863033)
+
+[node name="boulder_5_tr3" parent="." instance=ExtResource("158_rfs3t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, 8.863033)
+
+[node name="boulder_6_bl3" parent="." instance=ExtResource("159_3g254")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, 10.656214)
+
+[node name="boulder_6_br3" parent="." instance=ExtResource("160_w2f0d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, 10.656214)
+
+[node name="boulder_6_tl3" parent="." instance=ExtResource("161_8rkku")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, 10.656214)
+
+[node name="boulder_6_tr3" parent="." instance=ExtResource("162_lia70")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, 10.656214)
+
+[node name="boulder_7_bl3" parent="." instance=ExtResource("163_7o80n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, 13.26763)
+
+[node name="boulder_7_br3" parent="." instance=ExtResource("164_2r4s8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, 13.26763)
+
+[node name="boulder_7_tl3" parent="." instance=ExtResource("165_40my8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, 13.26763)
+
+[node name="boulder_7_tr3" parent="." instance=ExtResource("166_bcr2q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, 13.26763)
+
+[node name="boulder_8_bl3" parent="." instance=ExtResource("167_q5m1h")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, 15.397501)
+
+[node name="boulder_8_br3" parent="." instance=ExtResource("168_vme8e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, 15.397501)
+
+[node name="boulder_8_tl3" parent="." instance=ExtResource("169_bonkk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, 15.397501)
+
+[node name="boulder_8_tr3" parent="." instance=ExtResource("170_238i6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, 15.397501)
+
+[node name="boulder_9_bl3" parent="." instance=ExtResource("171_ikcv6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, 17.972912)
+
+[node name="boulder_9_br3" parent="." instance=ExtResource("172_wqj8l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, 17.972912)
+
+[node name="boulder_9_tl3" parent="." instance=ExtResource("173_ga7cy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, 17.972912)
+
+[node name="boulder_9_tr3" parent="." instance=ExtResource("174_e7vrg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, 17.972912)
+
+[node name="plane_bl3" parent="." instance=ExtResource("175_wgryo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0.014437199, -1.9943504)
+
+[node name="plane_br3" parent="." instance=ExtResource("176_qftti")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0.014437199, -1.9943504)
+
+[node name="plane_tl3" parent="." instance=ExtResource("177_g8b7o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0.014437199, -1.9943504)
+
+[node name="plane_tr3" parent="." instance=ExtResource("178_uxhkc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0.014437199, -1.9943504)
+
+[node name="rock_1_bl3" parent="." instance=ExtResource("179_d2d4v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, -3.5673199)
+
+[node name="rock_1_br3" parent="." instance=ExtResource("180_fuck7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, -3.5673199)
+
+[node name="rock_1_tl3" parent="." instance=ExtResource("181_laxs5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, -3.5673199)
+
+[node name="rock_1_tr3" parent="." instance=ExtResource("182_quuar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, -3.5673199)
+
+[node name="rock_2_bl3" parent="." instance=ExtResource("183_1e4fx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, -5.3122964)
+
+[node name="rock_2_br3" parent="." instance=ExtResource("184_iu8qr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, -5.3122964)
+
+[node name="rock_2_tl3" parent="." instance=ExtResource("185_k0bsm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, -5.3122964)
+
+[node name="rock_2_tr3" parent="." instance=ExtResource("186_3v2ti")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, -5.3122964)
+
+[node name="rock_3_bl3" parent="." instance=ExtResource("187_8g6k4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, -6.818489)
+
+[node name="rock_3_br3" parent="." instance=ExtResource("188_3doiq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, -6.818489)
+
+[node name="rock_3_tl3" parent="." instance=ExtResource("189_50l2j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, -6.818489)
+
+[node name="rock_3_tr3" parent="." instance=ExtResource("190_yknyb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, -6.818489)
+
+[node name="rock_4_bl3" parent="." instance=ExtResource("191_nkhc3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, -8.160453)
+
+[node name="rock_4_br3" parent="." instance=ExtResource("192_2r8tg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, -8.160453)
+
+[node name="rock_4_tl3" parent="." instance=ExtResource("193_uisw3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, -8.160453)
+
+[node name="rock_4_tr3" parent="." instance=ExtResource("194_o4u5e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, -8.160453)
+
+[node name="rock_5_bl3" parent="." instance=ExtResource("195_awcvq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, -9.551767)
+
+[node name="rock_5_br3" parent="." instance=ExtResource("196_f7xih")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, -9.551767)
+
+[node name="rock_5_tl3" parent="." instance=ExtResource("197_5t84n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, -9.551767)
+
+[node name="rock_5_tr3" parent="." instance=ExtResource("198_7t703")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, -9.551767)
+
+[node name="rock_6_bl3" parent="." instance=ExtResource("199_pfk0d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, -10.444042)
+
+[node name="rock_6_br3" parent="." instance=ExtResource("200_6nnj2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, -10.444042)
+
+[node name="rock_6_tl3" parent="." instance=ExtResource("201_7f7ai")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, -10.444042)
+
+[node name="rock_6_tr3" parent="." instance=ExtResource("202_x7rdw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, -10.444042)
+
+[node name="rock_7_bl3" parent="." instance=ExtResource("203_px3kw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.26042, 0, -11.417706)
+
+[node name="rock_7_br3" parent="." instance=ExtResource("204_14kpc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1015, 0, -11.417706)
+
+[node name="rock_7_tl3" parent="." instance=ExtResource("205_vci5d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.108597, 0, -11.417706)
+
+[node name="rock_7_tr3" parent="." instance=ExtResource("206_sj53o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.096497, 0, -11.417706)
+
+[node name="boulder_1_bl4" parent="." instance=ExtResource("207_mmd3u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, 0)
+
+[node name="boulder_1_br4" parent="." instance=ExtResource("208_hbtnh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, 0)
+
+[node name="boulder_1_tl4" parent="." instance=ExtResource("209_55nbg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, 0)
+
+[node name="boulder_1_tr4" parent="." instance=ExtResource("210_fmjt1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, 0)
+
+[node name="boulder_2_bl4" parent="." instance=ExtResource("211_gjhfb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, 2.0744596)
+
+[node name="boulder_2_br4" parent="." instance=ExtResource("212_fatpi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, 2.0744596)
+
+[node name="boulder_2_tl4" parent="." instance=ExtResource("213_3ormw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, 2.0744596)
+
+[node name="boulder_2_tr4" parent="." instance=ExtResource("214_rk6ok")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, 2.0744596)
+
+[node name="boulder_3_bl4" parent="." instance=ExtResource("215_0fyoc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, 4.189553)
+
+[node name="boulder_3_br4" parent="." instance=ExtResource("216_xqe88")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, 4.189553)
+
+[node name="boulder_3_tl4" parent="." instance=ExtResource("217_jkf6c")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, 4.189553)
+
+[node name="boulder_3_tr4" parent="." instance=ExtResource("218_8gl3y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, 4.189553)
+
+[node name="boulder_4_bl4" parent="." instance=ExtResource("219_hk723")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, 6.7635264)
+
+[node name="boulder_4_br4" parent="." instance=ExtResource("220_5fcow")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, 6.7635264)
+
+[node name="boulder_4_tl4" parent="." instance=ExtResource("221_474sb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, 6.7635264)
+
+[node name="boulder_4_tr4" parent="." instance=ExtResource("222_f2l1n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, 6.7635264)
+
+[node name="boulder_5_bl4" parent="." instance=ExtResource("223_5iyxy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, 8.863033)
+
+[node name="boulder_5_br4" parent="." instance=ExtResource("224_pin2d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, 8.863033)
+
+[node name="boulder_5_tl4" parent="." instance=ExtResource("225_xq5em")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, 8.863033)
+
+[node name="boulder_5_tr4" parent="." instance=ExtResource("226_hk5jp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, 8.863033)
+
+[node name="boulder_6_bl4" parent="." instance=ExtResource("227_6hjsp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, 10.656214)
+
+[node name="boulder_6_br4" parent="." instance=ExtResource("228_y4h83")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, 10.656214)
+
+[node name="boulder_6_tl4" parent="." instance=ExtResource("229_tokor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, 10.656214)
+
+[node name="boulder_6_tr4" parent="." instance=ExtResource("230_0vyrf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, 10.656214)
+
+[node name="boulder_7_bl4" parent="." instance=ExtResource("231_tx8eq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, 13.26763)
+
+[node name="boulder_7_br4" parent="." instance=ExtResource("232_qpli8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, 13.26763)
+
+[node name="boulder_7_tl4" parent="." instance=ExtResource("233_ymd6q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, 13.26763)
+
+[node name="boulder_7_tr4" parent="." instance=ExtResource("234_cluit")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, 13.26763)
+
+[node name="boulder_8_bl4" parent="." instance=ExtResource("235_giuhw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, 15.397501)
+
+[node name="boulder_8_br4" parent="." instance=ExtResource("236_lefoj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, 15.397501)
+
+[node name="boulder_8_tl4" parent="." instance=ExtResource("237_4x8sn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, 15.397501)
+
+[node name="boulder_8_tr4" parent="." instance=ExtResource("238_41gx2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, 15.397501)
+
+[node name="boulder_9_bl4" parent="." instance=ExtResource("239_tywlg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, 17.972912)
+
+[node name="boulder_9_br4" parent="." instance=ExtResource("240_mfrln")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, 17.972912)
+
+[node name="boulder_9_tl4" parent="." instance=ExtResource("241_8lckt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, 17.972912)
+
+[node name="boulder_9_tr4" parent="." instance=ExtResource("242_wsa40")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, 17.972912)
+
+[node name="plane_bl4" parent="." instance=ExtResource("243_f8eo7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0.014437199, -1.9943504)
+
+[node name="plane_br4" parent="." instance=ExtResource("244_0pllx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0.014437199, -1.9943504)
+
+[node name="plane_tl4" parent="." instance=ExtResource("245_27xqy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0.014437199, -1.9943504)
+
+[node name="plane_tr4" parent="." instance=ExtResource("246_0kg6u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0.014437199, -1.9943504)
+
+[node name="rock_1_bl4" parent="." instance=ExtResource("247_wdu46")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, -3.5673199)
+
+[node name="rock_1_br4" parent="." instance=ExtResource("248_3uklk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, -3.5673199)
+
+[node name="rock_1_tl4" parent="." instance=ExtResource("249_ej64n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, -3.5673199)
+
+[node name="rock_1_tr4" parent="." instance=ExtResource("250_lk4u3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, -3.5673199)
+
+[node name="rock_2_bl4" parent="." instance=ExtResource("251_eckxr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, -5.3122964)
+
+[node name="rock_2_br4" parent="." instance=ExtResource("252_7fdkx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, -5.3122964)
+
+[node name="rock_2_tl4" parent="." instance=ExtResource("253_ohwpq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, -5.3122964)
+
+[node name="rock_2_tr4" parent="." instance=ExtResource("254_a8pd3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, -5.3122964)
+
+[node name="rock_3_bl4" parent="." instance=ExtResource("255_nvogf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, -6.818489)
+
+[node name="rock_3_br4" parent="." instance=ExtResource("256_2l4x7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, -6.818489)
+
+[node name="rock_3_tl4" parent="." instance=ExtResource("257_rk6vf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, -6.818489)
+
+[node name="rock_3_tr4" parent="." instance=ExtResource("258_ruo7u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, -6.818489)
+
+[node name="rock_4_bl4" parent="." instance=ExtResource("259_uvitm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, -8.160453)
+
+[node name="rock_4_br4" parent="." instance=ExtResource("260_tma3a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, -8.160453)
+
+[node name="rock_4_tl4" parent="." instance=ExtResource("261_6nl6d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, -8.160453)
+
+[node name="rock_4_tr4" parent="." instance=ExtResource("262_a6t0m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, -8.160453)
+
+[node name="rock_5_bl4" parent="." instance=ExtResource("263_gycnc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, -9.551767)
+
+[node name="rock_5_br4" parent="." instance=ExtResource("264_sitsi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, -9.551767)
+
+[node name="rock_5_tl4" parent="." instance=ExtResource("265_cbvn4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, -9.551767)
+
+[node name="rock_5_tr4" parent="." instance=ExtResource("266_4128r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, -9.551767)
+
+[node name="rock_6_bl4" parent="." instance=ExtResource("267_s1jou")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, -10.444042)
+
+[node name="rock_6_br4" parent="." instance=ExtResource("268_5f0xn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, -10.444042)
+
+[node name="rock_6_tl4" parent="." instance=ExtResource("269_yqt33")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, -10.444042)
+
+[node name="rock_6_tr4" parent="." instance=ExtResource("270_rqemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, -10.444042)
+
+[node name="rock_7_bl4" parent="." instance=ExtResource("271_jt2ek")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.10845, 0, -11.417706)
+
+[node name="rock_7_br4" parent="." instance=ExtResource("272_542tp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59.94953, 0, -11.417706)
+
+[node name="rock_7_tl4" parent="." instance=ExtResource("273_pldv1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.956627, 0, -11.417706)
+
+[node name="rock_7_tr4" parent="." instance=ExtResource("274_18bxr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51.944527, 0, -11.417706)
+
+[node name="boulder_1_bl5" parent="." instance=ExtResource("275_0a8ln")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, 0)
+
+[node name="boulder_1_br5" parent="." instance=ExtResource("276_5awc7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, 0)
+
+[node name="boulder_1_tl5" parent="." instance=ExtResource("277_mo6gp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, 0)
+
+[node name="boulder_1_tr5" parent="." instance=ExtResource("278_keb42")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, 0)
+
+[node name="boulder_2_bl5" parent="." instance=ExtResource("279_d4010")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, 2.0744596)
+
+[node name="boulder_2_br5" parent="." instance=ExtResource("280_r6ih0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, 2.0744596)
+
+[node name="boulder_2_tl5" parent="." instance=ExtResource("281_lng8u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, 2.0744596)
+
+[node name="boulder_2_tr5" parent="." instance=ExtResource("282_lc8q0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, 2.0744596)
+
+[node name="boulder_3_bl5" parent="." instance=ExtResource("283_wdule")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, 4.189553)
+
+[node name="boulder_3_br5" parent="." instance=ExtResource("284_komtj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, 4.189553)
+
+[node name="boulder_3_tl5" parent="." instance=ExtResource("285_e6hrw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, 4.189553)
+
+[node name="boulder_3_tr5" parent="." instance=ExtResource("286_phttf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, 4.189553)
+
+[node name="boulder_4_bl5" parent="." instance=ExtResource("287_mk2fi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, 6.7635264)
+
+[node name="boulder_4_br5" parent="." instance=ExtResource("288_pme1c")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, 6.7635264)
+
+[node name="boulder_4_tl5" parent="." instance=ExtResource("289_jsv8g")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, 6.7635264)
+
+[node name="boulder_4_tr5" parent="." instance=ExtResource("290_6nbn5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, 6.7635264)
+
+[node name="boulder_5_bl5" parent="." instance=ExtResource("291_jf1dp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, 8.863033)
+
+[node name="boulder_5_br5" parent="." instance=ExtResource("292_xfjwi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, 8.863033)
+
+[node name="boulder_5_tl5" parent="." instance=ExtResource("293_lgnie")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, 8.863033)
+
+[node name="boulder_5_tr5" parent="." instance=ExtResource("294_ycv4v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, 8.863033)
+
+[node name="boulder_6_bl5" parent="." instance=ExtResource("295_tufco")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, 10.656214)
+
+[node name="boulder_6_br5" parent="." instance=ExtResource("296_dwogh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, 10.656214)
+
+[node name="boulder_6_tl5" parent="." instance=ExtResource("297_0u5ia")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, 10.656214)
+
+[node name="boulder_6_tr5" parent="." instance=ExtResource("298_628oe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, 10.656214)
+
+[node name="boulder_7_bl5" parent="." instance=ExtResource("299_uth0y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, 13.26763)
+
+[node name="boulder_7_br5" parent="." instance=ExtResource("300_08mes")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, 13.26763)
+
+[node name="boulder_7_tl5" parent="." instance=ExtResource("301_m8wi5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, 13.26763)
+
+[node name="boulder_7_tr5" parent="." instance=ExtResource("302_jll4u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, 13.26763)
+
+[node name="boulder_8_bl5" parent="." instance=ExtResource("303_047ub")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, 15.397501)
+
+[node name="boulder_8_br5" parent="." instance=ExtResource("304_s4sgo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, 15.397501)
+
+[node name="boulder_8_tl5" parent="." instance=ExtResource("305_iqv5y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, 15.397501)
+
+[node name="boulder_8_tr5" parent="." instance=ExtResource("306_by4qv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, 15.397501)
+
+[node name="boulder_9_bl5" parent="." instance=ExtResource("307_5787s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, 17.972912)
+
+[node name="boulder_9_br5" parent="." instance=ExtResource("308_ova63")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, 17.972912)
+
+[node name="boulder_9_tl5" parent="." instance=ExtResource("309_jrxsc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, 17.972912)
+
+[node name="boulder_9_tr5" parent="." instance=ExtResource("310_yi3y5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, 17.972912)
+
+[node name="plane_bl5" parent="." instance=ExtResource("311_q6esb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0.014437199, -1.9943504)
+
+[node name="plane_br5" parent="." instance=ExtResource("312_p1mvw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0.014437199, -1.9943504)
+
+[node name="plane_tl5" parent="." instance=ExtResource("313_a5f3m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0.014437199, -1.9943504)
+
+[node name="plane_tr5" parent="." instance=ExtResource("314_olxn8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0.014437199, -1.9943504)
+
+[node name="rock_1_bl5" parent="." instance=ExtResource("315_2p5ex")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, -3.5673199)
+
+[node name="rock_1_br5" parent="." instance=ExtResource("316_gx4k0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, -3.5673199)
+
+[node name="rock_1_tl5" parent="." instance=ExtResource("317_n5ha3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, -3.5673199)
+
+[node name="rock_1_tr5" parent="." instance=ExtResource("318_padyl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, -3.5673199)
+
+[node name="rock_2_bl5" parent="." instance=ExtResource("319_uati2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, -5.3122964)
+
+[node name="rock_2_br5" parent="." instance=ExtResource("320_p0r5p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, -5.3122964)
+
+[node name="rock_2_tl5" parent="." instance=ExtResource("321_lnvyu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, -5.3122964)
+
+[node name="rock_2_tr5" parent="." instance=ExtResource("322_rd0cx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, -5.3122964)
+
+[node name="rock_3_bl5" parent="." instance=ExtResource("323_fmq1d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, -6.818489)
+
+[node name="rock_3_br5" parent="." instance=ExtResource("324_7ql11")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, -6.818489)
+
+[node name="rock_3_tl5" parent="." instance=ExtResource("325_gry04")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, -6.818489)
+
+[node name="rock_3_tr5" parent="." instance=ExtResource("326_rwc70")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, -6.818489)
+
+[node name="rock_4_bl5" parent="." instance=ExtResource("327_ot3vx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, -8.160453)
+
+[node name="rock_4_br5" parent="." instance=ExtResource("328_7g6tx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, -8.160453)
+
+[node name="rock_4_tl5" parent="." instance=ExtResource("329_3hr33")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, -8.160453)
+
+[node name="rock_4_tr5" parent="." instance=ExtResource("330_rmulb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, -8.160453)
+
+[node name="rock_5_bl5" parent="." instance=ExtResource("331_rna6a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, -9.551767)
+
+[node name="rock_5_br5" parent="." instance=ExtResource("332_yptlc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, -9.551767)
+
+[node name="rock_5_tl5" parent="." instance=ExtResource("333_n5qlv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, -9.551767)
+
+[node name="rock_5_tr5" parent="." instance=ExtResource("334_fjgr5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, -9.551767)
+
+[node name="rock_6_bl5" parent="." instance=ExtResource("335_of3gi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, -10.444042)
+
+[node name="rock_6_br5" parent="." instance=ExtResource("336_ylkje")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, -10.444042)
+
+[node name="rock_6_tl5" parent="." instance=ExtResource("337_1bqit")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, -10.444042)
+
+[node name="rock_6_tr5" parent="." instance=ExtResource("338_nd1ks")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, -10.444042)
+
+[node name="rock_7_bl5" parent="." instance=ExtResource("339_0o1q7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72.229195, 0, -11.417706)
+
+[node name="rock_7_br5" parent="." instance=ExtResource("340_bk25v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76.070274, 0, -11.417706)
+
+[node name="rock_7_tl5" parent="." instance=ExtResource("341_te4mx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.07737, 0, -11.417706)
+
+[node name="rock_7_tr5" parent="." instance=ExtResource("342_2yxyx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68.06527, 0, -11.417706)
+
+[node name="boulder_1_bl6" parent="." instance=ExtResource("343_oxoax")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, 0)
+
+[node name="boulder_1_br6" parent="." instance=ExtResource("344_arc5w")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, 0)
+
+[node name="boulder_1_tl6" parent="." instance=ExtResource("345_tn3ri")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, 0)
+
+[node name="boulder_1_tr6" parent="." instance=ExtResource("346_5etn6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, 0)
+
+[node name="boulder_2_bl6" parent="." instance=ExtResource("347_gqlnn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, 2.0744596)
+
+[node name="boulder_2_br6" parent="." instance=ExtResource("348_rgeoo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, 2.0744596)
+
+[node name="boulder_2_tl6" parent="." instance=ExtResource("349_hwgro")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, 2.0744596)
+
+[node name="boulder_2_tr6" parent="." instance=ExtResource("350_pq171")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, 2.0744596)
+
+[node name="boulder_3_bl6" parent="." instance=ExtResource("351_x8l0b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, 4.189553)
+
+[node name="boulder_3_br6" parent="." instance=ExtResource("352_rq51a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, 4.189553)
+
+[node name="boulder_3_tl6" parent="." instance=ExtResource("353_0japa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, 4.189553)
+
+[node name="boulder_3_tr6" parent="." instance=ExtResource("354_sc3qg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, 4.189553)
+
+[node name="boulder_4_bl6" parent="." instance=ExtResource("355_hi88h")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, 6.7635264)
+
+[node name="boulder_4_br6" parent="." instance=ExtResource("356_u3oim")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, 6.7635264)
+
+[node name="boulder_4_tl6" parent="." instance=ExtResource("357_pkqob")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, 6.7635264)
+
+[node name="boulder_4_tr6" parent="." instance=ExtResource("358_yyiii")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, 6.7635264)
+
+[node name="boulder_5_bl6" parent="." instance=ExtResource("359_dloeb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, 8.863033)
+
+[node name="boulder_5_br6" parent="." instance=ExtResource("360_r3ymt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, 8.863033)
+
+[node name="boulder_5_tl6" parent="." instance=ExtResource("361_gfywi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, 8.863033)
+
+[node name="boulder_5_tr6" parent="." instance=ExtResource("362_wnou3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, 8.863033)
+
+[node name="boulder_6_bl6" parent="." instance=ExtResource("363_0jxaf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, 10.656214)
+
+[node name="boulder_6_br6" parent="." instance=ExtResource("364_p57qt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, 10.656214)
+
+[node name="boulder_6_tl6" parent="." instance=ExtResource("365_wwr64")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, 10.656214)
+
+[node name="boulder_6_tr6" parent="." instance=ExtResource("366_4wvkm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, 10.656214)
+
+[node name="boulder_7_bl6" parent="." instance=ExtResource("367_v1bty")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, 13.26763)
+
+[node name="boulder_7_br6" parent="." instance=ExtResource("368_2jfxi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, 13.26763)
+
+[node name="boulder_7_tl6" parent="." instance=ExtResource("369_65foe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, 13.26763)
+
+[node name="boulder_7_tr6" parent="." instance=ExtResource("370_a2y7u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, 13.26763)
+
+[node name="boulder_8_bl6" parent="." instance=ExtResource("371_mpn6r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, 15.397501)
+
+[node name="boulder_8_br6" parent="." instance=ExtResource("372_fx3tb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, 15.397501)
+
+[node name="boulder_8_tl6" parent="." instance=ExtResource("373_wtgqr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, 15.397501)
+
+[node name="boulder_8_tr6" parent="." instance=ExtResource("374_dt4vi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, 15.397501)
+
+[node name="boulder_9_bl6" parent="." instance=ExtResource("375_46cw7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, 17.972912)
+
+[node name="boulder_9_br6" parent="." instance=ExtResource("376_8g4uu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, 17.972912)
+
+[node name="boulder_9_tl6" parent="." instance=ExtResource("377_0c1qy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, 17.972912)
+
+[node name="boulder_9_tr6" parent="." instance=ExtResource("378_lplql")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, 17.972912)
+
+[node name="plane_bl6" parent="." instance=ExtResource("379_j3uru")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0.014437199, -1.9943504)
+
+[node name="plane_br6" parent="." instance=ExtResource("380_wsxmj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0.014437199, -1.9943504)
+
+[node name="plane_tl6" parent="." instance=ExtResource("381_cflmd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0.014437199, -1.9943504)
+
+[node name="plane_tr6" parent="." instance=ExtResource("382_1lspf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0.014437199, -1.9943504)
+
+[node name="rock_1_bl6" parent="." instance=ExtResource("383_jctcw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, -3.5673199)
+
+[node name="rock_1_br6" parent="." instance=ExtResource("384_4x1di")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, -3.5673199)
+
+[node name="rock_1_tl6" parent="." instance=ExtResource("385_xjnaf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, -3.5673199)
+
+[node name="rock_1_tr6" parent="." instance=ExtResource("386_bnlyw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, -3.5673199)
+
+[node name="rock_2_bl6" parent="." instance=ExtResource("387_82s5n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, -5.3122964)
+
+[node name="rock_2_br6" parent="." instance=ExtResource("388_pwnlt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, -5.3122964)
+
+[node name="rock_2_tl6" parent="." instance=ExtResource("389_bj54f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, -5.3122964)
+
+[node name="rock_2_tr6" parent="." instance=ExtResource("390_xbrff")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, -5.3122964)
+
+[node name="rock_3_bl6" parent="." instance=ExtResource("391_17873")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, -6.818489)
+
+[node name="rock_3_br6" parent="." instance=ExtResource("392_pvqth")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, -6.818489)
+
+[node name="rock_3_tl6" parent="." instance=ExtResource("393_dv33a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, -6.818489)
+
+[node name="rock_3_tr6" parent="." instance=ExtResource("394_hut07")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, -6.818489)
+
+[node name="rock_4_bl6" parent="." instance=ExtResource("395_r554v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, -8.160453)
+
+[node name="rock_4_br6" parent="." instance=ExtResource("396_6jktv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, -8.160453)
+
+[node name="rock_4_tl6" parent="." instance=ExtResource("397_iil40")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, -8.160453)
+
+[node name="rock_4_tr6" parent="." instance=ExtResource("398_7e4fe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, -8.160453)
+
+[node name="rock_5_bl6" parent="." instance=ExtResource("399_4pljv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, -9.551767)
+
+[node name="rock_5_br6" parent="." instance=ExtResource("400_euyju")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, -9.551767)
+
+[node name="rock_5_tl6" parent="." instance=ExtResource("401_sg204")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, -9.551767)
+
+[node name="rock_5_tr6" parent="." instance=ExtResource("402_vv7qp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, -9.551767)
+
+[node name="rock_6_bl6" parent="." instance=ExtResource("403_4m3es")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, -10.444042)
+
+[node name="rock_6_br6" parent="." instance=ExtResource("404_da3co")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, -10.444042)
+
+[node name="rock_6_tl6" parent="." instance=ExtResource("405_7jx8m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, -10.444042)
+
+[node name="rock_6_tr6" parent="." instance=ExtResource("406_1omxr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, -10.444042)
+
+[node name="rock_7_bl6" parent="." instance=ExtResource("407_5qmti")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88.238625, 0, -11.417706)
+
+[node name="rock_7_br6" parent="." instance=ExtResource("408_5cwlc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92.079704, 0, -11.417706)
+
+[node name="rock_7_tl6" parent="." instance=ExtResource("409_05yu1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80.0868, 0, -11.417706)
+
+[node name="rock_7_tr6" parent="." instance=ExtResource("410_641co")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84.0747, 0, -11.417706)
+
+[node name="boulder_1_bl7" parent="." instance=ExtResource("411_yeknp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, 0)
+
+[node name="boulder_1_br7" parent="." instance=ExtResource("412_ka04x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, 0)
+
+[node name="boulder_1_tl7" parent="." instance=ExtResource("10_cie8u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, 0)
+
+[node name="boulder_1_tr7" parent="." instance=ExtResource("3_miol0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, 0)
+
+[node name="boulder_2_bl7" parent="." instance=ExtResource("415_nlr5j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, 2.0744596)
+
+[node name="boulder_2_br7" parent="." instance=ExtResource("4_0fypw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, 2.0744596)
+
+[node name="boulder_2_tl7" parent="." instance=ExtResource("417_ixihw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, 2.0744596)
+
+[node name="boulder_2_tr7" parent="." instance=ExtResource("418_3y6sx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, 2.0744596)
+
+[node name="boulder_3_bl7" parent="." instance=ExtResource("419_0j6f3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, 4.189553)
+
+[node name="boulder_3_br7" parent="." instance=ExtResource("420_j3ybh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, 4.189553)
+
+[node name="boulder_3_tl7" parent="." instance=ExtResource("421_spctw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, 4.189553)
+
+[node name="boulder_3_tr7" parent="." instance=ExtResource("422_ecp5r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, 4.189553)
+
+[node name="boulder_4_bl7" parent="." instance=ExtResource("423_8k0ed")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, 6.7635264)
+
+[node name="boulder_4_br7" parent="." instance=ExtResource("5_hrjnu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, 6.7635264)
+
+[node name="boulder_4_tl7" parent="." instance=ExtResource("425_ibvts")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, 6.7635264)
+
+[node name="boulder_4_tr7" parent="." instance=ExtResource("6_dhex7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, 6.7635264)
+
+[node name="boulder_5_bl7" parent="." instance=ExtResource("2_5nlky")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, 8.863033)
+
+[node name="boulder_5_br7" parent="." instance=ExtResource("428_mem5q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, 8.863033)
+
+[node name="boulder_5_tl7" parent="." instance=ExtResource("7_6hjrf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, 8.863033)
+
+[node name="boulder_5_tr7" parent="." instance=ExtResource("430_4tfhb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, 8.863033)
+
+[node name="boulder_6_bl7" parent="." instance=ExtResource("431_5f8by")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, 10.656214)
+
+[node name="boulder_6_br7" parent="." instance=ExtResource("432_kvm0m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, 10.656214)
+
+[node name="boulder_6_tl7" parent="." instance=ExtResource("433_orom5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, 10.656214)
+
+[node name="boulder_6_tr7" parent="." instance=ExtResource("8_38vmf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, 10.656214)
+
+[node name="boulder_7_bl7" parent="." instance=ExtResource("435_c0gc6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, 13.26763)
+
+[node name="boulder_7_br7" parent="." instance=ExtResource("436_c2xjp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, 13.26763)
+
+[node name="boulder_7_tl7" parent="." instance=ExtResource("437_nnlik")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, 13.26763)
+
+[node name="boulder_7_tr7" parent="." instance=ExtResource("438_6kfnh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, 13.26763)
+
+[node name="boulder_8_bl7" parent="." instance=ExtResource("439_6cvde")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, 15.397501)
+
+[node name="boulder_8_br7" parent="." instance=ExtResource("440_xwygv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, 15.397501)
+
+[node name="boulder_8_tl7" parent="." instance=ExtResource("441_xqni6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, 15.397501)
+
+[node name="boulder_8_tr7" parent="." instance=ExtResource("442_da4ik")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, 15.397501)
+
+[node name="boulder_9_bl7" parent="." instance=ExtResource("12_sthfy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, 17.972912)
+
+[node name="boulder_9_br7" parent="." instance=ExtResource("444_1dwy4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, 17.972912)
+
+[node name="boulder_9_tl7" parent="." instance=ExtResource("445_8ud2m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, 17.972912)
+
+[node name="boulder_9_tr7" parent="." instance=ExtResource("446_pux03")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, 17.972912)
+
+[node name="plane_bl7" parent="." instance=ExtResource("11_1ywux")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0.014437199, -1.9943504)
+
+[node name="plane_br7" parent="." instance=ExtResource("448_xtwmd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0.014437199, -1.9943504)
+
+[node name="plane_tl7" parent="." instance=ExtResource("449_sal74")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0.014437199, -1.9943504)
+
+[node name="plane_tr7" parent="." instance=ExtResource("450_mjf2x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0.014437199, -1.9943504)
+
+[node name="rock_1_bl7" parent="." instance=ExtResource("13_403r6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, -3.5673199)
+
+[node name="rock_1_br7" parent="." instance=ExtResource("452_nl80p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, -3.5673199)
+
+[node name="rock_1_tl7" parent="." instance=ExtResource("453_x1iwa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, -3.5673199)
+
+[node name="rock_1_tr7" parent="." instance=ExtResource("454_h4au7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, -3.5673199)
+
+[node name="rock_2_bl7" parent="." instance=ExtResource("455_evgpw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, -5.3122964)
+
+[node name="rock_2_br7" parent="." instance=ExtResource("456_nv0rk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, -5.3122964)
+
+[node name="rock_2_tl7" parent="." instance=ExtResource("457_c18hh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, -5.3122964)
+
+[node name="rock_2_tr7" parent="." instance=ExtResource("458_31w8a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, -5.3122964)
+
+[node name="rock_3_bl7" parent="." instance=ExtResource("459_df31g")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, -6.818489)
+
+[node name="rock_3_br7" parent="." instance=ExtResource("460_ocgvp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, -6.818489)
+
+[node name="rock_3_tl7" parent="." instance=ExtResource("461_2akqt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, -6.818489)
+
+[node name="rock_3_tr7" parent="." instance=ExtResource("462_xc3f5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, -6.818489)
+
+[node name="rock_4_bl7" parent="." instance=ExtResource("463_4q2qc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, -8.160453)
+
+[node name="rock_4_br7" parent="." instance=ExtResource("464_5nfvu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, -8.160453)
+
+[node name="rock_4_tl7" parent="." instance=ExtResource("9_2po6q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, -8.160453)
+
+[node name="rock_4_tr7" parent="." instance=ExtResource("466_fg7p4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, -8.160453)
+
+[node name="rock_5_bl7" parent="." instance=ExtResource("467_27g1n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, -9.551767)
+
+[node name="rock_5_br7" parent="." instance=ExtResource("468_hqhhj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, -9.551767)
+
+[node name="rock_5_tl7" parent="." instance=ExtResource("469_b1fg0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, -9.551767)
+
+[node name="rock_5_tr7" parent="." instance=ExtResource("470_wpp3e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, -9.551767)
+
+[node name="rock_6_bl7" parent="." instance=ExtResource("471_axeut")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, -10.444042)
+
+[node name="rock_6_br7" parent="." instance=ExtResource("472_d7uaj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, -10.444042)
+
+[node name="rock_6_tl7" parent="." instance=ExtResource("473_w3i5r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, -10.444042)
+
+[node name="rock_6_tr7" parent="." instance=ExtResource("474_yigs5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, -10.444042)
+
+[node name="rock_7_bl7" parent="." instance=ExtResource("475_bmhda")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.04195, 0, -11.417706)
+
+[node name="rock_7_br7" parent="." instance=ExtResource("476_4kadf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 107.883026, 0, -11.417706)
+
+[node name="rock_7_tl7" parent="." instance=ExtResource("477_qqqx6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 95.89012, 0, -11.417706)
+
+[node name="rock_7_tr7" parent="." instance=ExtResource("478_tcer4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.87802, 0, -11.417706)
+
+[node name="boulder_1_bl8" parent="." instance=ExtResource("479_r37dt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, 0)
+
+[node name="boulder_1_br8" parent="." instance=ExtResource("480_huik3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, 0)
+
+[node name="boulder_1_tl8" parent="." instance=ExtResource("481_n0pv3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, 0)
+
+[node name="boulder_1_tr8" parent="." instance=ExtResource("482_h6dwm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, 0)
+
+[node name="boulder_2_bl8" parent="." instance=ExtResource("483_iirpv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, 2.0744596)
+
+[node name="boulder_2_br8" parent="." instance=ExtResource("484_obpx8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, 2.0744596)
+
+[node name="boulder_2_tl8" parent="." instance=ExtResource("485_kcdje")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, 2.0744596)
+
+[node name="boulder_2_tr8" parent="." instance=ExtResource("486_4bnl6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, 2.0744596)
+
+[node name="boulder_3_bl8" parent="." instance=ExtResource("487_52ffo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, 4.189553)
+
+[node name="boulder_3_br8" parent="." instance=ExtResource("488_8gveq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, 4.189553)
+
+[node name="boulder_3_tl8" parent="." instance=ExtResource("489_s5mrj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, 4.189553)
+
+[node name="boulder_3_tr8" parent="." instance=ExtResource("490_27sco")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, 4.189553)
+
+[node name="boulder_4_bl8" parent="." instance=ExtResource("491_16kgo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, 6.7635264)
+
+[node name="boulder_4_br8" parent="." instance=ExtResource("492_ltrop")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, 6.7635264)
+
+[node name="boulder_4_tl8" parent="." instance=ExtResource("493_ti5un")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, 6.7635264)
+
+[node name="boulder_4_tr8" parent="." instance=ExtResource("494_oan5x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, 6.7635264)
+
+[node name="boulder_5_bl8" parent="." instance=ExtResource("495_m5xlj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, 8.863033)
+
+[node name="boulder_5_br8" parent="." instance=ExtResource("496_23exp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, 8.863033)
+
+[node name="boulder_5_tl8" parent="." instance=ExtResource("497_hyyb4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, 8.863033)
+
+[node name="boulder_5_tr8" parent="." instance=ExtResource("498_tby7p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, 8.863033)
+
+[node name="boulder_6_bl8" parent="." instance=ExtResource("499_k4p6k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, 10.656214)
+
+[node name="boulder_6_br8" parent="." instance=ExtResource("500_b163k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, 10.656214)
+
+[node name="boulder_6_tl8" parent="." instance=ExtResource("501_eccrx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, 10.656214)
+
+[node name="boulder_6_tr8" parent="." instance=ExtResource("502_bymel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, 10.656214)
+
+[node name="boulder_7_bl8" parent="." instance=ExtResource("503_dw774")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, 13.26763)
+
+[node name="boulder_7_br8" parent="." instance=ExtResource("504_yyyva")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, 13.26763)
+
+[node name="boulder_7_tl8" parent="." instance=ExtResource("505_dheh1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, 13.26763)
+
+[node name="boulder_7_tr8" parent="." instance=ExtResource("506_ght3n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, 13.26763)
+
+[node name="boulder_8_bl8" parent="." instance=ExtResource("507_qaan6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, 15.397501)
+
+[node name="boulder_8_br8" parent="." instance=ExtResource("508_7bptx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, 15.397501)
+
+[node name="boulder_8_tl8" parent="." instance=ExtResource("509_2ubpw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, 15.397501)
+
+[node name="boulder_8_tr8" parent="." instance=ExtResource("510_gmwni")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, 15.397501)
+
+[node name="boulder_9_bl8" parent="." instance=ExtResource("511_mdl17")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, 17.972912)
+
+[node name="boulder_9_br8" parent="." instance=ExtResource("512_4jsfj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, 17.972912)
+
+[node name="boulder_9_tl8" parent="." instance=ExtResource("513_23mcv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, 17.972912)
+
+[node name="boulder_9_tr8" parent="." instance=ExtResource("514_hu2oo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, 17.972912)
+
+[node name="plane_bl8" parent="." instance=ExtResource("515_m7j22")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0.014437199, -1.9943504)
+
+[node name="plane_br8" parent="." instance=ExtResource("516_q03ks")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0.014437199, -1.9943504)
+
+[node name="plane_tl8" parent="." instance=ExtResource("517_j8kdv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0.014437199, -1.9943504)
+
+[node name="plane_tr8" parent="." instance=ExtResource("518_g2qh3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0.014437199, -1.9943504)
+
+[node name="rock_1_bl8" parent="." instance=ExtResource("519_sbj76")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, -3.5673199)
+
+[node name="rock_1_br8" parent="." instance=ExtResource("520_ksbwu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, -3.5673199)
+
+[node name="rock_1_tl8" parent="." instance=ExtResource("521_qj8qx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, -3.5673199)
+
+[node name="rock_1_tr8" parent="." instance=ExtResource("522_b5hag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, -3.5673199)
+
+[node name="rock_2_bl8" parent="." instance=ExtResource("523_sj4fe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, -5.3122964)
+
+[node name="rock_2_br8" parent="." instance=ExtResource("524_wwjmh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, -5.3122964)
+
+[node name="rock_2_tl8" parent="." instance=ExtResource("525_hytfa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, -5.3122964)
+
+[node name="rock_2_tr8" parent="." instance=ExtResource("526_6btrr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, -5.3122964)
+
+[node name="rock_3_bl8" parent="." instance=ExtResource("527_m5h0w")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, -6.818489)
+
+[node name="rock_3_br8" parent="." instance=ExtResource("528_hxa5u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, -6.818489)
+
+[node name="rock_3_tl8" parent="." instance=ExtResource("529_sru1a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, -6.818489)
+
+[node name="rock_3_tr8" parent="." instance=ExtResource("530_vwsbr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, -6.818489)
+
+[node name="rock_4_bl8" parent="." instance=ExtResource("531_qg031")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, -8.160453)
+
+[node name="rock_4_br8" parent="." instance=ExtResource("532_w00cj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, -8.160453)
+
+[node name="rock_4_tl8" parent="." instance=ExtResource("533_54a34")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, -8.160453)
+
+[node name="rock_4_tr8" parent="." instance=ExtResource("534_sn7ky")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, -8.160453)
+
+[node name="rock_5_bl8" parent="." instance=ExtResource("535_qqgc0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, -9.551767)
+
+[node name="rock_5_br8" parent="." instance=ExtResource("536_k0myp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, -9.551767)
+
+[node name="rock_5_tl8" parent="." instance=ExtResource("537_w4p1u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, -9.551767)
+
+[node name="rock_5_tr8" parent="." instance=ExtResource("538_q2nf2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, -9.551767)
+
+[node name="rock_6_bl8" parent="." instance=ExtResource("539_rdbrm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, -10.444042)
+
+[node name="rock_6_br8" parent="." instance=ExtResource("540_xulf5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, -10.444042)
+
+[node name="rock_6_tl8" parent="." instance=ExtResource("541_fcppy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, -10.444042)
+
+[node name="rock_6_tr8" parent="." instance=ExtResource("542_upabt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, -10.444042)
+
+[node name="rock_7_bl8" parent="." instance=ExtResource("543_dpxg6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 120.28225, 0, -11.417706)
+
+[node name="rock_7_br8" parent="." instance=ExtResource("544_oapda")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 124.12333, 0, -11.417706)
+
+[node name="rock_7_tl8" parent="." instance=ExtResource("545_lxli6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 112.130424, 0, -11.417706)
+
+[node name="rock_7_tr8" parent="." instance=ExtResource("546_exmwa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 116.118324, 0, -11.417706)
+
+[node name="boulder_1_bl9" parent="." instance=ExtResource("547_ri5it")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, 0)
+
+[node name="boulder_1_br9" parent="." instance=ExtResource("548_mtehx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, 0)
+
+[node name="boulder_1_tl9" parent="." instance=ExtResource("549_qps74")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, 0)
+
+[node name="boulder_1_tr9" parent="." instance=ExtResource("550_iqtax")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, 0)
+
+[node name="boulder_2_bl9" parent="." instance=ExtResource("551_o6331")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, 2.0744596)
+
+[node name="boulder_2_br9" parent="." instance=ExtResource("552_k1coe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, 2.0744596)
+
+[node name="boulder_2_tl9" parent="." instance=ExtResource("553_7kx2x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, 2.0744596)
+
+[node name="boulder_2_tr9" parent="." instance=ExtResource("554_bnqv6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, 2.0744596)
+
+[node name="boulder_3_bl9" parent="." instance=ExtResource("555_xyhq0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, 4.189553)
+
+[node name="boulder_3_br9" parent="." instance=ExtResource("556_8w504")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, 4.189553)
+
+[node name="boulder_3_tl9" parent="." instance=ExtResource("557_kow5e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, 4.189553)
+
+[node name="boulder_3_tr9" parent="." instance=ExtResource("558_58xax")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, 4.189553)
+
+[node name="boulder_4_bl9" parent="." instance=ExtResource("559_5x7vb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, 6.7635264)
+
+[node name="boulder_4_br9" parent="." instance=ExtResource("560_aqd6e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, 6.7635264)
+
+[node name="boulder_4_tl9" parent="." instance=ExtResource("561_d1ihk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, 6.7635264)
+
+[node name="boulder_4_tr9" parent="." instance=ExtResource("562_k53qd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, 6.7635264)
+
+[node name="boulder_5_bl9" parent="." instance=ExtResource("563_n0cm5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, 8.863033)
+
+[node name="boulder_5_br9" parent="." instance=ExtResource("564_l8d17")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, 8.863033)
+
+[node name="boulder_5_tl9" parent="." instance=ExtResource("565_f5n8o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, 8.863033)
+
+[node name="boulder_5_tr9" parent="." instance=ExtResource("566_rwp80")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, 8.863033)
+
+[node name="boulder_6_bl9" parent="." instance=ExtResource("567_at50u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, 10.656214)
+
+[node name="boulder_6_br9" parent="." instance=ExtResource("568_mh7ly")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, 10.656214)
+
+[node name="boulder_6_tl9" parent="." instance=ExtResource("569_xmitu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, 10.656214)
+
+[node name="boulder_6_tr9" parent="." instance=ExtResource("570_v1jki")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, 10.656214)
+
+[node name="boulder_7_bl9" parent="." instance=ExtResource("571_7u0fw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, 13.26763)
+
+[node name="boulder_7_br9" parent="." instance=ExtResource("572_n1cfa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, 13.26763)
+
+[node name="boulder_7_tl9" parent="." instance=ExtResource("573_m61ar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, 13.26763)
+
+[node name="boulder_7_tr9" parent="." instance=ExtResource("574_vjjc2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, 13.26763)
+
+[node name="boulder_8_bl9" parent="." instance=ExtResource("575_xltto")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, 15.397501)
+
+[node name="boulder_8_br9" parent="." instance=ExtResource("576_2unxe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, 15.397501)
+
+[node name="boulder_8_tl9" parent="." instance=ExtResource("577_vt80j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, 15.397501)
+
+[node name="boulder_8_tr9" parent="." instance=ExtResource("578_w3u1q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, 15.397501)
+
+[node name="boulder_9_bl9" parent="." instance=ExtResource("579_2ytpj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, 17.972912)
+
+[node name="boulder_9_br9" parent="." instance=ExtResource("580_axfpj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, 17.972912)
+
+[node name="boulder_9_tl9" parent="." instance=ExtResource("581_gdlrs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, 17.972912)
+
+[node name="boulder_9_tr9" parent="." instance=ExtResource("582_efmfr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, 17.972912)
+
+[node name="plane_bl9" parent="." instance=ExtResource("583_xhsvv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0.014437199, -1.9943504)
+
+[node name="plane_br9" parent="." instance=ExtResource("584_nv08o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0.014437199, -1.9943504)
+
+[node name="plane_tl9" parent="." instance=ExtResource("585_1s0aw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0.014437199, -1.9943504)
+
+[node name="plane_tr9" parent="." instance=ExtResource("586_jvd6h")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0.014437199, -1.9943504)
+
+[node name="rock_1_bl9" parent="." instance=ExtResource("587_nvjax")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, -3.5673199)
+
+[node name="rock_1_br9" parent="." instance=ExtResource("588_q43pn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, -3.5673199)
+
+[node name="rock_1_tl9" parent="." instance=ExtResource("589_7wmmc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, -3.5673199)
+
+[node name="rock_1_tr9" parent="." instance=ExtResource("590_kf1x6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, -3.5673199)
+
+[node name="rock_2_bl9" parent="." instance=ExtResource("591_v316a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, -5.3122964)
+
+[node name="rock_2_br9" parent="." instance=ExtResource("592_k2br5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, -5.3122964)
+
+[node name="rock_2_tl9" parent="." instance=ExtResource("593_cdu8b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, -5.3122964)
+
+[node name="rock_2_tr9" parent="." instance=ExtResource("594_7q1wf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, -5.3122964)
+
+[node name="rock_3_bl9" parent="." instance=ExtResource("595_3ne8o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, -6.818489)
+
+[node name="rock_3_br9" parent="." instance=ExtResource("596_2xnt4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, -6.818489)
+
+[node name="rock_3_tl9" parent="." instance=ExtResource("597_2vqlh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, -6.818489)
+
+[node name="rock_3_tr9" parent="." instance=ExtResource("598_ncmv6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, -6.818489)
+
+[node name="rock_4_bl9" parent="." instance=ExtResource("599_hfin7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, -8.160453)
+
+[node name="rock_4_br9" parent="." instance=ExtResource("600_nn87w")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, -8.160453)
+
+[node name="rock_4_tl9" parent="." instance=ExtResource("601_02m02")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, -8.160453)
+
+[node name="rock_4_tr9" parent="." instance=ExtResource("602_nhnlg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, -8.160453)
+
+[node name="rock_5_bl9" parent="." instance=ExtResource("603_dpp5r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, -9.551767)
+
+[node name="rock_5_br9" parent="." instance=ExtResource("604_o5nph")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, -9.551767)
+
+[node name="rock_5_tl9" parent="." instance=ExtResource("605_gl2jm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, -9.551767)
+
+[node name="rock_5_tr9" parent="." instance=ExtResource("606_sb465")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, -9.551767)
+
+[node name="rock_6_bl9" parent="." instance=ExtResource("607_yoiuk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, -10.444042)
+
+[node name="rock_6_br9" parent="." instance=ExtResource("608_5mmiv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, -10.444042)
+
+[node name="rock_6_tl9" parent="." instance=ExtResource("609_iaoo4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, -10.444042)
+
+[node name="rock_6_tr9" parent="." instance=ExtResource("610_i2qsb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, -10.444042)
+
+[node name="rock_7_bl9" parent="." instance=ExtResource("611_vnu4y")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 136.10956, 0, -11.417706)
+
+[node name="rock_7_br9" parent="." instance=ExtResource("612_r5fbh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 139.95064, 0, -11.417706)
+
+[node name="rock_7_tl9" parent="." instance=ExtResource("613_5scqn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 127.95773, 0, -11.417706)
+
+[node name="rock_7_tr9" parent="." instance=ExtResource("614_q2otx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 131.94565, 0, -11.417706)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.934953, 0.05516271, 0.35045698, 0.31794694, 0.56853604, 0.7587335, -0.15739363, 0.8208068, -0.5490933, 147.3948, 27.143333, -6.087448)
+shadow_enabled = true
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.25829744, -0.751955, 0.60650325, 0.27058357, 0.5463672, 0.7926333, -0.92739797, 0.36884496, 0.06234141, 153.4083, 27.143333, 8.896122)
+light_energy = 0.333

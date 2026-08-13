@@ -95,8 +95,10 @@ func _physics_process(delta: float) -> void:
 	if _sector_streamer != null:
 		global_position = _sector_streamer.clamp_world_position(global_position)
 	else:
-		global_position.x = clampf(global_position.x, 0.0, float(GridManager.GRID_WIDTH - 1))
-		global_position.z = clampf(global_position.z, 0.0, float(GridManager.GRID_HEIGHT - 1))
+		var grid_manager := get_tree().get_first_node_in_group("grid_manager") as GridManager
+		var world_size := grid_manager.get_exploration_world_size() if grid_manager != null else Vector2(GridManager.GRID_WIDTH, GridManager.GRID_HEIGHT)
+		global_position.x = clampf(global_position.x, 0.0, world_size.x - 1.0)
+		global_position.z = clampf(global_position.z, 0.0, world_size.y - 1.0)
 	controlled_unit.global_position = global_position
 	controlled_unit.rotation.y = _sprint_heading if _sprint_momentum_active else view_yaw
 

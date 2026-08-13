@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://cfo28kg1g1tln"]
+
+[ext_resource type="PackedScene" uid="uid://dlbqbjm60jqyc" path="res://Kyle's Rock Pack/Kyle Fuji/Scenes/Models/flag_pole.glb" id="1_0l7o7"]
+[ext_resource type="Material" uid="uid://c1mm1y80k6872" path="res://Kyle's Rock Pack/Kyle Fuji/Scenes/Materials/M_flag_pole.tres" id="2_472wk"]
+
+[node name="flag_pole" instance=ExtResource("1_0l7o7")]
+
+[node name="flag_pole" parent="." index="0"]
+material_override = ExtResource("2_472wk")

@@ -4,6 +4,7 @@ render_mode diffuse_burley;
 uniform sampler2D grass_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
 uniform sampler2D dry_grass_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
 uniform sampler2D dirt_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D rock_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
 
 // Reserved slots for a later PBR texture pass.
 uniform sampler2D grass_normal_roughness : hint_normal, repeat_enable, filter_linear_mipmap_anisotropic;
@@ -22,8 +23,10 @@ uniform bool grid_visible = false;
 uniform bool show_trails = true;
 uniform bool is_arena = false;
 uniform bool plain_green = false;
+uniform bool solo_trail_landscape = false;
 
 varying vec3 world_position;
+varying vec3 world_normal;
 
 float hash21(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -48,6 +51,7 @@ vec3 anti_tile(sampler2D source, vec2 world_xz) {
 
 void vertex() {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	world_normal = normalize(MODEL_NORMAL_MATRIX * NORMAL);
 }
 
 void fragment() {
@@ -55,6 +59,7 @@ void fragment() {
 	vec3 grass = anti_tile(grass_albedo, p);
 	vec3 dry_grass = anti_tile(dry_grass_albedo, p + vec2(31.7, -14.2));
 	vec3 dirt = anti_tile(dirt_albedo, p + vec2(-9.4, 26.8));
+	vec3 rock = anti_tile(rock_albedo, p + vec2(47.1, -33.6));
 
 	float boundary_noise = (value_noise(p / 4.8) - 0.5) * blend_noise_strength;
 	float broad_a = value_noise(p / 23.0 + vec2(4.7, 11.2));
@@ -83,6 +88,19 @@ void fragment() {
 	if (plain_green) {
 		float green_variation = value_noise(p / 42.0) * 0.035;
 		ground = vec3(0.19, 0.42, 0.14) * (0.98 + green_variation);
+	}
+	if (solo_trail_landscape) {
+		float river_center = 101.0 + sin(p.x * 0.045) * 11.0 + sin(p.x * 0.013 + 1.7) * 5.0;
+		float river_distance = abs(p.y - river_center);
+		float river_bank = 1.0 - smoothstep(5.5, 11.5, river_distance);
+		float slope = 1.0 - clamp(world_normal.y, 0.0, 1.0);
+		float cliff = smoothstep(0.22, 0.56, slope + (value_noise(p / 7.0) - 0.5) * 0.16);
+		float alpine = smoothstep(13.0, 28.0, world_position.y);
+		float meadow_noise = value_noise(p / 19.0 + vec2(2.4, 7.1));
+		vec3 meadow = mix(grass, dry_grass, smoothstep(0.58, 0.82, meadow_noise) * 0.42);
+		ground = mix(meadow, dirt, river_bank * 0.78);
+		ground = mix(ground, rock, max(cliff, alpine * 0.72));
+		ground *= 0.94 + (value_noise(p / 58.0) - 0.5) * 0.11;
 	}
 
 	vec2 cell = fract(p);

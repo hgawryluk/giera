@@ -6,11 +6,53 @@ const MOON_DIRECTION := Vector3(-0.42, 0.48, -0.77)
 @onready var sun: DirectionalLight3D = get_parent().get_node_or_null("Sun") as DirectionalLight3D
 
 func _ready() -> void:
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.selected_map_id == "builtin:solo_trail":
+		_configure_sunny_environment()
+		return
 	_configure_moonlit_environment()
 	_configure_moon_light()
-	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	session = get_node_or_null("/root/GameSession") as GameSessionState
 	if session != null and session.selected_map_id != "builtin:arena":
 		_darken_play_map_lighting()
+
+func _configure_sunny_environment() -> void:
+	var env := environment.duplicate(true) as Environment if environment != null else Environment.new()
+	env.background_mode = Environment.BG_SKY
+	env.background_energy_multiplier = 1.05
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	env.ambient_light_sky_contribution = 0.72
+	env.ambient_light_energy = 0.82
+	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
+	env.tonemap_mode = Environment.TONE_MAPPER_AGX
+	env.tonemap_exposure = 1.04
+	env.tonemap_agx_contrast = 1.08
+	env.ssao_enabled = true
+	env.ssao_radius = 2.0
+	env.ssao_intensity = 1.35
+	env.fog_enabled = true
+	env.fog_light_color = Color(0.72, 0.82, 0.92)
+	env.fog_light_energy = 0.65
+	env.fog_density = 0.00032
+	env.fog_aerial_perspective = 0.42
+	var sky_material := ProceduralSkyMaterial.new()
+	sky_material.sky_top_color = Color(0.12, 0.38, 0.78)
+	sky_material.sky_horizon_color = Color(0.68, 0.82, 0.96)
+	sky_material.ground_bottom_color = Color(0.16, 0.13, 0.09)
+	sky_material.ground_horizon_color = Color(0.48, 0.54, 0.42)
+	sky_material.sun_angle_max = 24.0
+	var sky := Sky.new()
+	sky.sky_material = sky_material
+	env.sky = sky
+	environment = env
+	if sun != null:
+		sun.rotation_degrees = Vector3(-48.0, -32.0, 0.0)
+		sun.light_color = Color(1.0, 0.94, 0.80)
+		sun.light_energy = 1.55
+		sun.light_indirect_energy = 0.85
+		sun.shadow_enabled = true
+		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+		sun.directional_shadow_max_distance = 240.0
 
 func _darken_play_map_lighting() -> void:
 	if environment != null:
