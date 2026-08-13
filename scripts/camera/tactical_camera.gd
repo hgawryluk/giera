@@ -152,7 +152,9 @@ func _apply_first_person_transform() -> void:
 		return
 	if _exploration_controller == null:
 		return
-	global_position = _exploration_controller.global_position + Vector3.UP * _exploration_controller.current_camera_height
+	global_position = _exploration_controller.global_position + Vector3.UP * (
+		_exploration_controller.current_camera_height + _exploration_controller.camera_bob_offset
+	)
 	global_rotation = Vector3(_first_person_pitch, _first_person_yaw, 0.0)
 
 func _look_around_first_person(mouse_delta: Vector2) -> void:

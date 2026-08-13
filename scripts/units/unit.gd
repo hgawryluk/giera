@@ -61,6 +61,7 @@ var _definition_visual_scene: PackedScene
 var _definition_visual_offset: Vector3 = Vector3.ZERO
 var _definition_visual_rotation: Vector3 = Vector3.ZERO
 var _is_moving: bool = false
+var _exploration_animation_state: StringName = &"idle"
 var _visual_root: Node3D
 var _animation_controller := CharacterAnimationController.new()
 const MOVE_STEP_DURATION := 0.75
@@ -140,6 +141,19 @@ func is_player_controlled() -> bool:
 
 func is_moving() -> bool:
 	return _is_moving
+
+func set_exploration_movement(moving: bool, running: bool = false) -> void:
+	var next_state: StringName = &"run" if moving and running else (&"walk" if moving else &"idle")
+	if _exploration_animation_state == next_state:
+		return
+	_exploration_animation_state = next_state
+	match next_state:
+		&"run":
+			_animation_controller.play_run()
+		&"walk":
+			_animation_controller.play_walk(0.72)
+		_:
+			_animation_controller.play_idle()
 
 func is_dead() -> bool:
 	return not is_alive or current_health <= 0

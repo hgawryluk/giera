@@ -17,6 +17,7 @@ extends CharacterBody3D
 var controlled_unit: TacticalUnit
 var view_yaw: float = 0.0
 var current_camera_height: float = 1.55
+var camera_bob_offset: float = 0.0
 var _jump_requested: bool = false
 var _gravity: float = 9.8
 var _collider: CollisionShape3D
@@ -24,6 +25,7 @@ var _capsule: CapsuleShape3D
 var _sector_streamer: WorldSectorStreamer
 var _sprint_heading: float = 0.0
 var _sprint_momentum_active: bool = false
+var _walk_cycle: float = 0.0
 
 func _ready() -> void:
 	add_to_group("exploration_player")
@@ -86,6 +88,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = sqrt(2.0 * _gravity * jump_height)
 	_jump_requested = false
 	move_and_slide()
+	_update_movement_feedback(delta, crouching)
 	if _sector_streamer != null:
 		global_position = _sector_streamer.clamp_world_position(global_position)
 	else:
@@ -93,6 +96,19 @@ func _physics_process(delta: float) -> void:
 		global_position.z = clampf(global_position.z, 0.0, float(GridManager.GRID_HEIGHT - 1))
 	controlled_unit.global_position = global_position
 	controlled_unit.rotation.y = _sprint_heading if _sprint_momentum_active else view_yaw
+
+func _update_movement_feedback(delta: float, crouching: bool) -> void:
+	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+	var moving := horizontal_speed > 0.08 and is_on_floor()
+	var running := moving and horizontal_speed > fast_walk_speed + 0.25
+	controlled_unit.set_exploration_movement(moving, running)
+	if moving:
+		var frequency := 7.2 if running else (4.4 if not crouching else 3.2)
+		var amplitude := 0.055 if running else (0.032 if not crouching else 0.018)
+		_walk_cycle += delta * frequency
+		camera_bob_offset = sin(_walk_cycle) * amplitude
+	else:
+		camera_bob_offset = move_toward(camera_bob_offset, 0.0, delta * 0.22)
 
 func _is_vehicle_sprinting(crouching: bool, input_vector: Vector2) -> bool:
 	return (
