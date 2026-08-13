@@ -12,7 +12,7 @@ func _ready() -> void:
 	%QuitButton.pressed.connect(_quit)
 
 func _play() -> void:
-	get_tree().change_scene_to_file("res://scenes/menu/hotseat_setup.tscn")
+	get_tree().change_scene_to_file("res://scenes/menu/play_map_select.tscn")
 
 func _arena() -> void:
 	get_tree().change_scene_to_file("res://scenes/menu/arena_setup.tscn")

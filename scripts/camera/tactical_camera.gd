@@ -225,6 +225,13 @@ func exit_exploration_mode() -> void:
 	if _first_person_mode:
 		_leave_first_person()
 
+func start_first_person(unit: TacticalUnit) -> void:
+	if unit == null or not is_instance_valid(unit):
+		return
+	_active_unit = unit
+	if not _first_person_mode:
+		_enter_first_person()
+
 func switch_focus_unit(unit: TacticalUnit) -> void:
 	if unit == null or not is_instance_valid(unit):
 		return

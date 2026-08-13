@@ -46,7 +46,7 @@ func _ready() -> void:
 
 func _load_selected_terrain() -> void:
 	var session := get_node_or_null("/root/GameSession") as GameSessionState
-	if session == null or session.selected_map_id == "builtin:forest":
+	if session == null or session.selected_map_id in ["builtin:forest", "builtin:solo_fpp"]:
 		return
 	if session.selected_map_id == "builtin:arena":
 		const ARENA_RECTS: Array[Rect2i] = [
@@ -177,6 +177,12 @@ func spawn_default_units() -> void:
 	_spawn_from_definition(catalog.get_character(&"archer"), 1, 0, player_positions[1])
 	_spawn_from_definition(catalog.get_character(&"warrior"), 2, 1, enemy_positions[0])
 	_spawn_from_definition(catalog.get_character(&"ogre"), 2, 1, enemy_positions[1])
+
+func spawn_solo_unit(character_id: StringName) -> TacticalUnit:
+	var catalog := get_node("/root/TeamSaveManager") as TeamSaveService
+	_spawn_character(character_id, catalog, 1, 0, player_positions[0])
+	var units := get_units()
+	return units[0] if not units.is_empty() else null
 
 func spawn_configured_teams(
 	team_one: Array[StringName],

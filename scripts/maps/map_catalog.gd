@@ -2,10 +2,11 @@ class_name MapCatalogService
 extends Node
 const MAP_DIRECTORY := "user://maps"
 const DEFAULT_ID := "builtin:forest"
+const SOLO_FPP_ID := "builtin:solo_fpp"
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(MAP_DIRECTORY))
 func list_maps() -> Array[Dictionary]:
-	var result: Array[Dictionary] = [{"id": DEFAULT_ID, "name": "Dzika Polana (oryginalna)"}, {"id": "builtin:arena", "name": "Arena (mala plansza)"}]
+	var result: Array[Dictionary] = [{"id": DEFAULT_ID, "name": "Nocny Las"}, {"id": SOLO_FPP_ID, "name": "Samotny Szlak (FPP)"}, {"id": "builtin:arena", "name": "Arena (mala plansza)"}]
 	var directory := DirAccess.open(MAP_DIRECTORY)
 	if directory == null: return result
 	directory.list_dir_begin()
@@ -18,7 +19,7 @@ func list_maps() -> Array[Dictionary]:
 	directory.list_dir_end()
 	return result
 func load_map(map_id: String) -> Dictionary:
-	if map_id == DEFAULT_ID or map_id.is_empty(): return {}
+	if map_id in [DEFAULT_ID, SOLO_FPP_ID] or map_id.is_empty(): return {}
 	var file := FileAccess.open(map_id, FileAccess.READ)
 	if file == null: return {}
 	var parsed: Variant = JSON.parse_string(file.get_as_text())

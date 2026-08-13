@@ -53,7 +53,11 @@ func _start_battle() -> void:
 	if game_session.selected_map_id == "builtin:arena":
 		for mob: Node in get_tree().get_nodes_in_group("world_mobs"):
 			mob.queue_free()
-	if game_session.has_match_configuration():
+	if game_session.selected_map_id == "builtin:solo_fpp":
+		var composition := game_session.get_composition(1)
+		var character_id: StringName = composition[0] if not composition.is_empty() else &"warrior"
+		grid_manager.spawn_solo_unit(character_id)
+	elif game_session.has_match_configuration():
 		if game_session.selected_map_id == "builtin:arena":
 			grid_manager.spawn_arena_teams(game_session, team_save_manager)
 		else:
@@ -64,6 +68,9 @@ func _start_battle() -> void:
 	for unit: TacticalUnit in units:
 		unit.stats_changed.connect(_on_unit_stats_changed.bind(unit))
 	turn_manager.start_battle(units)
+	if game_session.auto_start_first_person and not units.is_empty():
+		await get_tree().process_frame
+		tactical_camera.start_first_person(units[0])
 
 func _on_initiative_card_focus(unit: TacticalUnit) -> void:
 	if unit == null or not is_instance_valid(unit) or tactical_camera == null:
