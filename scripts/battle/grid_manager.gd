@@ -509,13 +509,18 @@ func _solo_trail_height(x: float, z: float) -> float:
 	height = lerpf(height, 3.0 + sin(x * 0.11) * 0.22 + cos(z * 0.09) * 0.18, clearing_weight)
 	# The river cuts through the valley from west to east.
 	var river_center := 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
-	var river_weight := 1.0 - smoothstep(4.5, 11.0, absf(z - river_center))
-	height = lerpf(height, -2.8 + absf(z - river_center) * 0.12, river_weight)
-	# A narrow flooded canyon branches northward from the river.
+	var river_distance := absf(z - river_center)
+	var river_weight := 1.0 - smoothstep(7.2, 15.5, river_distance)
+	# A broad submerged shelf prevents the water plane from clipping through the
+	# bed while the irregular outer falloff keeps both banks natural.
+	var river_floor := -4.45 + pow(river_distance / 7.2, 1.65) * 0.48
+	height = lerpf(height, river_floor, river_weight)
+	# A flooded canyon branches northward from the main river.
 	var ravine_x := 72.0 + sin(z * 0.052) * 5.0
 	var ravine_extent := smoothstep(92.0, 116.0, z) * (1.0 - smoothstep(211.0, 230.0, z))
-	var ravine_weight := (1.0 - smoothstep(2.5, 8.5, absf(x - ravine_x))) * ravine_extent
-	var canyon_floor := -2.9 + absf(x - ravine_x) * 0.13
+	var ravine_distance := absf(x - ravine_x)
+	var ravine_weight := (1.0 - smoothstep(5.1, 12.8, ravine_distance)) * ravine_extent
+	var canyon_floor := -4.55 + pow(ravine_distance / 5.1, 1.55) * 0.52
 	height = lerpf(height, canyon_floor, ravine_weight)
 	return height
 

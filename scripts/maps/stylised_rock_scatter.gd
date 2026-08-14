@@ -10,6 +10,7 @@ const TRAIL_ROCK_COUNT: int = 54
 const HILL_ROCK_COUNT: int = 24
 const WILD_ROCK_COUNT: int = 18
 const LANDMARK_ROCK_COUNT: int = 4
+const RIVERSIDE_ROCK_COUNT: int = 190
 const WATER_LEVEL: float = -1.7
 
 var _grid_manager: GridManager
@@ -29,6 +30,7 @@ func setup(grid_manager: GridManager) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 8_140_426
 	_scatter_trail_edges(rng, transforms_by_mesh)
+	_scatter_riverbanks(rng, transforms_by_mesh)
 	_scatter_hill(rng, transforms_by_mesh)
 	_scatter_wild(rng, transforms_by_mesh)
 	_scatter_landmarks(rng, transforms_by_mesh)
@@ -71,6 +73,33 @@ func _scatter_trail_edges(rng: RandomNumberGenerator, batches: Array[Array]) -> 
 		if not _can_place(x, z, 0.46, 1.2):
 			continue
 		_append_rock(rng, batches, x, z, rng.randf_range(0.65, 2.15), rng.randf_range(0.64, 1.12))
+		placed += 1
+
+
+func _scatter_riverbanks(rng: RandomNumberGenerator, batches: Array[Array]) -> void:
+	var placed: int = 0
+	var attempts: int = 0
+	while placed < RIVERSIDE_ROCK_COUNT and attempts < RIVERSIDE_ROCK_COUNT * 30:
+		attempts += 1
+		var use_branch := rng.randf() < 0.38
+		var x: float
+		var z: float
+		if use_branch:
+			z = rng.randf_range(114.0, 226.0)
+			var branch_side := -1.0 if rng.randf() < 0.5 else 1.0
+			x = _ravine_center(z) + branch_side * rng.randf_range(5.5, 11.8)
+		else:
+			x = rng.randf_range(7.0, 249.0)
+			var river_side := -1.0 if rng.randf() < 0.5 else 1.0
+			z = _river_center(x) + river_side * rng.randf_range(7.5, 14.2)
+		# Keep the ford readable and traversable instead of building a rock wall
+		# across the authored route.
+		if _trail_distance(x, z) < 5.8 or not _can_place(x, z, 0.72, 0.08):
+			continue
+		var target_height := rng.randf_range(0.38, 1.35)
+		if rng.randf() < 0.16:
+			target_height = rng.randf_range(1.35, 2.35)
+		_append_rock(rng, batches, x, z, target_height, rng.randf_range(0.70, 1.26))
 		placed += 1
 
 
@@ -157,12 +186,18 @@ func _trail_distance(x: float, z: float) -> float:
 	return absf(x - _trail_center_x(z))
 
 
+func _river_center(x: float) -> float:
+	return 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
+
+
+func _ravine_center(z: float) -> float:
+	return 72.0 + sin(z * 0.052) * 5.0
+
+
 func _is_water_at(x: float, z: float) -> bool:
-	var river_center := 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
-	if absf(z - river_center) <= 4.4:
+	if absf(z - _river_center(x)) <= 7.0:
 		return true
-	var ravine_center := 72.0 + sin(z * 0.052) * 5.0
-	return z >= 110.0 and z <= 231.0 and absf(x - ravine_center) <= 3.4
+	return z >= 110.0 and z <= 231.0 and absf(x - _ravine_center(z)) <= 5.0
 
 
 func _estimate_slope(x: float, z: float) -> float:

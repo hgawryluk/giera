@@ -18,7 +18,7 @@ const BUSH_DEFINITIONS: Array[Dictionary] = [
 	{"scene": preload("res://assets/environment/bush_packs/bush_01/source/Bush.fbx"), "albedo": preload("res://assets/environment/bush_packs/bush_01/textures/leaves_01_alb.png"), "normal": preload("res://assets/environment/bush_packs/bush_01/textures/leaves_01_nrm.jpeg")},
 	{"scene": preload("res://assets/environment/bush_packs/cliff_shrub/source/wallBush-01-terrainWallBush.fbx"), "albedo": preload("res://assets/environment/bush_packs/cliff_shrub/textures/oooo_diffuseOriginal.png"), "normal": preload("res://assets/environment/bush_packs/cliff_shrub/textures/oooo_normal.png")},
 ]
-const BUSH_COUNT: int = 420
+const BUSH_COUNT: int = 900
 const TREE_COUNT: int = 300
 const BASE_TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
@@ -59,7 +59,7 @@ func _create_river() -> void:
 	var normals := PackedVector3Array()
 	var uvs := PackedVector2Array()
 	const STEP := 2.0
-	const HALF_WIDTH := 4.2
+	const HALF_WIDTH := 7.0
 	for index: int in range(128):
 		var x0 := float(index) * STEP
 		var x1 := float(index + 1) * STEP
@@ -73,7 +73,7 @@ func _create_river() -> void:
 		var z1 := z0 + BRANCH_STEP
 		var x0 := _ravine_center(z0)
 		var x1 := _ravine_center(z1)
-		_append_water_quad(vertices, normals, uvs, Vector3(x0, WATER_LEVEL, z0), Vector3(x1, WATER_LEVEL, z1), 3.15, z0 / 16.0, z1 / 16.0)
+		_append_water_quad(vertices, normals, uvs, Vector3(x0, WATER_LEVEL, z0), Vector3(x1, WATER_LEVEL, z1), 5.0, z0 / 16.0, z1 / 16.0)
 	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
@@ -139,10 +139,10 @@ func _scatter_grass_multimesh() -> void:
 			density *= smoothstep(7.0, 18.0, water_distance)
 		if rng.randf() > density:
 			continue
-		# Thin 35-75 cm tufts read as grass at FPP eye height. The old 1-2 m
-		# crossed cards looked like individual shrubs even with a grass texture.
-		var scale_y := rng.randf_range(0.40, 0.78) * lerpf(0.92, 1.08, meadow_factor)
-		var scale_xz := rng.randf_range(0.24, 0.52)
+		# The blade-card texture still reads as grass, but the world-space tuft
+		# is deliberately twice the previous size for stronger FPP coverage.
+		var scale_y := rng.randf_range(0.80, 1.56) * lerpf(0.92, 1.08, meadow_factor)
+		var scale_xz := rng.randf_range(0.48, 1.04)
 		if bank_tuft:
 			scale_y *= rng.randf_range(0.82, 1.08)
 			scale_xz *= rng.randf_range(0.50, 0.75)
@@ -281,7 +281,7 @@ func _scatter_bush_multimeshes() -> void:
 		transforms_by_variant.append([])
 	var accepted_points: Array[Vector2] = []
 	var attempts: int = 0
-	while accepted_points.size() < BUSH_COUNT and attempts < BUSH_COUNT * 55:
+	while accepted_points.size() < BUSH_COUNT and attempts < BUSH_COUNT * 72:
 		attempts += 1
 		var x := rng.randf_range(7.0, 249.0)
 		var z := rng.randf_range(7.0, 249.0)
@@ -296,19 +296,21 @@ func _scatter_bush_multimeshes() -> void:
 			continue
 		var forest_factor := 1.0 - smoothstep(45.0, 100.0, point.distance_to(Vector2(208.0, 54.0)))
 		var sheltered_factor := clampf(0.34 + sin(x * 0.071 + z * 0.037) * 0.22 + cos(z * 0.093) * 0.18, 0.04, 0.82)
-		var acceptance := lerpf(0.08, 0.62, forest_factor) * sheltered_factor
+		# Dense understorey belongs chiefly between the trees. Meadow shrubs stay
+		# sparse, while sheltered forest pockets can accept most candidates.
+		var acceptance := lerpf(0.055, 0.88, forest_factor) * lerpf(0.52, 1.0, sheltered_factor)
 		if slope > 0.24 and height > 10.0:
 			acceptance += 0.13
 		if rng.randf() > acceptance:
 			continue
-		if _is_too_close_to_tree(point, accepted_points, rng.randf_range(1.8, 3.2)):
+		if _is_too_close_to_tree(point, accepted_points, rng.randf_range(1.15, 2.35)):
 			continue
-		# A stable 6:3:1 mix guarantees visible variety while keeping the
-		# cliff shrub uncommon and tied to genuinely rocky ground.
+		# Stable 5:3:2 distribution guarantees that all three imported shrub
+		# variants occur. The cliff shrub remains confined to suitable terrain.
 		var mix_slot := accepted_points.size() % 10
-		var variant := 0 if mix_slot < 6 else mini(1, _bush_meshes.size() - 1)
-		if mix_slot == 9:
-			if slope < 0.18 or height < 7.0:
+		var variant := 0 if mix_slot < 5 else mini(1, _bush_meshes.size() - 1)
+		if mix_slot >= 8:
+			if slope < 0.14 or height < 5.5:
 				continue
 			variant = mini(2, _bush_meshes.size() - 1)
 		var bounds := _bush_meshes[variant].get_aabb()
@@ -384,14 +386,10 @@ func _append_bush_surfaces(node: Node, parent_transform: Transform3D, combined: 
 			for surface_index: int in range(mesh_instance.mesh.get_surface_count()):
 				var surface := SurfaceTool.new()
 				surface.append_from(mesh_instance.mesh, surface_index, accumulated)
-				var override_material := mesh_instance.get_surface_override_material(surface_index)
-				var material := override_material if override_material != null else mesh_instance.mesh.surface_get_material(surface_index)
-				# Several source FBX surfaces reference missing external materials.
-				# Never commit an untextured gray surface to the combined MultiMesh.
-				if material is BaseMaterial3D and (material as BaseMaterial3D).albedo_texture != null:
-					surface.set_material(material)
-				else:
-					surface.set_material(fallback_material)
+				# The FBX packs contain inconsistent or unresolved embedded material
+				# references. Each variant has a verified PBR fallback, so applying it
+				# unconditionally prevents even partially gray MultiMesh surfaces.
+				surface.set_material(fallback_material)
 				surface.commit(combined)
 	for child: Node in node.get_children():
 		_append_bush_surfaces(child, accumulated, combined, fallback_material)
@@ -543,9 +541,9 @@ func _ravine_center(z: float) -> float:
 
 
 func is_water_at(x: float, z: float) -> bool:
-	if absf(z - _river_center(x)) <= 4.4:
+	if absf(z - _river_center(x)) <= 7.0:
 		return true
-	return z >= 110.0 and z <= 231.0 and absf(x - _ravine_center(z)) <= 3.4
+	return z >= 110.0 and z <= 231.0 and absf(x - _ravine_center(z)) <= 5.0
 
 
 func water_surface_height_at(x: float, z: float) -> float:

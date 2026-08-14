@@ -3,12 +3,12 @@ render_mode blend_mix, depth_prepass_alpha, cull_disabled, diffuse_burley, specu
 
 uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
 uniform sampler2D depth_texture : hint_depth_texture, filter_nearest;
-uniform vec3 shallow_color : source_color = vec3(0.10, 0.48, 0.50);
-uniform vec3 deep_color : source_color = vec3(0.025, 0.16, 0.28);
-uniform vec3 foam_color : source_color = vec3(0.72, 0.86, 0.82);
-uniform float wave_height : hint_range(0.0, 0.4) = 0.10;
-uniform float refraction_strength : hint_range(0.0, 0.08) = 0.018;
-uniform float flow_speed : hint_range(0.0, 2.0) = 0.34;
+uniform vec3 shallow_color : source_color = vec3(0.13, 0.36, 0.32);
+uniform vec3 deep_color : source_color = vec3(0.018, 0.105, 0.15);
+uniform vec3 foam_color : source_color = vec3(0.72, 0.80, 0.70);
+uniform float wave_height : hint_range(0.0, 0.4) = 0.075;
+uniform float refraction_strength : hint_range(0.0, 0.08) = 0.012;
+uniform float flow_speed : hint_range(0.0, 2.0) = 0.42;
 
 varying vec3 world_position;
 
@@ -37,25 +37,27 @@ void vertex() {
 
 void fragment() {
 	float e = 0.22;
-	float h = waves(world_position.xz * 0.31, TIME * flow_speed);
-	float hx = waves((world_position.xz + vec2(e, 0.0)) * 0.31, TIME * flow_speed);
-	float hz = waves((world_position.xz + vec2(0.0, e)) * 0.31, TIME * flow_speed);
+	float slow_time = TIME * flow_speed;
+	float h = waves(world_position.xz * 0.31, slow_time) * 0.72 + waves(world_position.xz * 0.73 + vec2(9.1, 3.7), -slow_time * 0.63) * 0.28;
+	float hx = waves((world_position.xz + vec2(e, 0.0)) * 0.31, slow_time) * 0.72 + waves((world_position.xz + vec2(e, 0.0)) * 0.73 + vec2(9.1, 3.7), -slow_time * 0.63) * 0.28;
+	float hz = waves((world_position.xz + vec2(0.0, e)) * 0.31, slow_time) * 0.72 + waves((world_position.xz + vec2(0.0, e)) * 0.73 + vec2(9.1, 3.7), -slow_time * 0.63) * 0.28;
 	vec3 detail_normal = normalize(vec3((h - hx) * 1.8, 1.0, (h - hz) * 1.8));
 
 	float scene_depth = texture(depth_texture, SCREEN_UV).r;
 	vec4 view_position = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, scene_depth, 1.0);
 	view_position.xyz /= max(view_position.w, 0.0001);
 	vec3 scene_position = (INV_VIEW_MATRIX * vec4(view_position.xyz, 1.0)).xyz;
-	float water_depth = clamp(distance(scene_position, world_position) * 0.16, 0.0, 1.0);
-	float edge = 1.0 - smoothstep(0.02, 0.22, water_depth);
-	float broken_edge = edge * smoothstep(0.40, 0.72, noise2d(world_position.xz * 0.8 + TIME * 0.08));
+	float water_depth = clamp((world_position.y - scene_position.y) * 0.25, 0.0, 1.0);
+	float edge = 1.0 - smoothstep(0.015, 0.26, water_depth);
+	float broken_edge = edge * smoothstep(0.34, 0.70, noise2d(world_position.xz * 0.72 + TIME * 0.055));
 	vec2 distortion = detail_normal.xz * refraction_strength * (0.25 + water_depth * 0.75);
 	vec3 refracted = textureLod(screen_texture, SCREEN_UV + distortion, 0.0).rgb;
 	vec3 water_color = mix(shallow_color, deep_color, smoothstep(0.08, 0.85, water_depth));
-	ALBEDO = mix(refracted, water_color, 0.62 + water_depth * 0.25);
-	ALBEDO = mix(ALBEDO, foam_color, broken_edge * 0.62);
+	float fresnel = pow(1.0 - clamp(dot(normalize(VIEW), detail_normal), 0.0, 1.0), 4.0);
+	ALBEDO = mix(refracted, water_color, 0.48 + water_depth * 0.33 + fresnel * 0.12);
+	ALBEDO = mix(ALBEDO, foam_color, broken_edge * 0.48);
 	NORMAL = detail_normal;
-	ROUGHNESS = 0.12 + broken_edge * 0.28;
-	METALLIC = 0.05;
-	ALPHA = 0.78 + water_depth * 0.16;
+	ROUGHNESS = 0.085 + broken_edge * 0.31;
+	METALLIC = 0.0;
+	ALPHA = clamp(0.68 + water_depth * 0.22 + fresnel * 0.08, 0.0, 0.96);
 }
