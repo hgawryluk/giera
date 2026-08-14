@@ -46,3 +46,12 @@
 - Parametry `blend_softness`, `height_blend_strength`, `noise_strength`, `noise_scale` i `triplanar_sharpness` pozostawiamy w materiale jako łatwo edytowalne uniformy Inspectora.
 - Importowane paczki tekstur przechowujemy logicznie pod `res://assets/textures/terrain/`; nie kopiujemy do projektu plików Blender, USD, miniaturek ani duplikatów, jeśli runtime ich nie używa.
 - Zmiana materiałów nie może naruszać map kontrolnych Terrain3D, geometrii heightmapy ani kolizji; malowanie tekstur musi pozostać kompatybilne z istniejącymi ID warstw.
+
+## Trawa 3D — SimpleGrassTextured
+
+- `Texture Albedo` musi przedstawiać cienkie źdźbła na przezroczystym tle. Szerokiej, zwartej rozety nie używamy jako trawy, ponieważ na domyślnym krzyżowym meshu wygląda jak krzak.
+- Realistyczną gęstość budujemy wieloma małymi instancjami, nie powiększaniem pojedynczej kępki. Typowa wysokość łąkowa to około 0,35–0,75 m z kontrolowaną wariacją.
+- Dla prostego krzyżowego mesha używamy trybu światła `Normal grass`, filtrowania z mipmapami, alpha scissor i wyłączonych cieni dla krótkiej masowej trawy.
+- `grass_tint` dopasowuje całą paletę, natomiast `dry_tint`, `fresh_tint`, `color_variation_strength` i `variation_scale` tworzą wyłącznie subtelną world-space variation; nie mogą generować jaskrawych plam.
+- Kolor trawy powinien pozostać w tej samej rodzinie oliwkowej co listowie, ale może być nieco jaśniejszy i cieplejszy od koron drzew, ponieważ znajduje się bliżej otwartego światła.
+- Duże obszary dzielimy na kilka MultiMeshy według wariantu tekstury. Każdy batch wymaga poprawnego `custom_aabb`; nie włączamy losowego distance discard, jeśli powoduje miganie instancji.

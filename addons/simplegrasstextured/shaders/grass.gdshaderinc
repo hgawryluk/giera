@@ -27,6 +27,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
 uniform vec4 albedo : source_color = vec4(1.0);
 uniform sampler2D texture_albedo : source_color,FILTER_TYPE,repeat_disable;
+uniform vec4 grass_tint : source_color = vec4(1.0);
+uniform float color_variation_strength : hint_range(0.0, 1.0) = 0.16;
+uniform vec4 dry_tint : source_color = vec4(0.82, 0.76, 0.52, 1.0);
+uniform vec4 fresh_tint : source_color = vec4(0.68, 0.78, 0.48, 1.0);
+uniform float variation_scale : hint_range(0.5, 100.0) = 18.0;
 uniform sampler2D texture_normal : hint_roughness_normal,FILTER_TYPE,repeat_enable;
 uniform sampler2D texture_metallic : hint_default_white,FILTER_TYPE,repeat_enable;
 uniform sampler2D texture_roughness : hint_roughness_r,FILTER_TYPE,repeat_enable;
@@ -65,8 +70,22 @@ global uniform sampler2D sgt_wind_pattern : source_color, repeat_enable, filter_
 varying vec2 uv_align;
 varying vec2 uv_scale;
 varying flat vec3 v_normal_grass;
+varying flat vec3 v_grass_world_position;
 
 const highp float EPSILON = 0.0001;
+
+
+float grass_hash(vec2 point) {
+	return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+
+float grass_value_noise(vec2 point) {
+	vec2 cell = floor(point);
+	vec2 local = fract(point);
+	local = local * local * (3.0 - 2.0 * local);
+	return mix(mix(grass_hash(cell), grass_hash(cell + vec2(1.0, 0.0)), local.x), mix(grass_hash(cell + vec2(0.0, 1.0)), grass_hash(cell + vec2(1.0)), local.x), local.y);
+}
 
 
 float get_value(sampler2D tex, vec2 uv) {
@@ -90,6 +109,7 @@ float wrap(float value, float min, float max) {
 
 
 void vertex() {
+	v_grass_world_position = NODE_POSITION_WORLD;
 	float lev = pow(abs((VERTEX.y - NODE_POSITION_WORLD.y) / grass_size_y), 1.7 + sgt_wind_strength);
 	float rand = wrap(dot(NODE_POSITION_WORLD, NODE_POSITION_WORLD * 10.0), 0.0, 256.0);
 	float randf = fract(rand);
@@ -154,7 +174,10 @@ void light() {
 void fragment() {
 	vec2 uv = (UV * uv_scale) + uv_align;
 	vec4 albedo_tex = texture(texture_albedo, uv);
-	ALBEDO = albedo.rgb * albedo_tex.rgb;
+	float variation_noise = grass_value_noise(v_grass_world_position.xz / max(variation_scale, 0.01));
+	vec3 spatial_tint = mix(dry_tint.rgb, fresh_tint.rgb, variation_noise);
+	vec3 varied_tint = mix(vec3(1.0), spatial_tint, color_variation_strength);
+	ALBEDO = albedo.rgb * grass_tint.rgb * varied_tint * albedo_tex.rgb;
 	NORMAL_MAP = texture(texture_normal, uv).rgb;
 	NORMAL_MAP_DEPTH = normal_scale;
 	METALLIC = metallic;

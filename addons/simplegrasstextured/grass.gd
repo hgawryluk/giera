@@ -34,6 +34,14 @@ extends MultiMeshInstance3D
 ## Texture albedo for mesh, you can apply normal, metallic and roughness 
 ## textures on the "Material parameters" section
 @export var texture_albedo : Texture = preload("res://addons/simplegrasstextured/textures/grassbushcc008.png") : set = _on_set_texture_albedo
+@export_group("Color variation")
+## Overall tint multiplied with Texture Albedo. White preserves source color.
+@export_color_no_alpha var grass_tint := Color.WHITE : set = _on_set_grass_tint
+## Strength of subtle world-space variation between dry and fresh tones.
+@export_range(0.0, 1.0, 0.01) var color_variation_strength := 0.16 : set = _on_set_color_variation_strength
+@export_color_no_alpha var dry_tint := Color(0.82, 0.76, 0.52) : set = _on_set_dry_tint
+@export_color_no_alpha var fresh_tint := Color(0.68, 0.78, 0.48) : set = _on_set_fresh_tint
+@export_range(0.5, 100.0, 0.5) var variation_scale := 18.0 : set = _on_set_variation_scale
 @export_group("Material parameters")
 ## Lets you setup a multi texture image by frames
 @export var texture_frames : Vector2i = Vector2i(1, 1) : set = _on_set_texture_frames;
@@ -199,6 +207,11 @@ func _notification(what: int) -> void:
 func update_all_material():
 	_on_set_albedo(albedo)
 	_on_set_texture_albedo(texture_albedo)
+	_on_set_grass_tint(grass_tint)
+	_on_set_color_variation_strength(color_variation_strength)
+	_on_set_dry_tint(dry_tint)
+	_on_set_fresh_tint(fresh_tint)
+	_on_set_variation_scale(variation_scale)
 	_on_set_alpha_scissor_threshold(alpha_scissor_threshold)
 	_on_set_light_mode(light_mode)
 	_on_set_texture_normal(texture_normal)
@@ -684,6 +697,36 @@ func _on_set_texture_albedo(value : Texture):
 	texture_albedo = value
 	if _material != null:
 		_material.set_shader_parameter("texture_albedo", texture_albedo)
+
+
+func _on_set_grass_tint(value: Color) -> void:
+	grass_tint = value
+	if _material != null:
+		_material.set_shader_parameter("grass_tint", grass_tint)
+
+
+func _on_set_color_variation_strength(value: float) -> void:
+	color_variation_strength = value
+	if _material != null:
+		_material.set_shader_parameter("color_variation_strength", color_variation_strength)
+
+
+func _on_set_dry_tint(value: Color) -> void:
+	dry_tint = value
+	if _material != null:
+		_material.set_shader_parameter("dry_tint", dry_tint)
+
+
+func _on_set_fresh_tint(value: Color) -> void:
+	fresh_tint = value
+	if _material != null:
+		_material.set_shader_parameter("fresh_tint", fresh_tint)
+
+
+func _on_set_variation_scale(value: float) -> void:
+	variation_scale = maxf(value, 0.01)
+	if _material != null:
+		_material.set_shader_parameter("variation_scale", variation_scale)
 
 
 func _on_set_texture_frames(value : Vector2i):

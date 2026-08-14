@@ -13,21 +13,25 @@ const TREE_DEFINITIONS: Array[Dictionary] = [
 		"leaves": "res://assets/environment/tree_packs/tree_02/Tree 02/DB2X2_L01.png",
 	},
 ]
-const BUSH_SCENES: Array[PackedScene] = [
-	preload("res://assets/environment/bush_packs/real_bush/source/all Embed.fbx"),
-	preload("res://assets/environment/bush_packs/bush_01/source/Bush.fbx"),
-	preload("res://assets/environment/bush_packs/cliff_shrub/source/wallBush-01-terrainWallBush.fbx"),
+const BUSH_DEFINITIONS: Array[Dictionary] = [
+	{"scene": preload("res://assets/environment/bush_packs/real_bush/source/all Embed.fbx"), "albedo": preload("res://assets/environment/bush_packs/real_bush/textures/Color_Green.png"), "normal": preload("res://assets/environment/bush_packs/real_bush/textures/Normal.png"), "roughness": preload("res://assets/environment/bush_packs/real_bush/textures/Roughness.png")},
+	{"scene": preload("res://assets/environment/bush_packs/bush_01/source/Bush.fbx"), "albedo": preload("res://assets/environment/bush_packs/bush_01/textures/leaves_01_alb.png"), "normal": preload("res://assets/environment/bush_packs/bush_01/textures/leaves_01_nrm.jpeg")},
+	{"scene": preload("res://assets/environment/bush_packs/cliff_shrub/source/wallBush-01-terrainWallBush.fbx"), "albedo": preload("res://assets/environment/bush_packs/cliff_shrub/textures/oooo_diffuseOriginal.png"), "normal": preload("res://assets/environment/bush_packs/cliff_shrub/textures/oooo_normal.png")},
 ]
-const BUSH_COUNT: int = 190
+const BUSH_COUNT: int = 420
 const TREE_COUNT: int = 300
 const BASE_TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
-const GRASS_INSTANCE_COUNT: int = 32000
+const GRASS_INSTANCE_COUNT: int = 68000
 const WATER_LEVEL: float = -1.7
 const WATER_SHADER: Shader = preload("res://world/terrain/shaders/solo_trail_water.gdshader")
 const GRASS_MESH: Mesh = preload("res://addons/simplegrasstextured/default_mesh.tres")
 const GRASS_SCRIPT: Script = preload("res://addons/simplegrasstextured/grass.gd")
-const GRASS_TEXTURE: Texture2D = preload("res://addons/simplegrasstextured/textures/grassbushcc008.png")
+const GRASS_TEXTURES: Array[Texture2D] = [
+	preload("res://assets/environment/grass_textures/realtime/textures/Plate1.png"),
+	preload("res://assets/environment/grass_textures/realtime/textures/Plate2.png"),
+	preload("res://assets/environment/grass_textures/realtime/textures/Plate3.png"),
+]
 const STYLISED_ROCK_SCATTER: Script = preload("res://scripts/maps/stylised_rock_scatter.gd")
 
 var _grid_manager: GridManager
@@ -104,9 +108,10 @@ func _append_water_vertex(vertices: PackedVector3Array, normals: PackedVector3Ar
 func _scatter_grass_multimesh() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 6_601_419
-	var transforms: Array[Transform3D] = []
+	var transforms_by_variant: Array[Array] = [[], [], []]
+	var placed_count := 0
 	var attempts: int = 0
-	while transforms.size() < GRASS_INSTANCE_COUNT and attempts < GRASS_INSTANCE_COUNT * 7:
+	while placed_count < GRASS_INSTANCE_COUNT and attempts < GRASS_INSTANCE_COUNT * 9:
 		attempts += 1
 		var x := rng.randf_range(4.0, 252.0)
 		var z := rng.randf_range(4.0, 252.0)
@@ -134,34 +139,48 @@ func _scatter_grass_multimesh() -> void:
 			density *= smoothstep(7.0, 18.0, water_distance)
 		if rng.randf() > density:
 			continue
-		var scale_y := rng.randf_range(0.78, 1.58) * lerpf(0.92, 1.14, meadow_factor)
-		var scale_xz := rng.randf_range(0.68, 1.28)
+		# Thin 35-75 cm tufts read as grass at FPP eye height. The old 1-2 m
+		# crossed cards looked like individual shrubs even with a grass texture.
+		var scale_y := rng.randf_range(0.40, 0.78) * lerpf(0.92, 1.08, meadow_factor)
+		var scale_xz := rng.randf_range(0.24, 0.52)
 		if bank_tuft:
-			scale_y *= rng.randf_range(0.88, 1.20)
-			scale_xz *= rng.randf_range(0.34, 0.54)
+			scale_y *= rng.randf_range(0.82, 1.08)
+			scale_xz *= rng.randf_range(0.50, 0.75)
 		var blade_basis := Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(scale_xz, scale_y, scale_xz))
-		transforms.append(Transform3D(blade_basis, Vector3(x, height + 0.025, z)))
+		var variant := rng.randi_range(0, GRASS_TEXTURES.size() - 1)
+		transforms_by_variant[variant].append(Transform3D(blade_basis, Vector3(x, height + 0.012, z)))
+		placed_count += 1
+	for variant: int in range(GRASS_TEXTURES.size()):
+		_create_grass_batch(variant, transforms_by_variant[variant])
+
+
+func _create_grass_batch(variant: int, transforms: Array) -> void:
 	var multimesh := MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.mesh = GRASS_MESH
 	multimesh.instance_count = transforms.size()
 	for index: int in range(transforms.size()):
-		multimesh.set_instance_transform(index, transforms[index])
+		multimesh.set_instance_transform(index, transforms[index] as Transform3D)
 	# Use the actual plugin node. Its _ready configures the correct shader,
 	# texture parameters, wind deformation and per-instance scale variation.
 	var grass := GRASS_SCRIPT.new() as MultiMeshInstance3D
-	grass.name = "SimpleGrassTextured_Meadows"
+	grass.name = "SimpleGrassTextured_Meadows_%d" % (variant + 1)
 	grass.multimesh = multimesh
-	grass.set("texture_albedo", GRASS_TEXTURE)
-	# Muted straw/olive tint keeps blades in the same palette as the trees.
-	grass.set("albedo", Color(0.50, 0.50, 0.31))
-	# Taller than the original plugin grass, but clearly smaller than the
-	# oversized previous pass. Per-instance transforms add natural variation.
-	grass.set("scale_h", 1.35)
-	grass.set("scale_w", 0.72)
-	grass.set("scale_var", -0.16)
-	grass.set("grass_strength", 0.66)
-	grass.set("alpha_scissor_threshold", 0.38)
+	# Official plugin workflow: Texture Albedo defines the visible plant.
+	# These alpha textures contain thin, muted blades instead of the default
+	# bright bush silhouette.
+	grass.set("texture_albedo", GRASS_TEXTURES[variant])
+	grass.set("albedo", Color.WHITE)
+	grass.set("grass_tint", Color(0.82, 0.84, 0.66))
+	grass.set("color_variation_strength", 0.20)
+	grass.set("dry_tint", Color(0.78, 0.69, 0.43))
+	grass.set("fresh_tint", Color(0.58, 0.70, 0.38))
+	grass.set("variation_scale", 22.0)
+	grass.set("scale_h", 1.0)
+	grass.set("scale_w", 0.82)
+	grass.set("scale_var", -0.22)
+	grass.set("grass_strength", 0.48)
+	grass.set("alpha_scissor_threshold", 0.30)
 	grass.set("light_mode", 1)
 	grass.set("interactive", false)
 	# The plugin's distance dither discards different instances while the
@@ -343,16 +362,18 @@ func _load_tree_meshes() -> void:
 
 func _load_bush_meshes() -> void:
 	_bush_meshes.clear()
-	for source_scene: PackedScene in BUSH_SCENES:
+	for definition: Dictionary in BUSH_DEFINITIONS:
+		var source_scene := definition["scene"] as PackedScene
 		var source_root := source_scene.instantiate()
 		var combined := ArrayMesh.new()
-		_append_bush_surfaces(source_root, Transform3D.IDENTITY, combined)
+		var fallback_material := _create_bush_material(definition)
+		_append_bush_surfaces(source_root, Transform3D.IDENTITY, combined, fallback_material)
 		source_root.free()
 		if combined.get_surface_count() > 0:
 			_bush_meshes.append(combined)
 
 
-func _append_bush_surfaces(node: Node, parent_transform: Transform3D, combined: ArrayMesh) -> void:
+func _append_bush_surfaces(node: Node, parent_transform: Transform3D, combined: ArrayMesh, fallback_material: Material) -> void:
 	var local_transform := Transform3D.IDENTITY
 	if node is Node3D:
 		local_transform = (node as Node3D).transform
@@ -365,11 +386,32 @@ func _append_bush_surfaces(node: Node, parent_transform: Transform3D, combined: 
 				surface.append_from(mesh_instance.mesh, surface_index, accumulated)
 				var override_material := mesh_instance.get_surface_override_material(surface_index)
 				var material := override_material if override_material != null else mesh_instance.mesh.surface_get_material(surface_index)
-				if material != null:
+				# Several source FBX surfaces reference missing external materials.
+				# Never commit an untextured gray surface to the combined MultiMesh.
+				if material is BaseMaterial3D and (material as BaseMaterial3D).albedo_texture != null:
 					surface.set_material(material)
+				else:
+					surface.set_material(fallback_material)
 				surface.commit(combined)
 	for child: Node in node.get_children():
-		_append_bush_surfaces(child, accumulated, combined)
+		_append_bush_surfaces(child, accumulated, combined, fallback_material)
+
+
+func _create_bush_material(definition: Dictionary) -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = definition["albedo"] as Texture2D
+	material.albedo_color = Color(0.78, 0.80, 0.67)
+	material.roughness = 0.92
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	material.alpha_scissor_threshold = 0.38
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	if definition.has("normal"):
+		material.normal_enabled = true
+		material.normal_texture = definition["normal"] as Texture2D
+	if definition.has("roughness"):
+		material.roughness_texture = definition["roughness"] as Texture2D
+	return material
 
 
 func _load_obj_mesh(definition: Dictionary) -> ArrayMesh:
