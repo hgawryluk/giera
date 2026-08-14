@@ -206,12 +206,15 @@ void fragment() {
 		float bank_inner = smoothstep(0.42, 0.96, wet_bank);
 		surface_sand_weight = bank_inner * 0.78;
 		surface_bank_soil_weight = max(bank_outer - bank_inner * 0.72, 0.0) * 0.68;
-		float forest_hill = 1.0 - smoothstep(35.0, 86.0, distance(p, vec2(208.0, 54.0)));
-		// Leaf litter is restricted to sparse, broken-up patches in the wooded hill.
-		// Two noise scales keep the patches small and prevent a continuous forest carpet.
-		float leaf_clusters = smoothstep(0.67, 0.84, value_noise(p / 7.5 + vec2(3.7, 12.4)));
-		leaf_clusters *= smoothstep(0.38, 0.68, value_noise(p / 18.0 + vec2(14.2, 5.1)));
-		surface_forest_weight = forest_hill * leaf_clusters * 0.62;
+		// Continuous world-space woodland mask: dense interiors receive roughly
+		// 50-70% forest floor, edges 20-40%, and only rare meadow flecks.
+		float woodland = value_noise(p / 95.0 + vec2(8.1, 2.7)) * 0.58 + value_noise(p / 43.0 + vec2(19.4, 13.2)) * 0.42;
+		float dense_woodland = smoothstep(0.54, 0.73, woodland);
+		float woodland_edge = smoothstep(0.39, 0.57, woodland) * (1.0 - dense_woodland);
+		float broken_brush = smoothstep(0.38, 0.65, value_noise(p / 8.5 + vec2(3.7, 12.4)));
+		float meadow_fleck = smoothstep(0.88, 0.96, value_noise(p / 21.0 + vec2(14.2, 5.1))) * 0.16;
+		surface_forest_weight = (dense_woodland * 0.66 + woodland_edge * 0.34) * broken_brush + meadow_fleck;
+		surface_forest_weight *= (1.0 - trail_shoulder) * (1.0 - wet_bank) * (1.0 - cliff * 0.82);
 		surface_rock_weight = max(cliff, alpine * 0.72);
 	}
 
@@ -298,14 +301,15 @@ void fragment() {
 	float grid_line = 1.0 - smoothstep(0.02, 0.055, min(edge.x, edge.y));
 	ground = mix(ground, vec3(0.035, 0.055, 0.03), (grid_visible ? grid_line : 0.0) * 0.82);
 	ALBEDO = ground;
-	float grass_r = texture(grass_roughness, p / texture_world_size).r;
-	float dirt_r = texture(dirt_roughness, p / texture_world_size).r;
+	// GLHF ARM textures store roughness in the green channel.
+	float grass_r = texture(grass_roughness, p / texture_world_size).g;
+	float dirt_r = texture(dirt_roughness, p / texture_world_size).g;
 	float sand_r = texture(sand_roughness, p / texture_world_size).r;
 	float leaf_r = texture(leaf_roughness, p / texture_world_size).r;
 	float paving_r = texture(paving_roughness, p / texture_world_size).r;
 	float rock_r = 0.92;
 	if (final_rock_weight > 0.002) {
-		rock_r = triplanar_color(rock_roughness, world_position, normalize(world_normal), texture_world_size).r * rock_variant_weights.x + triplanar_color(rock011_roughness, world_position, normalize(world_normal), texture_world_size * 1.08).r * rock_variant_weights.y + triplanar_color(rock012_roughness, world_position, normalize(world_normal), texture_world_size * 0.94).r * rock_variant_weights.z + triplanar_color(rock013_roughness, world_position, normalize(world_normal), texture_world_size * 1.16).r * rock_variant_weights.w;
+		rock_r = triplanar_color(rock_roughness, world_position, normalize(world_normal), texture_world_size).g * rock_variant_weights.x + triplanar_color(rock011_roughness, world_position, normalize(world_normal), texture_world_size * 1.08).g * rock_variant_weights.y + triplanar_color(rock012_roughness, world_position, normalize(world_normal), texture_world_size * 0.94).g * rock_variant_weights.z + triplanar_color(rock013_roughness, world_position, normalize(world_normal), texture_world_size * 1.16).r * rock_variant_weights.w;
 	}
 	ROUGHNESS = dot(base_weights, vec4(grass_r, grass_r, dirt_r, sand_r)) * final_base_weight
 		+ leaf_r * final_forest_weight + paving_r * final_paving_weight + rock_r * final_rock_weight;

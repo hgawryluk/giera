@@ -39,6 +39,7 @@ const ROCK_ROUGHNESS: Texture2D = preload("res://assets/environment/stylised_roc
 const TERRAIN_MATERIAL: ShaderMaterial = preload("res://world/terrain/materials/terrain_ground_material.tres")
 const WATER_SHADER: Shader = preload("res://world/terrain/shaders/solo_trail_water.gdshader")
 const PROXIMITY_COLLISIONS: Script = preload("res://scripts/maps/proximity_obstacle_collisions.gd")
+const FOREST_LITTER_SCATTER: Script = preload("res://scripts/maps/forest_litter_decal_scatter.gd")
 const TERRAIN_ROWS_PER_FRAME: int = 8
 
 var coordinate := Vector2i.ZERO
@@ -66,6 +67,11 @@ func _ready() -> void:
 	_build_water()
 	await get_tree().process_frame
 	await _build_decorations_incremental()
+	var litter := FOREST_LITTER_SCATTER.new() as MultiMeshInstance3D
+	litter.name = "ForestLitterDecals"
+	add_child(litter)
+	var world_bounds := Rect2(global_position.x, global_position.z, SIZE, SIZE)
+	litter.call("setup", _grid_manager, world_bounds, 1100, 8_140_611 + coordinate.x * 92821 + coordinate.y * 68917)
 	build_completed.emit(coordinate)
 
 

@@ -41,6 +41,7 @@ const GRASS_TEXTURES: Array[Texture2D] = [
 ]
 const STYLISED_ROCK_SCATTER: Script = preload("res://scripts/maps/stylised_rock_scatter.gd")
 const PROXIMITY_COLLISIONS: Script = preload("res://scripts/maps/proximity_obstacle_collisions.gd")
+const FOREST_LITTER_SCATTER: Script = preload("res://scripts/maps/forest_litter_decal_scatter.gd")
 
 var _grid_manager: GridManager
 var _tree_meshes: Array[ArrayMesh] = []
@@ -63,6 +64,10 @@ func setup(grid_manager: GridManager) -> void:
 	_scatter_grass_multimesh()
 	_scatter_tree_multimeshes()
 	_scatter_bush_multimeshes()
+	var forest_litter := FOREST_LITTER_SCATTER.new() as MultiMeshInstance3D
+	forest_litter.name = "ForestLitterDecals"
+	add_child(forest_litter)
+	forest_litter.call("setup", _grid_manager, Rect2(0.0, 0.0, 256.0, 256.0), 1800, 8_140_611)
 	var proximity_collisions := PROXIMITY_COLLISIONS.new() as Node3D
 	proximity_collisions.name = "ProximityObstacleCollisions"
 	add_child(proximity_collisions)
