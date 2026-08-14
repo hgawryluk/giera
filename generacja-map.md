@@ -24,3 +24,12 @@
 - Dekoracyjne drobne skały nie powinny tworzyć przypadkowych niewidzialnych blokad.
 - Kolizje stosujemy tylko dla dużych, czytelnych przeszkód i dopasowujemy je do widocznej bryły.
 - Należy odróżnić ścianę wynikającą z kolizji od programowego clampowania pozycji gracza.
+
+## Multi-dekoracje i wydajność
+
+- Powtarzalne dekoracje (drzewa, kamienie, krzewy, trawa i drobny clutter) rozmieszczamy przez `MultiMeshInstance3D`, osobny batch dla każdego unikalnego mesha lub materiału.
+- Nie tworzymy dziesiątek ani setek osobnych `MeshInstance3D`, jeżeli obiekty nie wymagają indywidualnych skryptów, animacji lub unikalnej kolizji.
+- Transform każdej instancji powinien zawierać losowy obrót, kontrolowaną wariację skali i wysokość pobraną z terenu.
+- Drzewa pozostają zasadniczo pionowe; dopuszczalne jest jedynie subtelne przechylenie. Kamienie mogą podążać za normalną zbocza.
+- Duże landmarki mogą używać znacznie większej skali, lecz powinny być nieliczne i umieszczone świadomie.
+- Przy losowaniu zachowujemy minimalny odstęp między drzewami oraz wykluczamy rzeki, wąwozy, polany startowe i bardzo strome zbocza.

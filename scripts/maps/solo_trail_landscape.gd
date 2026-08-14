@@ -9,16 +9,33 @@ const ROCK_SCENES: Array[PackedScene] = [
 	preload("res://assets/environment/kyles_rock_pack/Kyle Fuji/Models/boulder_8_bl.glb"),
 ]
 const ROCK_TEXTURE: Texture2D = preload("res://assets/textures/terrain/rock_stone_albedo.jpg")
+const TREE_DEFINITIONS: Array[Dictionary] = [
+	{
+		"obj": "res://assets/environment/tree_packs/tree/Tree/Tree.obj",
+		"bark": "res://assets/environment/tree_packs/tree/Tree/bark_0021.jpg",
+		"leaves": "res://assets/environment/tree_packs/tree/Tree/DB2X2_L01.png",
+	},
+	{
+		"obj": "res://assets/environment/tree_packs/tree_02/Tree 02/Tree.obj",
+		"bark": "res://assets/environment/tree_packs/tree_02/Tree 02/bark_0004.jpg",
+		"leaves": "res://assets/environment/tree_packs/tree_02/Tree 02/DB2X2_L01.png",
+	},
+]
+const TREE_COUNT: int = 100
+const GIANT_TREE_COUNT: int = 3
 
 var _grid_manager: GridManager
 var _rock_material: StandardMaterial3D
+var _tree_meshes: Array[ArrayMesh] = []
 
 
 func setup(grid_manager: GridManager) -> void:
 	_grid_manager = grid_manager
 	_rock_material = _create_rock_material()
+	_load_tree_meshes()
 	_create_river()
 	_scatter_rocks()
+	_scatter_tree_multimeshes()
 
 
 func _create_river() -> void:
@@ -95,6 +112,159 @@ func _scatter_rocks() -> void:
 		_apply_rock_material(rock)
 		add_child(rock)
 		placed += 1
+
+
+func _scatter_tree_multimeshes() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4_810_273
+	var transforms_by_variant: Array[Array] = [[], []]
+	var accepted_points: Array[Vector2] = []
+	var placed: int = 0
+	var attempts: int = 0
+	while placed < TREE_COUNT and attempts < 5000:
+		attempts += 1
+		var x := rng.randf_range(9.0, 247.0)
+		var z := rng.randf_range(9.0, 247.0)
+		var point := Vector2(x, z)
+		var height := _grid_manager.terrain_height(x, z)
+		var slope := _estimate_slope(x, z)
+		var river_distance := absf(z - _river_center(x))
+		var ravine_x := 72.0 + sin(z * 0.052) * 5.0
+		if slope > 0.34 or height > 17.0 or height < 0.5:
+			continue
+		if river_distance < 13.0 or (z > 105.0 and z < 228.0 and absf(x - ravine_x) < 13.0):
+			continue
+		if point.distance_to(Vector2(130.0, 150.0)) < 34.0:
+			continue
+		if _is_too_close_to_tree(point, accepted_points, 4.6):
+			continue
+		var variant := rng.randi_range(0, _tree_meshes.size() - 1)
+		var mesh_bounds := _tree_meshes[variant].get_aabb()
+		var source_height := maxf(mesh_bounds.size.y, 0.01)
+		var target_height := rng.randf_range(7.5, 12.5)
+		if placed < GIANT_TREE_COUNT:
+			target_height = 25.0
+		var uniform_scale := target_height / source_height
+		var width_variation := rng.randf_range(0.88, 1.14)
+		var tree_scale := Vector3(uniform_scale * width_variation, uniform_scale, uniform_scale * width_variation)
+		var yaw := rng.randf_range(0.0, TAU)
+		var slight_tilt := rng.randf_range(-0.025, 0.025)
+		var tree_basis := Basis(Vector3.UP, yaw) * Basis(Vector3.FORWARD, slight_tilt)
+		tree_basis = tree_basis.scaled(tree_scale)
+		var root_burial := clampf(target_height * 0.012, 0.10, 0.28)
+		var transform := Transform3D(tree_basis, Vector3(x, height - root_burial, z))
+		transforms_by_variant[variant].append(transform)
+		accepted_points.append(point)
+		placed += 1
+	for variant: int in range(_tree_meshes.size()):
+		_create_tree_batch(variant, transforms_by_variant[variant])
+
+
+func _create_tree_batch(variant: int, transforms: Array) -> void:
+	if transforms.is_empty():
+		return
+	var multimesh := MultiMesh.new()
+	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	multimesh.use_colors = false
+	multimesh.use_custom_data = false
+	multimesh.mesh = _tree_meshes[variant]
+	multimesh.instance_count = transforms.size()
+	for index: int in range(transforms.size()):
+		multimesh.set_instance_transform(index, transforms[index] as Transform3D)
+	var batch := MultiMeshInstance3D.new()
+	batch.name = "TreeMultiMesh_%d" % (variant + 1)
+	batch.multimesh = multimesh
+	batch.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	batch.gi_mode = GeometryInstance3D.GI_MODE_STATIC
+	add_child(batch)
+
+
+func _is_too_close_to_tree(point: Vector2, accepted_points: Array[Vector2], minimum_distance: float) -> bool:
+	for accepted: Vector2 in accepted_points:
+		if point.distance_squared_to(accepted) < minimum_distance * minimum_distance:
+			return true
+	return false
+
+
+func _load_tree_meshes() -> void:
+	_tree_meshes.clear()
+	for definition: Dictionary in TREE_DEFINITIONS:
+		_tree_meshes.append(_load_obj_mesh(definition))
+
+
+func _load_obj_mesh(definition: Dictionary) -> ArrayMesh:
+	var file := FileAccess.open(str(definition["obj"]), FileAccess.READ)
+	var vertices: Array[Vector3] = []
+	var normals: Array[Vector3] = []
+	var texcoords: Array[Vector2] = []
+	var surfaces: Dictionary[String, SurfaceTool] = {}
+	var current_material := "bark"
+	while file != null and not file.eof_reached():
+		var line := file.get_line().strip_edges()
+		var parts := line.split(" ", false)
+		if parts.is_empty():
+			continue
+		match parts[0]:
+			"v":
+				if parts.size() >= 4:
+					vertices.append(Vector3(float(parts[1]), float(parts[2]), float(parts[3])))
+			"vn":
+				if parts.size() >= 4:
+					normals.append(Vector3(float(parts[1]), float(parts[2]), float(parts[3])).normalized())
+			"vt":
+				if parts.size() >= 3:
+					texcoords.append(Vector2(float(parts[1]), 1.0 - float(parts[2])))
+			"usemtl":
+				current_material = "leaves" if parts.size() > 1 and not str(parts[1]).to_lower().contains("bark") else "bark"
+			"f":
+				if parts.size() >= 4:
+					var surface := _get_obj_surface(surfaces, current_material)
+					for triangle_index: int in range(1, parts.size() - 2):
+						_append_obj_corner(surface, parts[1], vertices, texcoords, normals)
+						_append_obj_corner(surface, parts[triangle_index + 1], vertices, texcoords, normals)
+						_append_obj_corner(surface, parts[triangle_index + 2], vertices, texcoords, normals)
+	var mesh := ArrayMesh.new()
+	for material_name: String in ["bark", "leaves"]:
+		if not surfaces.has(material_name):
+			continue
+		var surface: SurfaceTool = surfaces[material_name]
+		surface.generate_tangents()
+		surface.set_material(_create_tree_material(str(definition[material_name]), material_name == "leaves"))
+		surface.commit(mesh)
+	return mesh
+
+
+func _get_obj_surface(surfaces: Dictionary[String, SurfaceTool], material_name: String) -> SurfaceTool:
+	if not surfaces.has(material_name):
+		var surface := SurfaceTool.new()
+		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+		surfaces[material_name] = surface
+	return surfaces[material_name] as SurfaceTool
+
+
+func _append_obj_corner(surface: SurfaceTool, token: String, vertices: Array[Vector3], texcoords: Array[Vector2], normals: Array[Vector3]) -> void:
+	var indices := token.split("/", true)
+	var vertex_index := int(indices[0]) - 1
+	var uv_index := int(indices[1]) - 1 if indices.size() > 1 and not indices[1].is_empty() else -1
+	var normal_index := int(indices[2]) - 1 if indices.size() > 2 and not indices[2].is_empty() else -1
+	if uv_index >= 0 and uv_index < texcoords.size():
+		surface.set_uv(texcoords[uv_index])
+	if normal_index >= 0 and normal_index < normals.size():
+		surface.set_normal(normals[normal_index])
+	if vertex_index >= 0 and vertex_index < vertices.size():
+		surface.add_vertex(vertices[vertex_index])
+
+
+func _create_tree_material(texture_path: String, transparent: bool) -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = load(texture_path) as Texture2D
+	material.roughness = 0.86
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	if transparent:
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+		material.alpha_scissor_threshold = 0.42
+		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	return material
 
 
 func _estimate_slope(x: float, z: float) -> float:
