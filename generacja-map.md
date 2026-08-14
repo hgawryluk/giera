@@ -33,6 +33,8 @@
 - Drzewa pozostają zasadniczo pionowe; dopuszczalne jest jedynie subtelne przechylenie. Kamienie mogą podążać za normalną zbocza.
 - Duże landmarki mogą używać znacznie większej skali, lecz powinny być nieliczne i umieszczone świadomie.
 - Przy losowaniu zachowujemy minimalny odstęp między drzewami oraz wykluczamy rzeki, wąwozy, polany startowe i bardzo strome zbocza.
+- Krzewy rozrzucamy biomowo: większe skupiska na osłoniętych obrzeżach lasu, pojedyncze sztuki na łąkach, a niskie odmiany na umiarkowanych skalistych zboczach. Zachowujemy puste kieszenie, minimalne odstępy i pas bez krzewów przy wodzie oraz głównej drodze.
+- Importowane modele krzewów normalizujemy według wysokości ich AABB, ponieważ paczki źródłowe mają różne jednostki. Każdy wariant modelu pozostaje osobnym batchem MultiMesh.
 
 ## Materiały terenu i paczki PBR
 

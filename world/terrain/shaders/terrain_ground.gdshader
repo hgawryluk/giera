@@ -88,6 +88,20 @@ vec3 triplanar_color(sampler2D source, vec3 pos, vec3 normal, float scale) {
 	return texture(source, pos.zy / scale).rgb * weights.x + texture(source, pos.xz / scale).rgb * weights.y + texture(source, pos.xy / scale).rgb * weights.z;
 }
 
+// One continuous south-to-north route for Samotny Szlak.  The cubic curve
+// starts in the southern meadow, crosses the flooded ravine near z=190,
+// crosses the main river near z=101 and finishes in the northern forest hill.
+// Keeping the route as one curve (instead of combining several line masks)
+// prevents the old three-way road junctions from reappearing.
+float solo_path_center_x(float world_z) {
+	float t = clamp((246.0 - world_z) / 226.0, 0.0, 1.0);
+	float inverse_t = 1.0 - t;
+	return inverse_t * inverse_t * inverse_t * 35.0
+		+ 3.0 * inverse_t * inverse_t * t * 45.0
+		+ 3.0 * inverse_t * t * t * 225.0
+		+ t * t * t * 218.0;
+}
+
 void vertex() {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_normal = normalize(MODEL_NORMAL_MATRIX * NORMAL);
@@ -120,10 +134,9 @@ void fragment() {
 	dry_mask = smoothstep(0.5 - blend_softness, 0.5 + blend_softness, dry_mask + material_noise + (dirt_h - grass_h) * height_blend_strength);
 	dirt_patch = smoothstep(0.5 - blend_softness, 0.5 + blend_softness, dirt_patch + material_noise + (dirt_h - grass_h) * height_blend_strength);
 
-	float north_south_x = grid_size.x * 0.5 + sin(p.y * 0.055) * 12.0;
-	float diagonal_z = 30.0 + p.x * 0.72 + sin(p.x * 0.09) * 6.0;
-	float east_west_z = 132.0 + sin(p.x * 0.07) * 10.0;
-	float trail_distance = min(abs(p.x - north_south_x), min(abs(p.y - diagonal_z), abs(p.y - east_west_z)));
+	// The former north/south, diagonal and east/west masks are intentionally
+	// gone: every visible road now comes from this single continuous route.
+	float trail_distance = abs(p.x - solo_path_center_x(p.y));
 	float irregular_edge = (value_noise(p / 3.1 + vec2(8.2, 3.4)) - 0.5) * blend_noise_strength;
 	float trail_mask = show_trails ? 1.0 - smoothstep(1.65 + irregular_edge, 3.0 + irregular_edge, trail_distance) : 0.0;
 	float paving_relief = texture(paving_height, p / texture_world_size).r;

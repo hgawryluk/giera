@@ -1,14 +1,6 @@
 class_name SoloTrailLandscape
 extends Node3D
 
-const ROCK_SCENES: Array[PackedScene] = [
-	preload("res://assets/environment/kyles_rock_pack/Kyle Fuji/Models/boulder_1_bl.glb"),
-	preload("res://assets/environment/kyles_rock_pack/Kyle Fuji/Models/boulder_3_tr.glb"),
-	preload("res://assets/environment/kyles_rock_pack/Kyle Fuji/Models/boulder_5_br.glb"),
-	preload("res://assets/environment/kyles_rock_pack/Kyle Fuji/Models/boulder_7_tl.glb"),
-	preload("res://assets/environment/kyles_rock_pack/Kyle Fuji/Models/boulder_8_bl.glb"),
-]
-const ROCK_TEXTURE: Texture2D = preload("res://assets/textures/terrain/rock_stone_albedo.jpg")
 const TREE_DEFINITIONS: Array[Dictionary] = [
 	{
 		"obj": "res://assets/environment/tree_packs/tree/Tree/Tree.obj",
@@ -21,6 +13,12 @@ const TREE_DEFINITIONS: Array[Dictionary] = [
 		"leaves": "res://assets/environment/tree_packs/tree_02/Tree 02/DB2X2_L01.png",
 	},
 ]
+const BUSH_SCENES: Array[PackedScene] = [
+	preload("res://assets/environment/bush_packs/real_bush/source/all Embed.fbx"),
+	preload("res://assets/environment/bush_packs/bush_01/source/Bush.fbx"),
+	preload("res://assets/environment/bush_packs/cliff_shrub/source/wallBush-01-terrainWallBush.fbx"),
+]
+const BUSH_COUNT: int = 190
 const TREE_COUNT: int = 300
 const BASE_TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
@@ -30,21 +28,26 @@ const WATER_SHADER: Shader = preload("res://world/terrain/shaders/solo_trail_wat
 const GRASS_MESH: Mesh = preload("res://addons/simplegrasstextured/default_mesh.tres")
 const GRASS_SCRIPT: Script = preload("res://addons/simplegrasstextured/grass.gd")
 const GRASS_TEXTURE: Texture2D = preload("res://addons/simplegrasstextured/textures/grassbushcc008.png")
+const STYLISED_ROCK_SCATTER: Script = preload("res://scripts/maps/stylised_rock_scatter.gd")
 
 var _grid_manager: GridManager
-var _rock_material: StandardMaterial3D
 var _tree_meshes: Array[ArrayMesh] = []
+var _bush_meshes: Array[ArrayMesh] = []
 
 
 func setup(grid_manager: GridManager) -> void:
 	_grid_manager = grid_manager
 	add_to_group("solo_trail_landscape")
-	_rock_material = _create_rock_material()
 	_load_tree_meshes()
+	_load_bush_meshes()
 	_create_river()
 	_scatter_grass_multimesh()
-	_scatter_rocks()
+	var stylised_rocks := STYLISED_ROCK_SCATTER.new() as Node3D
+	stylised_rocks.name = "StylisedRockScatter"
+	add_child(stylised_rocks)
+	stylised_rocks.call("setup", _grid_manager)
 	_scatter_tree_multimeshes()
+	_scatter_bush_multimeshes()
 
 
 func _create_river() -> void:
@@ -111,6 +114,8 @@ func _scatter_grass_multimesh() -> void:
 		var slope := _estimate_slope(x, z)
 		if height < 0.15 or height > 16.5 or slope > 0.28 or is_water_at(x, z):
 			continue
+		if _trail_distance(x, z) < 3.8:
+			continue
 		var water_distance := _waterway_distance(x, z)
 		var meadow_factor := 1.0 - smoothstep(0.08, 0.28, slope)
 		meadow_factor *= 1.0 - smoothstep(12.0, 16.5, height)
@@ -148,7 +153,8 @@ func _scatter_grass_multimesh() -> void:
 	grass.name = "SimpleGrassTextured_Meadows"
 	grass.multimesh = multimesh
 	grass.set("texture_albedo", GRASS_TEXTURE)
-	grass.set("albedo", Color(0.57, 0.60, 0.36))
+	# Muted straw/olive tint keeps blades in the same palette as the trees.
+	grass.set("albedo", Color(0.50, 0.50, 0.31))
 	# Taller than the original plugin grass, but clearly smaller than the
 	# oversized previous pass. Per-instance transforms add natural variation.
 	grass.set("scale_h", 1.35)
@@ -164,44 +170,6 @@ func _scatter_grass_multimesh() -> void:
 	grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(grass)
 	grass.call_deferred("recalculate_custom_aabb")
-
-
-func _scatter_rocks() -> void:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 9_714_203
-	var placed: int = 0
-	var attempts: int = 0
-	while placed < 92 and attempts < 900:
-		attempts += 1
-		var x := rng.randf_range(7.0, 249.0)
-		var z := rng.randf_range(7.0, 249.0)
-		var point := Vector2(x, z)
-		if point.distance_to(Vector2(130.0, 150.0)) < 26.0:
-			continue
-		var river_distance := absf(z - _river_center(x))
-		var height := _grid_manager.terrain_height(x, z)
-		var slope := _estimate_slope(x, z)
-		var ravine_distance := absf(x - (72.0 + sin(z * 0.052) * 5.0))
-		var suitable := slope > 0.22 or height > 14.0 or river_distance < 12.0 or (z > 112.0 and ravine_distance < 11.0)
-		if not suitable or river_distance < 4.8:
-			continue
-		var rock := ROCK_SCENES[rng.randi_range(0, ROCK_SCENES.size() - 1)].instantiate() as Node3D
-		rock.name = "Rock_%03d" % placed
-		var scale_value := rng.randf_range(0.55, 1.65)
-		if height > 18.0 or slope > 0.48:
-			scale_value *= rng.randf_range(1.4, 2.6)
-		var vertical_scale := scale_value * rng.randf_range(0.75, 1.25)
-		rock.scale = Vector3(scale_value, vertical_scale, scale_value)
-		var terrain_normal := _terrain_normal(x, z)
-		var yaw := rng.randf_range(0.0, TAU)
-		rock.basis = _basis_aligned_to_normal(terrain_normal, yaw).scaled(rock.scale)
-		# Boulders look grounded when their lower silhouette crosses the terrain.
-		# The burial amount grows with size and slope, preventing downhill edges from floating.
-		var burial := vertical_scale * (0.13 + clampf(slope, 0.0, 1.4) * 0.09)
-		rock.position = Vector3(x, height - burial, z)
-		_apply_rock_material(rock)
-		add_child(rock)
-		placed += 1
 
 
 func _scatter_tree_multimeshes() -> void:
@@ -284,6 +252,82 @@ func _create_tree_batch(variant: int, transforms: Array) -> void:
 	add_child(batch)
 
 
+func _scatter_bush_multimeshes() -> void:
+	if _bush_meshes.is_empty():
+		return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7_204_611
+	var transforms_by_variant: Array[Array] = []
+	for _variant: int in range(_bush_meshes.size()):
+		transforms_by_variant.append([])
+	var accepted_points: Array[Vector2] = []
+	var attempts: int = 0
+	while accepted_points.size() < BUSH_COUNT and attempts < BUSH_COUNT * 55:
+		attempts += 1
+		var x := rng.randf_range(7.0, 249.0)
+		var z := rng.randf_range(7.0, 249.0)
+		var point := Vector2(x, z)
+		var height := _grid_manager.terrain_height(x, z)
+		var slope := _estimate_slope(x, z)
+		if height < 0.35 or height > 34.0 or slope > 0.58 or is_water_at(x, z):
+			continue
+		if _waterway_distance(x, z) < 7.0 or point.distance_to(Vector2(130.0, 150.0)) < 25.0:
+			continue
+		if _trail_distance(x, z) < 5.0:
+			continue
+		var forest_factor := 1.0 - smoothstep(45.0, 100.0, point.distance_to(Vector2(208.0, 54.0)))
+		var sheltered_factor := clampf(0.34 + sin(x * 0.071 + z * 0.037) * 0.22 + cos(z * 0.093) * 0.18, 0.04, 0.82)
+		var acceptance := lerpf(0.08, 0.62, forest_factor) * sheltered_factor
+		if slope > 0.24 and height > 10.0:
+			acceptance += 0.13
+		if rng.randf() > acceptance:
+			continue
+		if _is_too_close_to_tree(point, accepted_points, rng.randf_range(1.8, 3.2)):
+			continue
+		# A stable 6:3:1 mix guarantees visible variety while keeping the
+		# cliff shrub uncommon and tied to genuinely rocky ground.
+		var mix_slot := accepted_points.size() % 10
+		var variant := 0 if mix_slot < 6 else mini(1, _bush_meshes.size() - 1)
+		if mix_slot == 9:
+			if slope < 0.18 or height < 7.0:
+				continue
+			variant = mini(2, _bush_meshes.size() - 1)
+		var bounds := _bush_meshes[variant].get_aabb()
+		var target_height := rng.randf_range(0.85, 1.65)
+		if variant == 0 and forest_factor > 0.55:
+			target_height *= rng.randf_range(1.05, 1.45)
+		if variant == 2:
+			target_height = rng.randf_range(0.55, 1.15)
+		var uniform_scale := target_height / maxf(bounds.size.y, 0.01)
+		var width_variation := rng.randf_range(0.78, 1.28)
+		var bush_scale := Vector3(uniform_scale * width_variation, uniform_scale * rng.randf_range(0.90, 1.12), uniform_scale * rng.randf_range(0.82, 1.22))
+		var terrain_normal := _terrain_normal(x, z)
+		var up := Vector3.UP.lerp(terrain_normal, 0.28 if variant == 2 else 0.08).normalized()
+		var bush_basis := _basis_aligned_to_normal(up, rng.randf_range(0.0, TAU)).scaled(bush_scale)
+		var burial := target_height * rng.randf_range(0.035, 0.09)
+		transforms_by_variant[variant].append(Transform3D(bush_basis, Vector3(x, height - burial, z)))
+		accepted_points.append(point)
+	for variant: int in range(_bush_meshes.size()):
+		_create_bush_batch(variant, transforms_by_variant[variant])
+
+
+func _create_bush_batch(variant: int, transforms: Array) -> void:
+	if transforms.is_empty():
+		return
+	var multimesh := MultiMesh.new()
+	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	multimesh.mesh = _bush_meshes[variant]
+	multimesh.instance_count = transforms.size()
+	for index: int in range(transforms.size()):
+		multimesh.set_instance_transform(index, transforms[index] as Transform3D)
+	var batch := MultiMeshInstance3D.new()
+	batch.name = "BushMultiMesh_%d" % (variant + 1)
+	batch.multimesh = multimesh
+	batch.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	batch.gi_mode = GeometryInstance3D.GI_MODE_STATIC
+	add_child(batch)
+
+
 func _is_too_close_to_tree(point: Vector2, accepted_points: Array[Vector2], minimum_distance: float) -> bool:
 	for accepted: Vector2 in accepted_points:
 		if point.distance_squared_to(accepted) < minimum_distance * minimum_distance:
@@ -295,6 +339,37 @@ func _load_tree_meshes() -> void:
 	_tree_meshes.clear()
 	for definition: Dictionary in TREE_DEFINITIONS:
 		_tree_meshes.append(_load_obj_mesh(definition))
+
+
+func _load_bush_meshes() -> void:
+	_bush_meshes.clear()
+	for source_scene: PackedScene in BUSH_SCENES:
+		var source_root := source_scene.instantiate()
+		var combined := ArrayMesh.new()
+		_append_bush_surfaces(source_root, Transform3D.IDENTITY, combined)
+		source_root.free()
+		if combined.get_surface_count() > 0:
+			_bush_meshes.append(combined)
+
+
+func _append_bush_surfaces(node: Node, parent_transform: Transform3D, combined: ArrayMesh) -> void:
+	var local_transform := Transform3D.IDENTITY
+	if node is Node3D:
+		local_transform = (node as Node3D).transform
+	var accumulated := parent_transform * local_transform
+	if node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh != null:
+			for surface_index: int in range(mesh_instance.mesh.get_surface_count()):
+				var surface := SurfaceTool.new()
+				surface.append_from(mesh_instance.mesh, surface_index, accumulated)
+				var override_material := mesh_instance.get_surface_override_material(surface_index)
+				var material := override_material if override_material != null else mesh_instance.mesh.surface_get_material(surface_index)
+				if material != null:
+					surface.set_material(material)
+				surface.commit(combined)
+	for child: Node in node.get_children():
+		_append_bush_surfaces(child, accumulated, combined)
 
 
 func _load_obj_mesh(definition: Dictionary) -> ArrayMesh:
@@ -396,23 +471,6 @@ func _basis_aligned_to_normal(normal: Vector3, yaw: float) -> Basis:
 	return Basis(normal, yaw) * aligned
 
 
-func _apply_rock_material(root: Node) -> void:
-	for child: Node in root.find_children("*", "MeshInstance3D", true, false):
-		var mesh_instance := child as MeshInstance3D
-		mesh_instance.material_override = _rock_material
-		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-
-
-func _create_rock_material() -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.albedo_texture = ROCK_TEXTURE
-	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-	material.uv1_scale = Vector3(1.8, 1.8, 1.8)
-	material.albedo_color = Color(0.78, 0.76, 0.71)
-	material.roughness = 0.88
-	return material
-
-
 func _create_water_material() -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = WATER_SHADER
@@ -428,6 +486,14 @@ func _waterway_distance(x: float, z: float) -> float:
 	if z < 106.0 or z > 234.0:
 		return river_distance
 	return minf(river_distance, absf(x - _ravine_center(z)))
+
+
+func _trail_distance(x: float, z: float) -> float:
+	# Keep synchronized with solo_path_center_x() in terrain_ground.gdshader.
+	var t := clampf((246.0 - z) / 226.0, 0.0, 1.0)
+	var inverse := 1.0 - t
+	var center_x := inverse * inverse * inverse * 35.0 + 3.0 * inverse * inverse * t * 45.0 + 3.0 * inverse * t * t * 225.0 + t * t * t * 218.0
+	return absf(x - center_x)
 
 
 func _ravine_center(z: float) -> float:
