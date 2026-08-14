@@ -23,6 +23,9 @@ const TREE_COUNT: int = 300
 const BASE_TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
 const GRASS_INSTANCE_COUNT: int = 68000
+const VEGETATION_CHUNK_SIZE: float = 32.0
+const VEGETATION_CHUNKS_PER_AXIS: int = 8
+const VEGETATION_CHUNK_COUNT: int = VEGETATION_CHUNKS_PER_AXIS * VEGETATION_CHUNKS_PER_AXIS
 const WATER_LEVEL: float = -1.7
 const WATER_SHADER: Shader = preload("res://world/terrain/shaders/solo_trail_water.gdshader")
 const GRASS_MESH: Mesh = preload("res://addons/simplegrasstextured/default_mesh.tres")
@@ -108,7 +111,10 @@ func _append_water_vertex(vertices: PackedVector3Array, normals: PackedVector3Ar
 func _scatter_grass_multimesh() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 6_601_419
-	var transforms_by_variant: Array[Array] = [[], [], []]
+	var transforms_by_chunk: Array[Array] = []
+	transforms_by_chunk.resize(GRASS_TEXTURES.size() * VEGETATION_CHUNK_COUNT)
+	for batch_index: int in range(transforms_by_chunk.size()):
+		transforms_by_chunk[batch_index] = []
 	var placed_count := 0
 	var attempts: int = 0
 	while placed_count < GRASS_INSTANCE_COUNT and attempts < GRASS_INSTANCE_COUNT * 9:
@@ -148,23 +154,31 @@ func _scatter_grass_multimesh() -> void:
 			scale_xz *= rng.randf_range(0.50, 0.75)
 		var blade_basis := Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(scale_xz, scale_y, scale_xz))
 		var variant := rng.randi_range(0, GRASS_TEXTURES.size() - 1)
-		transforms_by_variant[variant].append(Transform3D(blade_basis, Vector3(x, height + 0.012, z)))
+		var chunk_index := _vegetation_chunk_index(x, z)
+		transforms_by_chunk[variant * VEGETATION_CHUNK_COUNT + chunk_index].append(Transform3D(blade_basis, Vector3(x, height + 0.012, z)))
 		placed_count += 1
 	for variant: int in range(GRASS_TEXTURES.size()):
-		_create_grass_batch(variant, transforms_by_variant[variant])
+		for chunk_index: int in range(VEGETATION_CHUNK_COUNT):
+			_create_grass_batch(variant, chunk_index, transforms_by_chunk[variant * VEGETATION_CHUNK_COUNT + chunk_index])
 
 
-func _create_grass_batch(variant: int, transforms: Array) -> void:
+func _create_grass_batch(variant: int, chunk_index: int, transforms: Array) -> void:
+	if transforms.is_empty():
+		return
+	var chunk_center := _vegetation_chunk_center(chunk_index)
 	var multimesh := MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.mesh = GRASS_MESH
 	multimesh.instance_count = transforms.size()
 	for index: int in range(transforms.size()):
-		multimesh.set_instance_transform(index, transforms[index] as Transform3D)
+		var local_transform := transforms[index] as Transform3D
+		local_transform.origin -= chunk_center
+		multimesh.set_instance_transform(index, local_transform)
 	# Use the actual plugin node. Its _ready configures the correct shader,
 	# texture parameters, wind deformation and per-instance scale variation.
 	var grass := GRASS_SCRIPT.new() as MultiMeshInstance3D
-	grass.name = "SimpleGrassTextured_Meadows_%d" % (variant + 1)
+	grass.name = "SimpleGrassTextured_Meadows_%d_%02d" % [variant + 1, chunk_index]
+	grass.position = chunk_center
 	grass.multimesh = multimesh
 	# Official plugin workflow: Texture Albedo defines the visible plant.
 	# These alpha textures contain thin, muted blades instead of the default
@@ -187,6 +201,9 @@ func _create_grass_batch(variant: int, transforms: Array) -> void:
 	# camera moves. On this procedural MultiMesh it looked like random popping.
 	grass.set("optimization_by_distance", false)
 	grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	grass.visibility_range_end = 105.0
+	grass.visibility_range_end_margin = 18.0
+	grass.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(grass)
 	grass.call_deferred("recalculate_custom_aabb")
 
@@ -276,9 +293,10 @@ func _scatter_bush_multimeshes() -> void:
 		return
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 7_204_611
-	var transforms_by_variant: Array[Array] = []
-	for _variant: int in range(_bush_meshes.size()):
-		transforms_by_variant.append([])
+	var transforms_by_chunk: Array[Array] = []
+	transforms_by_chunk.resize(_bush_meshes.size() * VEGETATION_CHUNK_COUNT)
+	for batch_index: int in range(transforms_by_chunk.size()):
+		transforms_by_chunk[batch_index] = []
 	var accepted_points: Array[Vector2] = []
 	var attempts: int = 0
 	while accepted_points.size() < BUSH_COUNT and attempts < BUSH_COUNT * 72:
@@ -326,27 +344,48 @@ func _scatter_bush_multimeshes() -> void:
 		var up := Vector3.UP.lerp(terrain_normal, 0.28 if variant == 2 else 0.08).normalized()
 		var bush_basis := _basis_aligned_to_normal(up, rng.randf_range(0.0, TAU)).scaled(bush_scale)
 		var burial := target_height * rng.randf_range(0.035, 0.09)
-		transforms_by_variant[variant].append(Transform3D(bush_basis, Vector3(x, height - burial, z)))
+		var chunk_index := _vegetation_chunk_index(x, z)
+		transforms_by_chunk[variant * VEGETATION_CHUNK_COUNT + chunk_index].append(Transform3D(bush_basis, Vector3(x, height - burial, z)))
 		accepted_points.append(point)
 	for variant: int in range(_bush_meshes.size()):
-		_create_bush_batch(variant, transforms_by_variant[variant])
+		for chunk_index: int in range(VEGETATION_CHUNK_COUNT):
+			_create_bush_batch(variant, chunk_index, transforms_by_chunk[variant * VEGETATION_CHUNK_COUNT + chunk_index])
 
 
-func _create_bush_batch(variant: int, transforms: Array) -> void:
+func _create_bush_batch(variant: int, chunk_index: int, transforms: Array) -> void:
 	if transforms.is_empty():
 		return
+	var chunk_center := _vegetation_chunk_center(chunk_index)
 	var multimesh := MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.mesh = _bush_meshes[variant]
 	multimesh.instance_count = transforms.size()
 	for index: int in range(transforms.size()):
-		multimesh.set_instance_transform(index, transforms[index] as Transform3D)
+		var local_transform := transforms[index] as Transform3D
+		local_transform.origin -= chunk_center
+		multimesh.set_instance_transform(index, local_transform)
 	var batch := MultiMeshInstance3D.new()
-	batch.name = "BushMultiMesh_%d" % (variant + 1)
+	batch.name = "BushMultiMesh_%d_%02d" % [variant + 1, chunk_index]
+	batch.position = chunk_center
 	batch.multimesh = multimesh
 	batch.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	batch.gi_mode = GeometryInstance3D.GI_MODE_STATIC
+	batch.visibility_range_end = 145.0
+	batch.visibility_range_end_margin = 22.0
+	batch.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(batch)
+
+
+func _vegetation_chunk_index(x: float, z: float) -> int:
+	var chunk_x := clampi(int(floor(x / VEGETATION_CHUNK_SIZE)), 0, VEGETATION_CHUNKS_PER_AXIS - 1)
+	var chunk_z := clampi(int(floor(z / VEGETATION_CHUNK_SIZE)), 0, VEGETATION_CHUNKS_PER_AXIS - 1)
+	return chunk_z * VEGETATION_CHUNKS_PER_AXIS + chunk_x
+
+
+func _vegetation_chunk_center(chunk_index: int) -> Vector3:
+	var chunk_x := chunk_index % VEGETATION_CHUNKS_PER_AXIS
+	var chunk_z := chunk_index / VEGETATION_CHUNKS_PER_AXIS
+	return Vector3((float(chunk_x) + 0.5) * VEGETATION_CHUNK_SIZE, 0.0, (float(chunk_z) + 0.5) * VEGETATION_CHUNK_SIZE)
 
 
 func _is_too_close_to_tree(point: Vector2, accepted_points: Array[Vector2], minimum_distance: float) -> bool:
