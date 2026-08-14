@@ -18,6 +18,9 @@ var _solo_trail_mode := false
 var _pending_sectors: Array[Vector2i] = []
 var _solo_build_in_progress := false
 var _solo_build_coordinate := Vector2i(999, 999)
+var _pending_decorations: Array[Vector2i] = []
+var _solo_decoration_in_progress := false
+var _solo_decoration_coordinate := Vector2i(999, 999)
 
 func _ready() -> void:
 	add_to_group("world_sector_streamer")
@@ -43,6 +46,8 @@ func _process(delta: float) -> void:
 	if explorer != null: _update_loaded_sectors(explorer.global_position)
 	if _solo_trail_mode and not _solo_build_in_progress and not _pending_sectors.is_empty():
 		_load_sector(_pending_sectors.pop_front())
+	if _solo_trail_mode and not _solo_decoration_in_progress and not _pending_decorations.is_empty():
+		_start_next_decoration_build()
 
 func clamp_world_position(world_position: Vector3) -> Vector3:
 	if not _enabled:
@@ -103,10 +108,17 @@ func _update_loaded_sectors(world_position: Vector3) -> void:
 		_pending_sectors.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 			return Vector2(a - current).length_squared() < Vector2(b - current).length_squared()
 		)
+		var retained_decorations: Array[Vector2i] = []
+		for coordinate: Vector2i in _pending_decorations:
+			if desired.has(coordinate): retained_decorations.append(coordinate)
+		_pending_decorations = retained_decorations
+		_pending_decorations.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+			return Vector2(a - current).length_squared() < Vector2(b - current).length_squared()
+		)
 	var loaded_coordinates: Array[Vector2i] = []
 	loaded_coordinates.assign(_loaded_sectors.keys())
 	for coordinate: Vector2i in loaded_coordinates:
-		if not desired.has(coordinate) and coordinate != _solo_build_coordinate:
+		if not desired.has(coordinate) and coordinate != _solo_build_coordinate and coordinate != _solo_decoration_coordinate:
 			_unload_sector(coordinate)
 
 func _world_to_sector(world_position: Vector3) -> Vector2i:
@@ -129,6 +141,7 @@ func _load_sector(coordinate: Vector2i) -> void:
 		solo_sector.configure(coordinate, grid_manager)
 		_solo_build_in_progress = true
 		_solo_build_coordinate = coordinate
+		solo_sector.terrain_ready.connect(_on_solo_sector_terrain_ready, CONNECT_ONE_SHOT)
 		solo_sector.build_completed.connect(_on_solo_sector_build_completed, CONNECT_ONE_SHOT)
 		add_child(solo_sector)
 		_loaded_sectors[coordinate] = solo_sector
@@ -148,8 +161,27 @@ func _unload_sector(coordinate: Vector2i) -> void:
 
 
 func _on_solo_sector_build_completed(_coordinate: Vector2i) -> void:
+	_solo_decoration_in_progress = false
+	_solo_decoration_coordinate = Vector2i(999, 999)
+
+
+func _on_solo_sector_terrain_ready(coordinate: Vector2i) -> void:
 	_solo_build_in_progress = false
 	_solo_build_coordinate = Vector2i(999, 999)
+	if not _pending_decorations.has(coordinate):
+		_pending_decorations.append(coordinate)
+
+
+func _start_next_decoration_build() -> void:
+	while not _pending_decorations.is_empty():
+		var coordinate: Vector2i = _pending_decorations.pop_front()
+		var sector := _loaded_sectors.get(coordinate) as SoloTrailStreamedSector
+		if sector == null or not is_instance_valid(sector):
+			continue
+		_solo_decoration_in_progress = true
+		_solo_decoration_coordinate = coordinate
+		sector.build_decorations()
+		return
 
 
 func _sector_size() -> Vector2:

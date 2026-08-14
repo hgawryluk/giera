@@ -6,10 +6,15 @@ const WOOD_ALBEDO: Texture2D = preload("res://assets/environment/bridges/long_wo
 const WOOD_NORMAL: Texture2D = preload("res://assets/environment/bridges/long_wood_bridge/textures/BridgeWood_Normal.jpg")
 const WATER_LEVEL: float = -1.7
 const MIN_BRIDGE_LENGTH: float = 16.0
-const MAX_BRIDGE_LENGTH: float = 42.0
+const MAX_BRIDGE_LENGTH: float = 50.0
 const TARGET_WIDTH: float = 5.2
 const DECK_COLLISION_THICKNESS: float = 0.42
 const DECK_SURFACE_Y: float = 0.08
+# Measured from upward-facing deck vertices in the imported FBX. The AABB
+# bottom is the bridge support, not the surface the player walks on.
+const SOURCE_DECK_ENDPOINT_Y: float = 8.19
+const SOURCE_DECK_ARCH_HEIGHT: float = 0.88
+const COLLISION_SEGMENTS: int = 12
 
 var _grid_manager: GridManager
 
@@ -44,8 +49,11 @@ func _build_bridge() -> void:
 	endpoint_b = bridge_center + direction * target_length * 0.5
 	# Each end follows the real path height. Using the higher end for the whole
 	# bridge left the lower end floating several metres above its approach.
-	var height_a := _grid_manager.terrain_height(endpoint_a.x, endpoint_a.y) + 0.06
-	var height_b := _grid_manager.terrain_height(endpoint_b.x, endpoint_b.y) + 0.06
+	# `position.y` is the baseline under a local deck surface at
+	# DECK_SURFACE_Y. Compensate for that offset so the visible walking boards,
+	# rather than the supports, meet the path with only a 2 cm anti-z-fight lip.
+	var height_a := _grid_manager.terrain_height(endpoint_a.x, endpoint_a.y) - DECK_SURFACE_Y + 0.02
+	var height_b := _grid_manager.terrain_height(endpoint_b.x, endpoint_b.y) - DECK_SURFACE_Y + 0.02
 	var long_axis_is_x := bounds.size.x >= bounds.size.z
 	var source_length := maxf(bounds.size.x if long_axis_is_x else bounds.size.z, 0.01)
 	var source_width := maxf(bounds.size.z if long_axis_is_x else bounds.size.x, 0.01)
@@ -68,11 +76,9 @@ func _build_bridge() -> void:
 	# Center the imported geometry horizontally and put its upper walking
 	# surface at the same height as the physical bridge deck.
 	var scaled_center := (bounds.position + bounds.size * 0.5) * model_scale
-	# This FBX uses its lowest bridge/deck plane as the vertical origin; the
-	# AABB top includes tall posts. Aligning the top buried the whole bridge.
-	var scaled_bottom := bounds.position.y * model_scale.y
-	model.position = Vector3(-scaled_center.x, -scaled_bottom + DECK_SURFACE_Y, -scaled_center.z)
-	_build_collision(long_axis_is_x, target_length)
+	var scaled_deck_endpoint := SOURCE_DECK_ENDPOINT_Y * model_scale.y
+	model.position = Vector3(-scaled_center.x, -scaled_deck_endpoint + DECK_SURFACE_Y, -scaled_center.z)
+	_build_collision(long_axis_is_x, target_length, SOURCE_DECK_ARCH_HEIGHT * model_scale.y)
 
 
 func _find_dry_path_bank(crossing: Vector2, direction: Vector2) -> Vector2:
@@ -88,9 +94,10 @@ func _find_dry_path_bank(crossing: Vector2, direction: Vector2) -> Vector2:
 		# The visual/eroded bank extends beyond the narrow mathematical water
 		# mask. Require an actually dry, walkable elevation at both approaches.
 		if not _grid_manager.solo_trail_is_water(sample.x, sample.y) \
-		and _grid_manager.terrain_height(sample.x, sample.y) >= WATER_LEVEL + 0.12:
+		and _grid_manager.terrain_height(sample.x, sample.y) >= WATER_LEVEL + 0.12 \
+		and _path_grade(sample) <= 0.22:
 			dry_run += 1
-			if dry_run >= 4:
+			if dry_run >= 8:
 				return sample
 		else:
 			dry_run = 0
@@ -111,23 +118,36 @@ func _find_path_river_crossing() -> float:
 	return best_z
 
 
-func _build_collision(long_axis_is_x: bool, target_length: float) -> void:
+func _path_grade(sample: Vector2) -> float:
+	var before_z := sample.y - 1.0
+	var after_z := sample.y + 1.0
+	var before_x := _grid_manager.solo_trail_path_center_x(before_z)
+	var after_x := _grid_manager.solo_trail_path_center_x(after_z)
+	return absf(_grid_manager.terrain_height(after_x, after_z) - _grid_manager.terrain_height(before_x, before_z)) * 0.5
+
+
+func _build_collision(long_axis_is_x: bool, target_length: float, arch_height: float) -> void:
 	var body := StaticBody3D.new()
 	body.name = "BridgeCollision"
-	var shape_node := CollisionShape3D.new()
-	shape_node.name = "WalkableDeck"
-	var shape := BoxShape3D.new()
-	# The FBX can be authored with either X or Z as its longitudinal axis.
-	# Keep the physical deck on the same local axis as the scaled model so the
-	# parent yaw aligns both of them with the north/south trail.
-	shape.size = Vector3(
-		target_length if long_axis_is_x else TARGET_WIDTH,
-		DECK_COLLISION_THICKNESS,
-		TARGET_WIDTH if long_axis_is_x else target_length
-	)
-	shape_node.shape = shape
-	shape_node.position.y = DECK_SURFACE_Y - DECK_COLLISION_THICKNESS * 0.5
-	body.add_child(shape_node)
+	var segment_length := target_length / float(COLLISION_SEGMENTS)
+	for segment_index: int in range(COLLISION_SEGMENTS):
+		var t0 := float(segment_index) / float(COLLISION_SEGMENTS)
+		var t1 := float(segment_index + 1) / float(COLLISION_SEGMENTS)
+		var y0 := DECK_SURFACE_Y + sin(t0 * PI) * arch_height
+		var y1 := DECK_SURFACE_Y + sin(t1 * PI) * arch_height
+		var shape_node := CollisionShape3D.new()
+		shape_node.name = "WalkableDeck_%02d" % segment_index
+		var shape := BoxShape3D.new()
+		shape.size = Vector3(segment_length if long_axis_is_x else TARGET_WIDTH, DECK_COLLISION_THICKNESS, TARGET_WIDTH if long_axis_is_x else segment_length)
+		shape_node.shape = shape
+		var along := -target_length * 0.5 + (float(segment_index) + 0.5) * segment_length
+		shape_node.position = Vector3(along if long_axis_is_x else 0.0, (y0 + y1) * 0.5 - DECK_COLLISION_THICKNESS * 0.5, 0.0 if long_axis_is_x else along)
+		var local_grade := atan2(y1 - y0, segment_length)
+		if long_axis_is_x:
+			shape_node.rotation.z = local_grade
+		else:
+			shape_node.rotation.x = -local_grade
+		body.add_child(shape_node)
 	add_child(body)
 
 

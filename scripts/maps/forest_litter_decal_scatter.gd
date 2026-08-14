@@ -57,7 +57,8 @@ func _build_multimesh(transforms: Array[Transform3D], variants: PackedInt32Array
 		batch.set_instance_custom_data(index, Color(float(variants[index]) / 15.0, 0.0, 0.0, 1.0))
 	multimesh = batch
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	visibility_range_end = 115.0
+	visibility_range_end = 190.0
+	visibility_range_end_margin = 28.0
 	visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 
 

@@ -2,6 +2,7 @@ class_name SoloTrailStreamedSector
 extends Node3D
 
 signal build_completed(coordinate: Vector2i)
+signal terrain_ready(coordinate: Vector2i)
 
 const SIZE: float = 256.0
 # The authored center mesh samples every metre. Matching that resolution is
@@ -10,8 +11,8 @@ const SIZE: float = 256.0
 const CELLS: int = 256
 const WATER_LEVEL: float = -1.7
 const TREE_COUNT: int = 300
-const GRASS_COUNT: int = 48000
-const BUSH_COUNT: int = 1100
+const GRASS_COUNT: int = 30000
+const BUSH_COUNT: int = 850
 const ROCK_COUNT: int = 96
 const VEGETATION_CHUNKS_PER_AXIS: int = 4
 const VEGETATION_CHUNK_COUNT: int = 16
@@ -40,12 +41,13 @@ const TERRAIN_MATERIAL: ShaderMaterial = preload("res://world/terrain/materials/
 const WATER_SHADER: Shader = preload("res://world/terrain/shaders/solo_trail_water.gdshader")
 const PROXIMITY_COLLISIONS: Script = preload("res://scripts/maps/proximity_obstacle_collisions.gd")
 const FOREST_LITTER_SCATTER: Script = preload("res://scripts/maps/forest_litter_decal_scatter.gd")
-const TERRAIN_ROWS_PER_FRAME: int = 8
+const TERRAIN_ROWS_PER_FRAME: int = 4
 
 var coordinate := Vector2i.ZERO
 var _grid_manager: GridManager
 static var _shared_bush_meshes: Array[ArrayMesh] = []
 static var _shared_rock_meshes: Array[Mesh] = []
+var _decoration_build_started := false
 
 
 func configure(sector_coordinate: Vector2i, grid_manager: GridManager) -> void:
@@ -65,13 +67,20 @@ func _ready() -> void:
 	await _build_terrain_incremental()
 	await get_tree().process_frame
 	_build_water()
+	terrain_ready.emit(coordinate)
+
+
+func build_decorations() -> void:
+	if _decoration_build_started:
+		return
+	_decoration_build_started = true
 	await get_tree().process_frame
 	await _build_decorations_incremental()
 	var litter := FOREST_LITTER_SCATTER.new() as MultiMeshInstance3D
 	litter.name = "ForestLitterDecals"
 	add_child(litter)
 	var world_bounds := Rect2(global_position.x, global_position.z, SIZE, SIZE)
-	litter.call("setup", _grid_manager, world_bounds, 1100, 8_140_611 + coordinate.x * 92821 + coordinate.y * 68917)
+	litter.call("setup", _grid_manager, world_bounds, 700, 8_140_611 + coordinate.x * 92821 + coordinate.y * 68917)
 	build_completed.emit(coordinate)
 
 
@@ -101,7 +110,7 @@ func _build_terrain_incremental() -> void:
 			var bottom_right := bottom_left + 1
 			for index: int in [top_left, top_right, bottom_right, top_left, bottom_right, bottom_left]:
 				surface.add_index(index)
-		if cell_z % 16 == 15:
+		if cell_z % 8 == 7:
 			await get_tree().process_frame
 	var mesh := surface.commit()
 	var terrain := MeshInstance3D.new()
@@ -215,7 +224,7 @@ func _build_decorations_incremental() -> void:
 	var tree_collisions: Array[Dictionary] = []
 	var rock_collisions: Array[Dictionary] = []
 	for _index: int in range(TREE_COUNT * 200):
-		if _index % 256 == 255:
+		if _index % 96 == 95:
 			await get_tree().process_frame
 		if trees[0].size() + trees[1].size() >= TREE_COUNT:
 			break
@@ -224,13 +233,19 @@ func _build_decorations_incremental() -> void:
 			continue
 		var variant := rng.randi_range(0, 1)
 		var bounds := TREE_MESHES[variant].get_aabb()
-		var target_height := rng.randf_range(9.0, 18.0)
+		var tree_number := trees[0].size() + trees[1].size()
+		var size_tier := tree_number % 3
+		var target_height := rng.randf_range(9.0, 15.0)
+		if size_tier == 1:
+			target_height *= 2.0
+		elif size_tier == 2:
+			target_height *= 3.0
 		var scale_value := target_height / maxf(bounds.size.y, 0.01)
 		var local := Vector3(p.x - global_position.x, _grid_manager.terrain_height(p.x, p.y), p.y - global_position.z)
 		trees[variant].append(Transform3D(Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3.ONE * scale_value), local))
-		tree_collisions.append({"position": Vector3(p.x, local.y, p.y), "radius": clampf(target_height * 0.05, 0.45, 1.0), "height": target_height * 0.7})
+		tree_collisions.append({"position": Vector3(p.x, local.y, p.y), "radius": clampf(target_height * 0.05, 0.45, 2.1), "height": target_height * 0.7})
 	for _index: int in range(GRASS_COUNT):
-		if _index % 128 == 127:
+		if _index % 64 == 63:
 			await get_tree().process_frame
 		var p := _random_global_point(rng)
 		if not _can_decorate(p, 4.0, 0.32):
@@ -243,7 +258,7 @@ func _build_decorations_incremental() -> void:
 		grass[grass_variant * VEGETATION_CHUNK_COUNT + chunk].append(Transform3D(Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3.ONE * scale_value), Vector3(local_x, _grid_manager.terrain_height(p.x, p.y) + 0.02, local_z)))
 	var placed_bushes := 0
 	for _index: int in range(BUSH_COUNT * 18):
-		if _index % 128 == 127: await get_tree().process_frame
+		if _index % 64 == 63: await get_tree().process_frame
 		if placed_bushes >= BUSH_COUNT: break
 		var p := _random_global_point(rng)
 		if not _can_decorate(p, 6.2, 0.48): continue
@@ -397,8 +412,8 @@ func _add_grass_batch(variant: int, chunk: int, transforms: Array) -> void:
 	renderer.set("interactive", false)
 	renderer.set("optimization_by_distance", false)
 	renderer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	renderer.visibility_range_end = 76.0
-	renderer.visibility_range_end_margin = 14.0
+	renderer.visibility_range_end = 128.0
+	renderer.visibility_range_end_margin = 24.0
 	renderer.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(renderer)
 	renderer.call_deferred("recalculate_custom_aabb")
@@ -415,8 +430,8 @@ func _add_bush_batch(variant: int, chunk: int, transforms: Array) -> void:
 	_add_multimesh("StreamedBush_%d_%02d" % [variant + 1, chunk], _shared_bush_meshes[variant], adjusted, false, null)
 	var renderer := get_node("StreamedBush_%d_%02d" % [variant + 1, chunk]) as MultiMeshInstance3D
 	renderer.position = center
-	renderer.visibility_range_end = 112.0
-	renderer.visibility_range_end_margin = 18.0
+	renderer.visibility_range_end = 235.0
+	renderer.visibility_range_end_margin = 32.0
 	renderer.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 
 

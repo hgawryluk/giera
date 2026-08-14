@@ -24,7 +24,7 @@ const BUSH_COUNT: int = 1350
 const TREE_COUNT: int = 300
 const BASE_TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
-const GRASS_INSTANCE_COUNT: int = 68000
+const GRASS_INSTANCE_COUNT: int = 52000
 # Fine sectors matter for alpha vegetation: they prevent thousands of hidden
 # cards behind the camera from surviving as part of one oversized AABB.
 const VEGETATION_CHUNK_SIZE: float = 32.0
@@ -61,9 +61,19 @@ func setup(grid_manager: GridManager) -> void:
 	add_child(stylised_rocks)
 	stylised_rocks.call("setup", _grid_manager)
 	_cache_rock_grass_clearances(stylised_rocks.call("get_grass_clearances") as Array)
-	_scatter_grass_multimesh()
-	_scatter_tree_multimeshes()
-	_scatter_bush_multimeshes()
+	# Let MapRuntime finish the playable scene before the expensive vegetation
+	# passes. Each pass also yields in small chunks, avoiding a multi-second
+	# main-thread stall on first entry to Samotny Szlak.
+	_build_vegetation_incremental.call_deferred(stylised_rocks)
+
+
+func _build_vegetation_incremental(stylised_rocks: Node3D) -> void:
+	await _scatter_grass_multimesh()
+	await get_tree().process_frame
+	await _scatter_tree_multimeshes()
+	await get_tree().process_frame
+	await _scatter_bush_multimeshes()
+	await get_tree().process_frame
 	var forest_litter := FOREST_LITTER_SCATTER.new() as MultiMeshInstance3D
 	forest_litter.name = "ForestLitterDecals"
 	add_child(forest_litter)
@@ -175,6 +185,8 @@ func _scatter_grass_multimesh() -> void:
 	var attempts: int = 0
 	while placed_count < GRASS_INSTANCE_COUNT and attempts < GRASS_INSTANCE_COUNT * 9:
 		attempts += 1
+		if attempts % 96 == 0:
+			await get_tree().process_frame
 		var x := rng.randf_range(4.0, 252.0)
 		var z := rng.randf_range(4.0, 252.0)
 		var height := _grid_manager.terrain_height(x, z)
@@ -278,8 +290,8 @@ func _create_grass_batch(variant: int, chunk_index: int, transforms: Array) -> v
 	# camera moves. On this procedural MultiMesh it looked like random popping.
 	grass.set("optimization_by_distance", false)
 	grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	grass.visibility_range_end = 76.0
-	grass.visibility_range_end_margin = 14.0
+	grass.visibility_range_end = 128.0
+	grass.visibility_range_end_margin = 24.0
 	grass.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(grass)
 	grass.call_deferred("recalculate_custom_aabb")
@@ -294,6 +306,8 @@ func _scatter_tree_multimeshes() -> void:
 	var attempts: int = 0
 	while placed < TREE_COUNT and attempts < 18000:
 		attempts += 1
+		if attempts % 96 == 0:
+			await get_tree().process_frame
 		var is_large_forest_tree := placed >= BASE_TREE_COUNT
 		var x: float
 		var z: float
@@ -328,10 +342,14 @@ func _scatter_tree_multimeshes() -> void:
 		var mesh_bounds := _tree_meshes[variant].get_aabb()
 		var source_height := maxf(mesh_bounds.size.y, 0.01)
 		var target_height := rng.randf_range(7.5, 12.5)
-		if is_large_forest_tree:
-			target_height = rng.randf_range(25.0, 35.0)
-		elif placed < GIANT_TREE_COUNT:
+		# Preserve the three authored giants. The remaining woodland is split
+		# evenly between original, approximately x2 and approximately x3 trees.
+		if placed < GIANT_TREE_COUNT:
 			target_height = 25.0
+		elif placed >= 202:
+			target_height *= 3.0
+		elif placed >= 103:
+			target_height *= 2.0
 		var uniform_scale := target_height / source_height
 		var width_variation := rng.randf_range(0.88, 1.14)
 		var tree_scale := Vector3(uniform_scale * width_variation, uniform_scale, uniform_scale * width_variation)
@@ -344,7 +362,7 @@ func _scatter_tree_multimeshes() -> void:
 		transforms_by_variant[variant].append(tree_transform)
 		_tree_collision_candidates.append({
 			"position": Vector3(x, height, z),
-			"radius": clampf(target_height * 0.052, 0.42, 1.35),
+			"radius": clampf(target_height * 0.052, 0.42, 2.1),
 			"height": target_height * 0.72,
 		})
 		accepted_points.append(point)
@@ -385,6 +403,8 @@ func _scatter_bush_multimeshes() -> void:
 	var attempts: int = 0
 	while accepted_points.size() < BUSH_COUNT and attempts < BUSH_COUNT * 72:
 		attempts += 1
+		if attempts % 96 == 0:
+			await get_tree().process_frame
 		var x := rng.randf_range(7.0, 249.0)
 		var z := rng.randf_range(7.0, 249.0)
 		var point := Vector2(x, z)
@@ -464,8 +484,8 @@ func _create_bush_batch(variant: int, chunk_index: int, transforms: Array) -> vo
 	# moving through dense vegetation. Trees still provide the dominant shadow.
 	batch.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	batch.gi_mode = GeometryInstance3D.GI_MODE_STATIC
-	batch.visibility_range_end = 112.0
-	batch.visibility_range_end_margin = 18.0
+	batch.visibility_range_end = 235.0
+	batch.visibility_range_end_margin = 32.0
 	batch.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(batch)
 
