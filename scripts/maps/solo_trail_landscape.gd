@@ -20,11 +20,11 @@ const BUSH_DEFINITIONS: Array[Dictionary] = [
 ]
 # Dense enough to read as woodland understorey, but still conservative for the
 # imported multi-surface FBX meshes. Spatial chunks keep the draw workload local.
-const BUSH_COUNT: int = 1350
+const BUSH_COUNT: int = 1100
 const TREE_COUNT: int = 300
 const BASE_TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
-const GRASS_INSTANCE_COUNT: int = 52000
+const GRASS_INSTANCE_COUNT: int = 42000
 # Fine sectors matter for alpha vegetation: they prevent thousands of hidden
 # cards behind the camera from surviving as part of one oversized AABB.
 const VEGETATION_CHUNK_SIZE: float = 32.0
@@ -61,19 +61,16 @@ func setup(grid_manager: GridManager) -> void:
 	add_child(stylised_rocks)
 	stylised_rocks.call("setup", _grid_manager)
 	_cache_rock_grass_clearances(stylised_rocks.call("get_grass_clearances") as Array)
-	# Let MapRuntime finish the playable scene before the expensive vegetation
-	# passes. Each pass also yields in small chunks, avoiding a multi-second
-	# main-thread stall on first entry to Samotny Szlak.
+	# Build the authored home sector as one deterministic package. Deferring the
+	# start lets MapRuntime finish its node setup, but we deliberately do not
+	# expose a half-empty base map while vegetation trickles in for minutes.
 	_build_vegetation_incremental.call_deferred(stylised_rocks)
 
 
 func _build_vegetation_incremental(stylised_rocks: Node3D) -> void:
-	await _scatter_grass_multimesh()
-	await get_tree().process_frame
-	await _scatter_tree_multimeshes()
-	await get_tree().process_frame
-	await _scatter_bush_multimeshes()
-	await get_tree().process_frame
+	_scatter_tree_multimeshes()
+	_scatter_grass_multimesh()
+	_scatter_bush_multimeshes()
 	var forest_litter := FOREST_LITTER_SCATTER.new() as MultiMeshInstance3D
 	forest_litter.name = "ForestLitterDecals"
 	add_child(forest_litter)
@@ -185,8 +182,6 @@ func _scatter_grass_multimesh() -> void:
 	var attempts: int = 0
 	while placed_count < GRASS_INSTANCE_COUNT and attempts < GRASS_INSTANCE_COUNT * 9:
 		attempts += 1
-		if attempts % 96 == 0:
-			await get_tree().process_frame
 		var x := rng.randf_range(4.0, 252.0)
 		var z := rng.randf_range(4.0, 252.0)
 		var height := _grid_manager.terrain_height(x, z)
@@ -306,8 +301,6 @@ func _scatter_tree_multimeshes() -> void:
 	var attempts: int = 0
 	while placed < TREE_COUNT and attempts < 18000:
 		attempts += 1
-		if attempts % 96 == 0:
-			await get_tree().process_frame
 		var is_large_forest_tree := placed >= BASE_TREE_COUNT
 		var x: float
 		var z: float
@@ -403,8 +396,6 @@ func _scatter_bush_multimeshes() -> void:
 	var attempts: int = 0
 	while accepted_points.size() < BUSH_COUNT and attempts < BUSH_COUNT * 72:
 		attempts += 1
-		if attempts % 96 == 0:
-			await get_tree().process_frame
 		var x := rng.randf_range(7.0, 249.0)
 		var z := rng.randf_range(7.0, 249.0)
 		var point := Vector2(x, z)
@@ -429,7 +420,11 @@ func _scatter_bush_multimeshes() -> void:
 			acceptance += 0.13
 		if rng.randf() > acceptance:
 			continue
-		if _is_too_close_to_tree(point, accepted_points, rng.randf_range(0.82, 1.75) if not beach_bush else rng.randf_range(2.4, 4.2)):
+		# Checking every one of 1350 shrubs made this pass quadratic and left the
+		# landscape visibly empty for minutes. A rolling neighbourhood preserves
+		# local spacing without the O(n²) startup cost; distant points cannot form
+		# a visible clump anyway.
+		if _is_too_close_to_tree(point, accepted_points, rng.randf_range(0.82, 1.75) if not beach_bush else rng.randf_range(2.4, 4.2), 96):
 			continue
 		# Stable 5:3:2 distribution guarantees that all three imported shrub
 		# variants occur. The cliff shrub remains confined to suitable terrain.
@@ -502,9 +497,10 @@ func _vegetation_chunk_center(chunk_index: int) -> Vector3:
 	return Vector3((float(chunk_x) + 0.5) * VEGETATION_CHUNK_SIZE, 0.0, (float(chunk_z) + 0.5) * VEGETATION_CHUNK_SIZE)
 
 
-func _is_too_close_to_tree(point: Vector2, accepted_points: Array[Vector2], minimum_distance: float) -> bool:
-	for accepted: Vector2 in accepted_points:
-		if point.distance_squared_to(accepted) < minimum_distance * minimum_distance:
+func _is_too_close_to_tree(point: Vector2, accepted_points: Array[Vector2], minimum_distance: float, maximum_checks: int = -1) -> bool:
+	var first_index := 0 if maximum_checks < 0 else maxi(0, accepted_points.size() - maximum_checks)
+	for accepted_index: int in range(first_index, accepted_points.size()):
+		if point.distance_squared_to(accepted_points[accepted_index]) < minimum_distance * minimum_distance:
 			return true
 	return false
 
