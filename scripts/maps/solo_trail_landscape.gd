@@ -23,11 +23,12 @@ const TREE_DEFINITIONS: Array[Dictionary] = [
 ]
 const TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
-const GRASS_INSTANCE_COUNT: int = 14500
+const GRASS_INSTANCE_COUNT: int = 32000
 const WATER_LEVEL: float = -1.7
 const WATER_SHADER: Shader = preload("res://world/terrain/shaders/solo_trail_water.gdshader")
 const GRASS_MESH: Mesh = preload("res://addons/simplegrasstextured/default_mesh.tres")
-const GRASS_MATERIAL: ShaderMaterial = preload("res://addons/simplegrasstextured/materials/grass.tres")
+const GRASS_SCRIPT: Script = preload("res://addons/simplegrasstextured/grass.gd")
+const GRASS_TEXTURE: Texture2D = preload("res://addons/simplegrasstextured/textures/grassbushcc008.png")
 
 var _grid_manager: GridManager
 var _rock_material: StandardMaterial3D
@@ -115,8 +116,8 @@ func _scatter_grass_multimesh() -> void:
 		var density := clampf(0.48 + broad + fine, 0.04, 0.96)
 		if rng.randf() > density:
 			continue
-		var scale_y := rng.randf_range(0.62, 1.34) * lerpf(0.78, 1.12, density)
-		var scale_xz := rng.randf_range(0.72, 1.22)
+		var scale_y := rng.randf_range(0.72, 1.18) * lerpf(0.82, 1.08, density)
+		var scale_xz := rng.randf_range(0.78, 1.15)
 		var blade_basis := Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(scale_xz, scale_y, scale_xz))
 		transforms.append(Transform3D(blade_basis, Vector3(x, height + 0.025, z)))
 	var multimesh := MultiMesh.new()
@@ -125,14 +126,27 @@ func _scatter_grass_multimesh() -> void:
 	multimesh.instance_count = transforms.size()
 	for index: int in range(transforms.size()):
 		multimesh.set_instance_transform(index, transforms[index])
-	var grass := MultiMeshInstance3D.new()
+	# Use the actual plugin node. Its _ready configures the correct shader,
+	# texture parameters, wind deformation and per-instance scale variation.
+	var grass := GRASS_SCRIPT.new() as MultiMeshInstance3D
 	grass.name = "SimpleGrassTextured_Meadows"
 	grass.multimesh = multimesh
-	grass.material_override = GRASS_MATERIAL.duplicate(true) as ShaderMaterial
+	grass.set("texture_albedo", GRASS_TEXTURE)
+	grass.set("albedo", Color(0.48, 0.58, 0.32))
+	grass.set("scale_h", 0.40)
+	grass.set("scale_w", 0.23)
+	grass.set("scale_var", -0.16)
+	grass.set("grass_strength", 0.66)
+	grass.set("alpha_scissor_threshold", 0.38)
+	grass.set("light_mode", 1)
+	grass.set("interactive", false)
+	grass.set("optimization_by_distance", true)
+	grass.set("optimization_dist_min", 24.0)
+	grass.set("optimization_dist_max", 82.0)
+	grass.set("optimization_level", 5.0)
 	grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	grass.visibility_range_end = 78.0
-	grass.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(grass)
+	grass.call_deferred("recalculate_custom_aabb")
 
 
 func _scatter_rocks() -> void:

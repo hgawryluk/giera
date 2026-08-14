@@ -60,26 +60,36 @@ func _configure_sunny_environment() -> void:
 
 func _configure_medium_clouds() -> void:
 	var clouds := SOLO_CLOUDS.duplicate(true) as CompositorEffect
-	clouds.set("clouds_coverage", 0.56)
-	clouds.set("clouds_density", 0.88)
-	clouds.set("clouds_sharpness", 0.72)
-	clouds.set("clouds_detail_strength", 0.72)
+	clouds.set("clouds_coverage", 0.64)
+	clouds.set("clouds_density", 0.52)
+	clouds.set("clouds_sharpness", 0.66)
+	clouds.set("clouds_detail_power", 0.82)
+	clouds.set("cloud_ambient_color", Color(0.72, 0.77, 0.82, 1.0))
+	clouds.set("cloud_ambient_tint", Color(0.16, 0.20, 0.24, 1.0))
+	clouds.set("atmosphere_color", Color(0.55, 0.70, 0.86, 1.0))
+	clouds.set("ambient_occlusion_color", Color(0.20, 0.23, 0.28, 0.55))
+	clouds.set("lighting_density", 0.65)
 	clouds.set("resolution_scale", 1)
-	clouds.set("max_step_count", 72.0)
+	clouds.set("max_step_count", 96.0)
 	clouds.set("accumulation_decay", 0.72)
-	var cloud_compositor := Compositor.new()
-	cloud_compositor.compositor_effects = [clouds]
-	compositor = cloud_compositor
 	var driver := Node.new()
 	driver.name = "SunshineCloudsDriver"
 	driver.set_script(CLOUD_DRIVER_SCRIPT)
-	driver.set("update_continuously", true)
+	var sunlight: Array[DirectionalLight3D] = []
+	var shadow_steps: Array[int] = []
+	if sun != null:
+		sunlight.append(sun)
+		shadow_steps.append(24)
+	# The plugin driver must be inside the tree before clouds_resource is set:
+	# its setter locates WorldEnvironment and installs the compositor effect.
+	add_child(driver)
 	driver.set("clouds_resource", clouds)
 	driver.set("ambience_sample_environment", environment)
-	driver.set("tracked_directional_lights", [sun] if sun != null else [])
-	driver.set("tracked_directional_light_shadow_steps", [24] if sun != null else [])
+	driver.set("tracked_directional_lights", sunlight)
+	driver.set("tracked_directional_light_shadow_steps", shadow_steps)
 	driver.set("wind_direction", Vector3(0.7, 0.0, 0.25))
-	add_child(driver)
+	driver.set("update_continuously", true)
+	driver.call_deferred("retrieve_texture_data")
 
 func _darken_play_map_lighting() -> void:
 	if environment != null:
