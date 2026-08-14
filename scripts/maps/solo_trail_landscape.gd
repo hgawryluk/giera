@@ -133,17 +133,17 @@ func _scatter_grass_multimesh() -> void:
 	grass.multimesh = multimesh
 	grass.set("texture_albedo", GRASS_TEXTURE)
 	grass.set("albedo", Color(0.48, 0.58, 0.32))
-	grass.set("scale_h", 0.40)
-	grass.set("scale_w", 0.23)
+	# Large meadow clumps: roughly seven times the previous card dimensions.
+	grass.set("scale_h", 2.80)
+	grass.set("scale_w", 1.61)
 	grass.set("scale_var", -0.16)
 	grass.set("grass_strength", 0.66)
 	grass.set("alpha_scissor_threshold", 0.38)
 	grass.set("light_mode", 1)
 	grass.set("interactive", false)
-	grass.set("optimization_by_distance", true)
-	grass.set("optimization_dist_min", 24.0)
-	grass.set("optimization_dist_max", 82.0)
-	grass.set("optimization_level", 5.0)
+	# The plugin's distance dither discards different instances while the
+	# camera moves. On this procedural MultiMesh it looked like random popping.
+	grass.set("optimization_by_distance", false)
 	grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(grass)
 	grass.call_deferred("recalculate_custom_aabb")
