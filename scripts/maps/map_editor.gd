@@ -9,7 +9,17 @@ const ASSETS: Dictionary[String, String] = {
 	"bush": "res://assets/models/environment/bush_grass_02.glb",
 	"grass_1": "res://assets/models/environment/grass_clump_01.glb",
 	"grass_2": "res://assets/models/environment/grass_clump_02.glb",
-	"bush_real": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"tree_real_1": "res://assets/environment/tree_packs/tree/Tree/Tree.obj",
+	"tree_real_2": "res://assets/environment/tree_packs/tree_02/Tree 02/Tree.obj",
+	"bush_real_1": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"bush_real_2": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"bush_real_3": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"bush_real_4": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"bush_real_5": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"bush_real_6": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"bush_real_7": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"bush_real_8": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"bush_real_9": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
 	"bush_heather": "res://assets/environment/bush_packs/bush_01/source/Bush.fbx",
 	"bush_cliff": "res://assets/environment/bush_packs/cliff_shrub/source/wallBush-01-terrainWallBush.fbx",
 	"stylised_rocks": "res://assets/environment/stylised_rocks/source/Stylised_Rock_Collection.fbx",
@@ -18,6 +28,8 @@ const TOOL_GROUPS: Array[Dictionary] = [
 	{"title": "RZEŹBIENIE TERRAIN3D", "open": true, "tools": [
 		["terrain_raise", "Podnieś"], ["terrain_lower", "Obniż"],
 		["terrain_smooth", "Wygładź"], ["terrain_flatten", "Wyrównaj"],
+		["terrain_noise", "Naturalny szum"], ["terrain_erode", "Erozja"],
+		["terrain_terrace", "Tarasy skalne"], ["terrain_ridge", "Grzbiet"],
 	]},
 	{"title": "WODA", "open": false, "tools": [
 		["water_add", "Dodaj wodę"], ["water_remove", "Usuń wodę"],
@@ -25,8 +37,13 @@ const TOOL_GROUPS: Array[Dictionary] = [
 	{"title": "OBIEKTY ŚRODOWISKOWE", "open": true, "thumbnails": true, "tools": [
 		["purple_tree_1", "Drzewo I"], ["purple_tree_2", "Drzewo II"],
 		["purple_tree_3", "Drzewo III"], ["large_tree", "Wielkie drzewo"],
+		["tree_real_1", "Drzewo realistyczne I"], ["tree_real_2", "Drzewo realistyczne II"],
 		["bush", "Krzak"], ["grass_1", "Trawa I"], ["grass_2", "Trawa II"],
-		["bush_real", "Krzew leśny"], ["bush_heather", "Krzew niski"],
+		["bush_real_1", "Krzew leśny I"], ["bush_real_2", "Krzew leśny II"],
+		["bush_real_3", "Krzew leśny III"], ["bush_real_4", "Krzew leśny IV"],
+		["bush_real_5", "Krzew leśny V"], ["bush_real_6", "Krzew leśny VI"],
+		["bush_real_7", "Krzew leśny VII"], ["bush_real_8", "Krzew leśny VIII"],
+		["bush_real_9", "Krzew leśny IX"], ["bush_heather", "Krzew niski"],
 		["bush_cliff", "Krzew skalny"], ["stylised_rocks", "Zestaw skał"],
 	]},
 	{"title": "POSTACIE", "open": false, "tools": [
@@ -219,10 +236,14 @@ func _create_asset_preview(scene_path: String) -> Texture2D:
 	preview.own_world_3d = true
 	preview.render_target_update_mode = SubViewport.UPDATE_ONCE
 	add_child(preview)
-	var packed := load(scene_path) as PackedScene
-	if packed == null:
-		return preview.get_texture()
-	var model := packed.instantiate() as Node3D
+	var resource := load(scene_path)
+	var model: Node3D
+	if resource is PackedScene:
+		model = (resource as PackedScene).instantiate() as Node3D
+	elif resource is Mesh:
+		var mesh_instance := MeshInstance3D.new()
+		mesh_instance.mesh = resource as Mesh
+		model = mesh_instance
 	if model == null:
 		return preview.get_texture()
 	preview.add_child(model)
@@ -577,7 +598,7 @@ func _apply_tool(world_position: Vector3) -> void:
 func _scatter_objects(center: Vector3) -> void:
 	if not ASSETS.has(active_tool):
 		return
-	var obstacle := active_tool.begins_with("purple_tree_") or active_tool == "large_tree"
+	var obstacle := active_tool.begins_with("purple_tree_") or active_tool.begins_with("tree_real_") or active_tool == "large_tree"
 	var effective_density := minf(object_density, 0.015) if obstacle else object_density
 	var maximum := 24 if obstacle else 240
 	var requested := clampi(roundi(PI * brush_radius * brush_radius * effective_density), 1, maximum)

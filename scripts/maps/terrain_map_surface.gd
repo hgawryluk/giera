@@ -85,6 +85,23 @@ func apply_brush(center: Vector3, radius: float, strength: float, operation: Str
 					next_height = lerpf(current_height, average, clampf(strength * 0.42 * influence, 0.0, 0.92))
 				"flatten":
 					next_height = lerpf(current_height, center.y, clampf(strength * 0.45 * influence, 0.0, 0.92))
+				"noise":
+					var broad := sin(float(x) * 0.071 + float(z) * 0.039) * cos(float(z) * 0.061 - float(x) * 0.027)
+					var medium := sin(float(x) * 0.19 + float(z) * 0.23) * 0.32
+					next_height += (broad + medium) * strength * 0.48 * influence
+				"erode":
+					var erosion_average := _neighbor_average(x, z)
+					var erosion := clampf(strength * 0.34 * influence, 0.0, 0.78)
+					next_height = lerpf(current_height, erosion_average, erosion)
+					if current_height > erosion_average:
+						next_height -= minf(current_height - erosion_average, strength * 0.08 * influence)
+				"terrace":
+					var terrace_step := 1.35
+					var terraced := roundf(current_height / terrace_step) * terrace_step
+					next_height = lerpf(current_height, terraced, clampf(strength * 0.32 * influence, 0.0, 0.68))
+				"ridge":
+					var ridge_noise := 0.72 + 0.28 * sin(float(x) * 0.13 + sin(float(z) * 0.09) * 2.0)
+					next_height += strength * influence * influence * ridge_noise
 			changes.append(Vector3(point.x, clampf(next_height, MIN_HEIGHT, MAX_HEIGHT), point.z))
 	for change: Vector3 in changes:
 		terrain.data.set_height(Vector3(change.x, 0.0, change.z), change.y)
@@ -104,19 +121,28 @@ func paint_texture(center: Vector3, radius: float, strength: float, texture_id: 
 				continue
 			var influence := 1.0 - distance / radius
 			influence = influence * influence * (3.0 - 2.0 * influence)
+			var edge_noise := 0.88 + 0.12 * sin(float(x) * 2.173 + float(z) * 1.417)
+			influence = clampf(influence * edge_noise, 0.0, 1.0)
 			var point := Vector3(float(x), 0.0, float(z))
 			var base_id := terrain.data.get_control_base_id(point)
 			var overlay_id := terrain.data.get_control_overlay_id(point)
 			var blend := terrain.data.get_control_blend(point)
+			var paint_amount := clampf(strength * 0.52 * influence, 0.0, 0.82)
 			if base_id == texture_id:
-				terrain.data.set_control_overlay_id(point, texture_id)
-				terrain.data.set_control_blend(point, 0.0)
+				blend = maxf(0.0, blend - paint_amount)
+				terrain.data.set_control_blend(point, blend)
 			elif overlay_id == texture_id:
-				blend = minf(1.0, blend + strength * 0.18 * influence)
+				blend = minf(1.0, blend + paint_amount)
+				if blend > 0.94:
+					terrain.data.set_control_base_id(point, texture_id)
+					terrain.data.set_control_overlay_id(point, texture_id)
+					blend = 0.0
 				terrain.data.set_control_blend(point, blend)
 			else:
+				if blend > 0.5:
+					terrain.data.set_control_base_id(point, overlay_id)
 				terrain.data.set_control_overlay_id(point, texture_id)
-				terrain.data.set_control_blend(point, clampf(strength * 0.18 * influence, 0.0, 1.0))
+				terrain.data.set_control_blend(point, paint_amount)
 			terrain.data.set_control_auto(point, false)
 			var current_color := terrain.data.get_color(point)
 			terrain.data.set_color(point, current_color.lerp(Color.WHITE, clampf(strength * 0.24 * influence, 0.0, 1.0)))

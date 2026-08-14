@@ -2,7 +2,7 @@ class_name MapObjectMultiMeshRenderer
 extends Node3D
 
 const OBJECT_CHUNK_SIZE := 24.0
-const DEFAULT_OBSTACLES: Array[String] = ["purple_tree_1", "purple_tree_2", "purple_tree_3", "large_tree"]
+const DEFAULT_OBSTACLES: Array[String] = ["purple_tree_1", "purple_tree_2", "purple_tree_3", "large_tree", "tree_real_1", "tree_real_2"]
 const TYPE_SCALE_MULTIPLIERS: Dictionary[String, float] = {
 	"purple_tree_1": 5.5,
 	"purple_tree_2": 5.5,
@@ -11,10 +11,27 @@ const TYPE_SCALE_MULTIPLIERS: Dictionary[String, float] = {
 	"bush": 1.3,
 	"grass_1": 0.65,
 	"grass_2": 0.65,
-	"bush_real": 1.0,
+	"tree_real_1": 1.0,
+	"tree_real_2": 1.0,
+	"bush_real_1": 1.0,
+	"bush_real_2": 1.0,
+	"bush_real_3": 1.0,
+	"bush_real_4": 1.0,
+	"bush_real_5": 1.0,
+	"bush_real_6": 1.0,
+	"bush_real_7": 1.0,
+	"bush_real_8": 1.0,
+	"bush_real_9": 1.0,
 	"bush_heather": 1.0,
 	"bush_cliff": 1.0,
 	"stylised_rocks": 1.0,
+}
+const MESH_FILTERS: Dictionary[String, String] = {
+	"bush_real_1": "Medium_bush_2", "bush_real_2": "Medium_bush_1",
+	"bush_real_3": "Small_bush_1", "bush_real_4": "tall_bush_3",
+	"bush_real_5": "tall_bush_1", "bush_real_6": "Medium_bush_3",
+	"bush_real_7": "Small_bush_2", "bush_real_8": "tall_bush_2",
+	"bush_real_9": "tall_bush_4",
 }
 
 var _assets: Dictionary[String, String] = {}
@@ -103,25 +120,27 @@ func _get_parts(kind: String) -> Array:
 			_bush_proxy = _create_bush_proxy()
 		parts.append({"mesh": _bush_proxy, "transform": Transform3D.IDENTITY})
 	else:
-		var packed := load(_assets[kind]) as PackedScene
-		if packed != null:
-			var source := packed.instantiate() as Node3D
+		var resource := load(_assets[kind])
+		if resource is Mesh:
+			parts.append({"mesh": resource as Mesh, "transform": Transform3D.IDENTITY})
+		elif resource is PackedScene:
+			var source := (resource as PackedScene).instantiate() as Node3D
 			if source != null:
-				_collect_parts(source, Transform3D.IDENTITY, parts)
+				_collect_parts(source, Transform3D.IDENTITY, parts, str(MESH_FILTERS.get(kind, "")))
 				source.free()
 	_part_cache[kind] = parts
 	return parts
 
-func _collect_parts(node: Node, parent_transform: Transform3D, output: Array) -> void:
+func _collect_parts(node: Node, parent_transform: Transform3D, output: Array, mesh_filter: String = "") -> void:
 	var local_transform := parent_transform
 	if node is Node3D:
 		local_transform = parent_transform * (node as Node3D).transform
-	if node is MeshInstance3D:
+	if node is MeshInstance3D and (mesh_filter.is_empty() or node.name == mesh_filter):
 		var mesh_instance := node as MeshInstance3D
 		if mesh_instance.mesh != null:
 			output.append({"mesh": mesh_instance.mesh, "transform": local_transform})
 	for child: Node in node.get_children():
-		_collect_parts(child, local_transform, output)
+		_collect_parts(child, local_transform, output, mesh_filter)
 
 func _resolved_base_position(data: Dictionary) -> Vector3:
 	var result := Vector3(float(data.get("x", 0.0)), 0.0, float(data.get("z", 0.0)))
