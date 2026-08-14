@@ -148,7 +148,7 @@ func _scatter_grass_multimesh() -> void:
 	grass.name = "SimpleGrassTextured_Meadows"
 	grass.multimesh = multimesh
 	grass.set("texture_albedo", GRASS_TEXTURE)
-	grass.set("albedo", Color(0.43, 0.54, 0.29))
+	grass.set("albedo", Color(0.57, 0.60, 0.36))
 	# Taller than the original plugin grass, but clearly smaller than the
 	# oversized previous pass. Per-instance transforms add natural variation.
 	grass.set("scale_h", 1.35)

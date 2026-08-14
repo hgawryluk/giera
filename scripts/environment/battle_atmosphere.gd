@@ -60,8 +60,8 @@ func _configure_sunny_environment() -> void:
 
 func _configure_medium_clouds() -> void:
 	var clouds := SOLO_CLOUDS.duplicate(true) as CompositorEffect
-	clouds.set("clouds_coverage", 0.64)
-	clouds.set("clouds_density", 0.52)
+	clouds.set("clouds_coverage", 0.72)
+	clouds.set("clouds_density", 0.55)
 	clouds.set("clouds_sharpness", 0.66)
 	clouds.set("clouds_detail_power", 0.82)
 	clouds.set("cloud_ambient_color", Color(0.72, 0.77, 0.82, 1.0))

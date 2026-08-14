@@ -67,7 +67,7 @@ void vertex() {
 void fragment() {
 	vec2 p = world_position.xz;
 	vec3 grass = anti_tile(grass_albedo, p);
-	grass *= 0.66;
+	grass *= vec3(0.70, 0.69, 0.57);
 	vec3 dry_grass = anti_tile(dry_grass_albedo, p + vec2(31.7, -14.2));
 	vec3 dirt = anti_tile(dirt_albedo, p + vec2(-9.4, 26.8));
 	vec3 rock = anti_tile(rock_albedo, p + vec2(47.1, -33.6));
@@ -108,23 +108,30 @@ void fragment() {
 		vec2 warp = vec2(value_noise(p / 31.0 + vec2(4.1, 9.7)), value_noise(p / 27.0 + vec2(15.3, 2.2))) - 0.5;
 		vec2 shaped_p = p + warp * 5.5;
 		float river_center = 101.0 + sin(shaped_p.x * 0.045) * 11.0 + sin(shaped_p.x * 0.013 + 1.7) * 5.0;
-		float bank_noise = (value_noise(p / 3.7 + vec2(11.8, 5.3)) - 0.5) * 2.4;
+		float bank_noise = (value_noise(p / 3.7 + vec2(11.8, 5.3)) - 0.5) * 3.2;
+		bank_noise += (value_noise(p / 9.5 + vec2(2.1, 18.6)) - 0.5) * 3.8;
 		float river_distance = abs(shaped_p.y - river_center) + bank_noise;
-		float river_bank = 1.0 - smoothstep(4.8, 14.5, river_distance);
+		float river_bank = 1.0 - smoothstep(4.2, 20.0, river_distance);
 		float ravine_center = 72.0 + sin(shaped_p.y * 0.052) * 5.0;
 		float ravine_extent = smoothstep(96.0, 119.0, shaped_p.y) * (1.0 - smoothstep(211.0, 232.0, shaped_p.y));
 		float ravine_distance = abs(shaped_p.x - ravine_center) + bank_noise * 0.7;
-		float ravine_bank = (1.0 - smoothstep(3.5, 11.5, ravine_distance)) * ravine_extent;
+		float ravine_bank = (1.0 - smoothstep(3.2, 17.0, ravine_distance)) * ravine_extent;
 		float slope = 1.0 - clamp(world_normal.y, 0.0, 1.0);
 		float cliff = smoothstep(0.22, 0.56, slope + (value_noise(p / 7.0) - 0.5) * 0.16);
 		float alpine = smoothstep(13.0, 28.0, world_position.y);
 		float meadow_noise = value_noise(p / 19.0 + vec2(2.4, 7.1));
-		float meadow_alt_mask = smoothstep(0.38, 0.74, value_noise(p / 29.0 + vec2(17.2, 6.8))) * 0.46;
+		float meadow_alt_mask = smoothstep(0.28, 0.82, value_noise(p / 29.0 + vec2(17.2, 6.8))) * 0.42;
 		vec3 meadow_base = mix(grass, meadow_alt, meadow_alt_mask);
 		vec3 meadow = mix(meadow_base, dry_grass, smoothstep(0.58, 0.82, meadow_noise) * 0.38);
 		float wet_bank = max(river_bank, ravine_bank);
-		float bank_blend = smoothstep(0.0, 1.0, wet_bank);
-		ground = mix(meadow, sand, bank_blend * 0.86);
+		// A broad three-material transition prevents a bright sand ribbon from
+		// cutting directly into green meadow along the waterway.
+		float bank_outer = smoothstep(0.03, 0.64, wet_bank);
+		float bank_inner = smoothstep(0.42, 0.96, wet_bank);
+		float bank_mottle = smoothstep(0.30, 0.72, value_noise(p / 5.8 + vec2(23.1, 1.7)));
+		vec3 bank_soil = mix(dry_grass, dirt, 0.38 + bank_mottle * 0.34);
+		ground = mix(meadow, bank_soil, bank_outer * 0.78);
+		ground = mix(ground, sand, bank_inner * 0.78);
 		float forest_hill = 1.0 - smoothstep(35.0, 86.0, distance(p, vec2(208.0, 54.0)));
 		forest_hill *= smoothstep(0.40, 0.72, value_noise(p / 21.0 + vec2(3.7, 12.4)));
 		ground = mix(ground, forest_soil, forest_hill * 0.76);
