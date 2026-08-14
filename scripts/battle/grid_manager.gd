@@ -8,6 +8,18 @@ const SOLO_TRAIL_SIZE: Vector2i = Vector2i(256, 256)
 const UNIT_SCENE: PackedScene = preload("res://scenes/units/unit.tscn")
 const TERRAIN_GROUND_MATERIAL: ShaderMaterial = preload("res://world/terrain/materials/terrain_ground_material.tres")
 const GROUND_CLUTTER_SCRIPT := preload("res://world/terrain/ground_clutter_system.gd")
+# Deterministic Solo Trail refinement controls. The procedural surface is
+# rebuilt from these values, so reverting this file restores the previous map.
+const REFINEMENT_HILL_CENTER := Vector2(208.0, 54.0)
+const REFINEMENT_HILL_RADIUS: float = 66.0
+const REFINEMENT_RIVER_AREA := Rect2(0.0, 78.0, 256.0, 58.0)
+const REFINEMENT_DEFORMATION_STRENGTH: float = 1.0
+const REFINEMENT_LARGE_NOISE_SCALE: float = 0.018
+const REFINEMENT_MEDIUM_NOISE_SCALE: float = 0.057
+const REFINEMENT_FINE_NOISE_SCALE: float = 0.19
+const REFINEMENT_SEED: float = 814.0426
+const REFINEMENT_MAX_SLOPE: float = 0.78
+const REFINEMENT_FADE_INTENSITY: float = 1.35
 const DIRECTIONS: Array[Vector2i] = [
 	Vector2i.LEFT,
 	Vector2i.RIGHT,
@@ -501,28 +513,60 @@ func _solo_trail_height(x: float, z: float) -> float:
 	var edge_distance := minf(minf(x, z), minf(255.0 - x, 255.0 - z))
 	height += smoothstep(62.0, 5.0, edge_distance) * 22.0
 	height += _irregular_peak(p, Vector2(30.0, 38.0), 43.0, 28.0, 0.4)
-	height += _irregular_peak(p, Vector2(218.0, 42.0), 36.0, 34.0, 2.1)
+	height += _irregular_peak(p, REFINEMENT_HILL_CENTER, 34.0, REFINEMENT_HILL_RADIUS, 2.1)
 	height += _irregular_peak(p, Vector2(230.0, 205.0), 48.0, 31.0, 4.2)
 	height += _irregular_peak(p, Vector2(35.0, 220.0), 33.0, 38.0, 5.4)
 	# A broad meadow keeps the player spawn readable and walkable.
 	var clearing_weight := 1.0 - smoothstep(22.0, 46.0, p.distance_to(Vector2(130.0, 150.0)))
 	height = lerpf(height, 3.0 + sin(x * 0.11) * 0.22 + cos(z * 0.09) * 0.18, clearing_weight)
 	# The river cuts through the valley from west to east.
-	var river_center := 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
-	var river_distance := absf(z - river_center)
-	var river_weight := 1.0 - smoothstep(7.2, 15.5, river_distance)
-	# A broad submerged shelf prevents the water plane from clipping through the
-	# bed while the irregular outer falloff keeps both banks natural.
-	var river_floor := -4.45 + pow(river_distance / 7.2, 1.65) * 0.48
+	var river_center := _solo_river_center(x)
+	var river_side := z - river_center
+	var river_distance := absf(river_side)
+	var river_curvature := _solo_river_center(x + 2.0) - 2.0 * river_center + _solo_river_center(x - 2.0)
+	var river_outer_side := -signf(river_curvature) if absf(river_curvature) > 0.001 else 0.0
+	var is_outer_bank := signf(river_side) == river_outer_side
+	var bank_noise := _terrain_noise(Vector2(x, z), REFINEMENT_MEDIUM_NOISE_SCALE, 19.0)
+	var river_core_width := 7.0 + (bank_noise - 0.5) * 0.65
+	# Outer bends cut narrower, steeper scarps. Inner bends spread a wider and
+	# gentler depositional shelf, avoiding mirrored banks.
+	var river_bank_width := (13.0 if is_outer_bank else 18.5) + (bank_noise - 0.5) * 2.4
+	var river_weight := 1.0 - smoothstep(river_core_width, river_bank_width, river_distance)
+	var bed_variation := (_terrain_noise(Vector2(x, z), REFINEMENT_LARGE_NOISE_SCALE, 43.0) - 0.5) * 0.24
+	var river_floor := minf(-3.95, -4.55 + bed_variation + pow(river_distance / maxf(river_core_width, 0.1), 1.48) * 0.42)
 	height = lerpf(height, river_floor, river_weight)
 	# A flooded canyon branches northward from the main river.
-	var ravine_x := 72.0 + sin(z * 0.052) * 5.0
+	var ravine_x := _solo_ravine_center(z)
 	var ravine_extent := smoothstep(92.0, 116.0, z) * (1.0 - smoothstep(211.0, 230.0, z))
-	var ravine_distance := absf(x - ravine_x)
-	var ravine_weight := (1.0 - smoothstep(5.1, 12.8, ravine_distance)) * ravine_extent
-	var canyon_floor := -4.55 + pow(ravine_distance / 5.1, 1.55) * 0.52
+	var ravine_side := x - ravine_x
+	var ravine_distance := absf(ravine_side)
+	var ravine_curvature := _solo_ravine_center(z + 2.0) - 2.0 * ravine_x + _solo_ravine_center(z - 2.0)
+	var ravine_outer_side := -signf(ravine_curvature) if absf(ravine_curvature) > 0.001 else 0.0
+	var ravine_outer := signf(ravine_side) == ravine_outer_side
+	var ravine_noise := _terrain_noise(Vector2(x, z), REFINEMENT_MEDIUM_NOISE_SCALE, 71.0)
+	var ravine_core_width := 5.0 + (ravine_noise - 0.5) * 0.5
+	var ravine_bank_width := (10.8 if ravine_outer else 15.4) + (ravine_noise - 0.5) * 1.8
+	var ravine_weight := (1.0 - smoothstep(ravine_core_width, ravine_bank_width, ravine_distance)) * ravine_extent
+	var canyon_floor := minf(-4.0, -4.62 + (_terrain_noise(Vector2(x, z), REFINEMENT_LARGE_NOISE_SCALE, 89.0) - 0.5) * 0.20 + pow(ravine_distance / maxf(ravine_core_width, 0.1), 1.42) * 0.46)
 	height = lerpf(height, canyon_floor, ravine_weight)
 	return height
+
+
+func _solo_river_center(x: float) -> float:
+	return 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
+
+
+func _solo_ravine_center(z: float) -> float:
+	return 72.0 + sin(z * 0.052) * 5.0
+
+
+func _terrain_noise(point: Vector2, scale_value: float, seed_offset: float) -> float:
+	var q := point * scale_value
+	var seed_phase := REFINEMENT_SEED + seed_offset
+	var value := sin(q.x * 1.17 + q.y * 0.43 + seed_phase) * 0.50
+	value += cos(q.y * 1.31 - q.x * 0.37 + seed_phase * 0.73) * 0.31
+	value += sin((q.x + q.y) * 0.71 - seed_phase * 0.41) * 0.19
+	return value * 0.5 + 0.5
 
 func _height_peak(point: Vector2, center: Vector2, amplitude: float, radius: float) -> float:
 	var normalized_distance := point.distance_to(center) / radius
@@ -541,8 +585,14 @@ func _irregular_peak(point: Vector2, center: Vector2, amplitude: float, radius: 
 	if normalized_distance >= 1.0:
 		return 0.0
 	var profile := 1.0 - normalized_distance * normalized_distance
-	var shoulder := sin(point.x * 0.095 + phase) * cos(point.y * 0.083 - phase) * 0.075
-	return amplitude * profile * profile * (1.0 + shoulder)
+	var mask := pow(1.0 - smoothstep(0.0, 1.0, normalized_distance), REFINEMENT_FADE_INTENSITY)
+	var large := (_terrain_noise(point, REFINEMENT_LARGE_NOISE_SCALE, phase * 17.0) - 0.5) * 0.34
+	var medium_source := _terrain_noise(point, REFINEMENT_MEDIUM_NOISE_SCALE, phase * 29.0)
+	var ridges := (1.0 - absf(medium_source * 2.0 - 1.0) - 0.5) * 0.22
+	var fine := (_terrain_noise(point, REFINEMENT_FINE_NOISE_SCALE, phase * 41.0) - 0.5) * 0.045
+	var deformation := (large + ridges + fine) * mask * REFINEMENT_DEFORMATION_STRENGTH
+	var shoulder := sin(point.x * 0.071 + phase) * cos(point.y * 0.063 - phase) * 0.055 * mask
+	return amplitude * profile * profile * maxf(0.55, 1.0 + deformation + shoulder)
 
 func _initialize_terrain_features() -> void:
 	_terrain_features.clear()

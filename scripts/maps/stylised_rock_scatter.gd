@@ -7,7 +7,7 @@ const ROCK_NORMAL: Texture2D = preload("res://assets/environment/stylised_rocks/
 const ROCK_ROUGHNESS: Texture2D = preload("res://assets/environment/stylised_rocks/textures/M_Mossy_Rock_Roughness.png")
 
 const TRAIL_ROCK_COUNT: int = 54
-const HILL_ROCK_COUNT: int = 24
+const HILL_ROCK_COUNT: int = 60
 const WILD_ROCK_COUNT: int = 18
 const LANDMARK_ROCK_COUNT: int = 4
 const RIVERSIDE_ROCK_COUNT: int = 90
@@ -103,11 +103,12 @@ func _scatter_riverbanks(rng: RandomNumberGenerator, batches: Array[Array]) -> v
 			continue
 		if not semi_submerged and not _can_place(x, z, 0.72, 0.08):
 			continue
-		var target_height := rng.randf_range(0.38, 1.35)
-		if rng.randf() < 0.16:
+		var target_height := rng.randf_range(3.1, 5.6) if semi_submerged else rng.randf_range(0.38, 1.35)
+		if not semi_submerged and rng.randf() < 0.16:
 			target_height = rng.randf_range(1.35, 2.35)
-		var waterline_override := WATER_LEVEL - target_height * rng.randf_range(0.18, 0.34) if semi_submerged else NAN
-		_append_rock(rng, batches, x, z, target_height, rng.randf_range(0.70, 1.26), waterline_override)
+		# Water rocks always use the actual bed height. Their size, not a floating
+		# origin at the waterline, determines how much remains above the surface.
+		_append_rock(rng, batches, x, z, target_height, rng.randf_range(0.70, 1.26))
 		placed += 1
 
 
