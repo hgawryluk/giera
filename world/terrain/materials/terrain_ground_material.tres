@@ -2,7 +2,7 @@
 
 [ext_resource type="Shader" path="res://world/terrain/shaders/terrain_ground.gdshader" id="1_shader"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Grass004_2K-PNG/Grass004_2K-PNG_Color.png" id="2_grass"]
-[ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/ScatteredLeaves009_2K-PNG/ScatteredLeaves009_2K-PNG_Color.png" id="3_dry"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Grass004_2K-PNG/Grass004_2K-PNG_Color.png" id="3_dry"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Ground103_2K-PNG/Ground103_2K-PNG_Color.png" id="4_dirt"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Rock060_2K-PNG/Rock060_2K-PNG_Color.png" id="5_rock"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Grass004_2K-PNG/Grass004_2K-PNG_Color.png" id="6_meadow"]
@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/ScatteredLeaves009_2K-PNG/ScatteredLeaves009_2K-PNG_Color.png" id="9_forest"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Grass004_2K-PNG/Grass004_2K-PNG_NormalGL.png" id="10_gn"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Ground103_2K-PNG/Ground103_2K-PNG_NormalGL.png" id="11_dn"]
-[ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Ground108_2K-PNG/Ground108_2K-PNG_NormalGL.png" id="12_sn"]
+[ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Grass004_2K-PNG/Grass004_2K-PNG_NormalGL.png" id="12_sn"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Rock060_2K-PNG/Rock060_2K-PNG_NormalGL.png" id="13_rn"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Grass004_2K-PNG/Grass004_2K-PNG_Displacement.png" id="14_gh"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Ground103_2K-PNG/Ground103_2K-PNG_Displacement.png" id="15_dh"]

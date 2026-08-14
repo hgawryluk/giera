@@ -100,6 +100,7 @@ void fragment() {
 	// of reapplying the legacy dark-green multiplier.
 	grass *= vec3(0.92, 0.94, 0.84);
 	vec3 dry_grass = anti_tile(dry_grass_albedo, p + vec2(31.7, -14.2));
+	dry_grass *= vec3(0.94, 0.91, 0.76);
 	vec3 dirt = anti_tile(dirt_albedo, p + vec2(-9.4, 26.8));
 	vec3 rock = anti_tile(rock_albedo, p + vec2(47.1, -33.6));
 	vec3 meadow_alt = anti_tile(meadow_albedo_alt, p + vec2(63.4, 18.9));
@@ -176,9 +177,12 @@ void fragment() {
 		ground = mix(meadow, bank_soil, bank_outer * 0.78);
 		ground = mix(ground, sand, bank_inner * 0.78);
 		float forest_hill = 1.0 - smoothstep(35.0, 86.0, distance(p, vec2(208.0, 54.0)));
-		forest_hill *= smoothstep(0.40, 0.72, value_noise(p / 21.0 + vec2(3.7, 12.4)));
-		surface_forest_weight = forest_hill * 0.76;
-		ground = mix(ground, forest_soil, forest_hill * 0.76);
+		// Leaf litter is restricted to sparse, broken-up patches in the wooded hill.
+		// Two noise scales keep the patches small and prevent a continuous forest carpet.
+		float leaf_clusters = smoothstep(0.67, 0.84, value_noise(p / 7.5 + vec2(3.7, 12.4)));
+		leaf_clusters *= smoothstep(0.38, 0.68, value_noise(p / 18.0 + vec2(14.2, 5.1)));
+		surface_forest_weight = forest_hill * leaf_clusters * 0.62;
+		ground = mix(ground, forest_soil, surface_forest_weight);
 		float rock_variant = smoothstep(0.28, 0.72, value_noise(p / 34.0 + vec2(9.5, 4.2)));
 		vec3 steep_rock = triplanar_color(rock_albedo, world_position, normalize(world_normal), texture_world_size);
 		vec3 varied_rock = mix(mix(rock, rock_alt, rock_variant), steep_rock, smoothstep(0.12, 0.36, slope));
@@ -191,7 +195,7 @@ void fragment() {
 	vec4 base_weights = vec4(max(0.0, 1.0 - dry_mask - dirt_patch), dry_mask, dirt_patch, surface_sand_weight);
 	base_weights += vec4((value_noise(p * noise_scale) - 0.5) * noise_strength);
 	base_weights = max(base_weights, vec4(0.0));
-	vec4 layer_heights = vec4(texture(grass_height, p / texture_world_size).r, texture(leaf_height, p / texture_world_size).r, texture(dirt_height, p / texture_world_size).r, texture(sand_height, p / texture_world_size).r);
+	vec4 layer_heights = vec4(texture(grass_height, p / texture_world_size).r, texture(grass_height, p / texture_world_size).r, texture(dirt_height, p / texture_world_size).r, texture(sand_height, p / texture_world_size).r);
 	base_weights *= mix(vec4(1.0), layer_heights, height_blend_strength);
 	base_weights /= max(dot(base_weights, vec4(1.0)), 0.0001);
 	if (!plain_green) {
@@ -199,7 +203,7 @@ void fragment() {
 		pbr_ground = mix(pbr_ground, paving, surface_paving_weight * 0.82);
 		pbr_ground = mix(pbr_ground, forest_soil, surface_forest_weight);
 		float rock_relief = triplanar_color(rock_height, world_position, normalize(world_normal), texture_world_size).r;
-		float visible_rock_weight = smoothstep(0.20, 0.56, 1.0 - world_normal.y + (rock_relief - 0.5) * height_blend_strength * 0.18);
+		float visible_rock_weight = smoothstep(0.28, 0.60, 1.0 - world_normal.y + (rock_relief - 0.5) * height_blend_strength * 0.16);
 		vec3 visible_rock = triplanar_color(rock_albedo, world_position, normalize(world_normal), texture_world_size);
 		ground = mix(pbr_ground, visible_rock, visible_rock_weight);
 		ground *= 1.0 + macro * macro_strength;
@@ -219,10 +223,10 @@ void fragment() {
 	float paving_r = texture(paving_roughness, p / texture_world_size).r;
 	float rock_r = triplanar_color(rock_roughness, world_position, normalize(world_normal), texture_world_size).r;
 	float rock_relief_lighting = triplanar_color(rock_height, world_position, normalize(world_normal), texture_world_size).r;
-	float rock_weight = smoothstep(0.20, 0.56, 1.0 - world_normal.y + (rock_relief_lighting - 0.5) * height_blend_strength * 0.18);
-	ROUGHNESS = dot(base_weights, vec4(grass_r, leaf_r, dirt_r, sand_r));
+	float rock_weight = smoothstep(0.28, 0.60, 1.0 - world_normal.y + (rock_relief_lighting - 0.5) * height_blend_strength * 0.16);
+	ROUGHNESS = dot(base_weights, vec4(grass_r, grass_r, dirt_r, sand_r));
 	ROUGHNESS = mix(ROUGHNESS, paving_r, surface_paving_weight * 0.82);
-	ROUGHNESS = mix(ROUGHNESS, dirt_r, surface_forest_weight);
+	ROUGHNESS = mix(ROUGHNESS, leaf_r, surface_forest_weight);
 	ROUGHNESS = mix(ROUGHNESS, rock_r, rock_weight);
 	if (use_normal_roughness) {
 		vec3 grass_n = texture(grass_normal_roughness, p / texture_world_size).rgb;
@@ -231,9 +235,9 @@ void fragment() {
 		vec3 sand_n = texture(sand_normal, p / texture_world_size).rgb;
 		vec3 paving_n = texture(paving_normal, p / texture_world_size).rgb;
 		vec3 rock_n = triplanar_color(rock_normal, world_position, normalize(world_normal), texture_world_size);
-		vec3 blended_n = grass_n * base_weights.x + leaf_n * base_weights.y + dirt_n * base_weights.z + sand_n * base_weights.w;
+		vec3 blended_n = grass_n * (base_weights.x + base_weights.y) + dirt_n * base_weights.z + sand_n * base_weights.w;
 		blended_n = mix(blended_n, paving_n, surface_paving_weight * 0.82);
-		blended_n = mix(blended_n, dirt_n, surface_forest_weight);
+		blended_n = mix(blended_n, leaf_n, surface_forest_weight);
 		NORMAL_MAP = mix(blended_n, rock_n, rock_weight);
 		NORMAL_MAP_DEPTH = 0.82;
 	}
