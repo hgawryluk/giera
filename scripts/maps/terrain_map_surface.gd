@@ -54,6 +54,9 @@ func setup(camera: Camera3D = null, data_directory: String = "", legacy_strokes:
 		_region = terrain.data.add_region_blank(REGION_LOCATION, false)
 		_initialize_base_height()
 	_ensure_paintable_control()
+	# Terrain3D keeps editable Images on the CPU and separate textures on the GPU.
+	# Uploading all maps is required after creating/loading a runtime region.
+	terrain.data.update_maps(Terrain3DRegion.TYPE_MAX, true, false)
 	if not legacy_strokes.is_empty():
 		_import_legacy_strokes(legacy_strokes)
 
@@ -121,7 +124,10 @@ func paint_texture(center: Vector3, radius: float, strength: float, texture_id: 
 				continue
 			var influence := 1.0 - distance / radius
 			influence = influence * influence * (3.0 - 2.0 * influence)
-			var edge_noise := 0.88 + 0.12 * sin(float(x) * 2.173 + float(z) * 1.417)
+			# Break up the brush silhouette while retaining a broad smooth falloff.
+			var edge_noise := 0.86
+			edge_noise += 0.18 * sin(float(x) * 0.73 + float(z) * 1.11)
+			edge_noise += 0.10 * sin(float(x) * 2.173 - float(z) * 1.417)
 			influence = clampf(influence * edge_noise, 0.0, 1.0)
 			var point := Vector3(float(x), 0.0, float(z))
 			var base_id := terrain.data.get_control_base_id(point)
@@ -146,8 +152,8 @@ func paint_texture(center: Vector3, radius: float, strength: float, texture_id: 
 			terrain.data.set_control_auto(point, false)
 			var current_color := terrain.data.get_color(point)
 			terrain.data.set_color(point, current_color.lerp(Color.WHITE, clampf(strength * 0.24 * influence, 0.0, 1.0)))
-	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, false, false)
-	terrain.data.update_maps(Terrain3DRegion.TYPE_COLOR, false, false)
+	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, true, false)
+	terrain.data.update_maps(Terrain3DRegion.TYPE_COLOR, true, false)
 
 func get_height(world_x: float, world_z: float) -> float:
 	if terrain == null or terrain.data == null:
@@ -181,9 +187,7 @@ func reset_blank() -> void:
 			terrain.data.set_control_auto(point, false)
 			terrain.data.set_color(point, Color.WHITE)
 	_region.calc_height_range()
-	terrain.data.update_maps(Terrain3DRegion.TYPE_HEIGHT, false, false)
-	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, false, false)
-	terrain.data.update_maps(Terrain3DRegion.TYPE_COLOR, false, false)
+	terrain.data.update_maps(Terrain3DRegion.TYPE_MAX, true, false)
 
 func save_to_directory(directory: String) -> void:
 	if terrain == null:
@@ -220,8 +224,8 @@ func _ensure_paintable_control() -> void:
 				terrain.data.set_control_overlay_id(point, 0)
 				terrain.data.set_control_blend(point, 0.0)
 			terrain.data.set_control_auto(point, false)
-	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, false, false)
-	terrain.data.update_maps(Terrain3DRegion.TYPE_COLOR, false, false)
+	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, true, false)
+	terrain.data.update_maps(Terrain3DRegion.TYPE_COLOR, true, false)
 
 func _neighbor_average(x: int, z: int) -> float:
 	var total: float = get_height(float(x), float(z))
@@ -236,7 +240,7 @@ func _neighbor_average(x: int, z: int) -> float:
 
 func _finish_height_edit() -> void:
 	_region.calc_height_range()
-	terrain.data.update_maps(Terrain3DRegion.TYPE_HEIGHT, false, false)
+	terrain.data.update_maps(Terrain3DRegion.TYPE_HEIGHT, true, false)
 
 func _import_legacy_strokes(strokes: Array) -> void:
 	for raw_stroke: Variant in strokes:
@@ -348,7 +352,8 @@ func _configure_material() -> void:
 		texture_assets.append(asset)
 	terrain.assets.set_texture_list(texture_assets)
 	terrain.assets.update_texture_list()
-	terrain.material.show_colormap = true
+	# `show_colormap` is a white diagnostic view, not the regular color multiplier.
+	terrain.material.show_colormap = false
 	terrain.material.update()
 	terrain.show_grey = false
 	terrain.material.world_background = Terrain3DMaterial.NONE
