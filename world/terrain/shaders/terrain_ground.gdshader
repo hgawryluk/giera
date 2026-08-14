@@ -42,11 +42,15 @@ float value_noise(vec2 p) {
 
 vec3 anti_tile(sampler2D source, vec2 world_xz) {
 	vec2 uv = world_xz / texture_world_size;
-	mat2 rotation = mat2(vec2(0.819152, 0.573576), vec2(-0.573576, 0.819152));
-	vec3 primary = texture(source, uv).rgb;
-	vec3 rotated = texture(source, rotation * uv * 0.973 + vec2(17.31, 8.73)).rgb;
-	float mixer = smoothstep(0.28, 0.72, value_noise(world_xz / 11.0));
-	return mix(primary, rotated, mixer * detail_rotation_mix);
+	mat2 rotation_a = mat2(vec2(0.819152, 0.573576), vec2(-0.573576, 0.819152));
+	mat2 rotation_b = mat2(vec2(0.342020, -0.939693), vec2(0.939693, 0.342020));
+	vec3 sample_a = texture(source, uv).rgb;
+	vec3 sample_b = texture(source, rotation_a * uv * 0.971 + vec2(17.31, 8.73)).rgb;
+	vec3 sample_c = texture(source, rotation_b * uv * 1.037 + vec2(-6.17, 23.41)).rgb;
+	float blend_a = smoothstep(0.18, 0.82, value_noise(world_xz / 13.0));
+	float blend_b = smoothstep(0.22, 0.78, value_noise(world_xz / 19.0 + vec2(7.2, 3.8)));
+	vec3 varied = mix(sample_a, sample_b, blend_a);
+	return mix(varied, sample_c, blend_b * detail_rotation_mix);
 }
 
 void vertex() {
@@ -57,6 +61,7 @@ void vertex() {
 void fragment() {
 	vec2 p = world_position.xz;
 	vec3 grass = anti_tile(grass_albedo, p);
+	grass *= 0.75;
 	vec3 dry_grass = anti_tile(dry_grass_albedo, p + vec2(31.7, -14.2));
 	vec3 dirt = anti_tile(dirt_albedo, p + vec2(-9.4, 26.8));
 	vec3 rock = anti_tile(rock_albedo, p + vec2(47.1, -33.6));
@@ -90,15 +95,21 @@ void fragment() {
 		ground = vec3(0.19, 0.42, 0.14) * (0.98 + green_variation);
 	}
 	if (solo_trail_landscape) {
-		float river_center = 101.0 + sin(p.x * 0.045) * 11.0 + sin(p.x * 0.013 + 1.7) * 5.0;
-		float river_distance = abs(p.y - river_center);
-		float river_bank = 1.0 - smoothstep(5.5, 11.5, river_distance);
+		vec2 warp = vec2(value_noise(p / 31.0 + vec2(4.1, 9.7)), value_noise(p / 27.0 + vec2(15.3, 2.2))) - 0.5;
+		vec2 shaped_p = p + warp * 5.5;
+		float river_center = 101.0 + sin(shaped_p.x * 0.045) * 11.0 + sin(shaped_p.x * 0.013 + 1.7) * 5.0;
+		float river_distance = abs(shaped_p.y - river_center);
+		float river_bank = 1.0 - smoothstep(5.2, 13.5, river_distance);
+		float ravine_center = 72.0 + sin(shaped_p.y * 0.052) * 5.0;
+		float ravine_extent = smoothstep(96.0, 119.0, shaped_p.y) * (1.0 - smoothstep(211.0, 232.0, shaped_p.y));
+		float ravine_bank = (1.0 - smoothstep(3.8, 10.5, abs(shaped_p.x - ravine_center))) * ravine_extent;
 		float slope = 1.0 - clamp(world_normal.y, 0.0, 1.0);
 		float cliff = smoothstep(0.22, 0.56, slope + (value_noise(p / 7.0) - 0.5) * 0.16);
 		float alpine = smoothstep(13.0, 28.0, world_position.y);
 		float meadow_noise = value_noise(p / 19.0 + vec2(2.4, 7.1));
 		vec3 meadow = mix(grass, dry_grass, smoothstep(0.58, 0.82, meadow_noise) * 0.42);
-		ground = mix(meadow, dirt, river_bank * 0.78);
+		float wet_bank = max(river_bank, ravine_bank);
+		ground = mix(meadow, dirt, wet_bank * 0.78);
 		ground = mix(ground, rock, max(cliff, alpine * 0.72));
 		ground *= 0.94 + (value_noise(p / 58.0) - 0.5) * 0.11;
 	}

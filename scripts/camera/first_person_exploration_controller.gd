@@ -6,6 +6,8 @@ extends CharacterBody3D
 @export_range(0.5, 16.0, 0.1) var sprint_speed: float = 8.1
 @export_range(0.1, 1.0, 0.05) var crouch_speed_multiplier: float = 0.45
 @export_range(0.5, 3.0, 0.1) var jump_height: float = 1.25
+@export_range(0.5, 8.0, 0.1) var swim_speed: float = 3.2
+@export_range(0.5, 8.0, 0.1) var swim_vertical_speed: float = 2.4
 @export_range(0.5, 2.5, 0.05) var standing_height: float = 1.7
 @export_range(0.5, 2.0, 0.05) var crouching_height: float = 1.0
 @export_range(1.0, 30.0, 0.5) var sprint_acceleration: float = 9.0
@@ -26,6 +28,7 @@ var _sector_streamer: WorldSectorStreamer
 var _sprint_heading: float = 0.0
 var _sprint_momentum_active: bool = false
 var _walk_cycle: float = 0.0
+var _swimming: bool = false
 
 func get_walk_cycle() -> float:
 	return _walk_cycle
@@ -78,6 +81,14 @@ func _physics_process(delta: float) -> void:
 		input_vector.y += 1.0
 	if Input.is_key_pressed(KEY_S):
 		input_vector.y -= 1.0
+	_swimming = _is_submerged()
+	if _swimming:
+		_process_swimming(input_vector, delta)
+		_jump_requested = false
+		move_and_slide()
+		_update_movement_feedback(delta, crouching)
+		_sync_controlled_unit()
+		return
 	var vehicle_sprinting := _is_vehicle_sprinting(crouching, input_vector)
 	if vehicle_sprinting:
 		_process_vehicle_sprint(input_vector, delta)
@@ -92,6 +103,42 @@ func _physics_process(delta: float) -> void:
 	_jump_requested = false
 	move_and_slide()
 	_update_movement_feedback(delta, crouching)
+	if _sector_streamer != null:
+		global_position = _sector_streamer.clamp_world_position(global_position)
+	else:
+		var grid_manager := get_tree().get_first_node_in_group("grid_manager") as GridManager
+		var world_size := grid_manager.get_exploration_world_size() if grid_manager != null else Vector2(GridManager.GRID_WIDTH, GridManager.GRID_HEIGHT)
+		global_position.x = clampf(global_position.x, 0.0, world_size.x - 1.0)
+		global_position.z = clampf(global_position.z, 0.0, world_size.y - 1.0)
+	_sync_controlled_unit()
+
+
+func _process_swimming(input_vector: Vector2, delta: float) -> void:
+	_sprint_momentum_active = false
+	var forward := Vector3(-sin(view_yaw), 0.0, -cos(view_yaw))
+	var right := Vector3(cos(view_yaw), 0.0, -sin(view_yaw))
+	var direction := (right * input_vector.x + forward * input_vector.y).normalized()
+	velocity.x = move_toward(velocity.x, direction.x * swim_speed, delta * 7.0)
+	velocity.z = move_toward(velocity.z, direction.z * swim_speed, delta * 7.0)
+	var vertical_input := 0.0
+	if Input.is_key_pressed(KEY_SPACE):
+		vertical_input += 1.0
+	if Input.is_key_pressed(KEY_CTRL):
+		vertical_input -= 1.0
+	velocity.y = move_toward(velocity.y, vertical_input * swim_vertical_speed, delta * 5.0)
+
+
+func _is_submerged() -> bool:
+	var landscape := get_tree().get_first_node_in_group("solo_trail_landscape") as SoloTrailLandscape
+	if landscape == null:
+		return false
+	var surface := landscape.water_surface_height_at(global_position.x, global_position.z)
+	# Use immersion above the feet, not a percentage of eye height: this also
+	# works for the much taller ogre rig.
+	return surface > -INF and global_position.y + minf(current_camera_height * 0.18, 0.8) < surface
+
+
+func _sync_controlled_unit() -> void:
 	if _sector_streamer != null:
 		global_position = _sector_streamer.clamp_world_position(global_position)
 	else:

@@ -23,6 +23,11 @@ const TREE_DEFINITIONS: Array[Dictionary] = [
 ]
 const TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
+const GRASS_INSTANCE_COUNT: int = 14500
+const WATER_LEVEL: float = -1.7
+const WATER_SHADER: Shader = preload("res://world/terrain/shaders/solo_trail_water.gdshader")
+const GRASS_MESH: Mesh = preload("res://addons/simplegrasstextured/default_mesh.tres")
+const GRASS_MATERIAL: ShaderMaterial = preload("res://addons/simplegrasstextured/materials/grass.tres")
 
 var _grid_manager: GridManager
 var _rock_material: StandardMaterial3D
@@ -31,9 +36,11 @@ var _tree_meshes: Array[ArrayMesh] = []
 
 func setup(grid_manager: GridManager) -> void:
 	_grid_manager = grid_manager
+	add_to_group("solo_trail_landscape")
 	_rock_material = _create_rock_material()
 	_load_tree_meshes()
 	_create_river()
+	_scatter_grass_multimesh()
 	_scatter_rocks()
 	_scatter_tree_multimeshes()
 
@@ -42,19 +49,22 @@ func _create_river() -> void:
 	var vertices := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var uvs := PackedVector2Array()
-	const STEP := 4.0
+	const STEP := 2.0
 	const HALF_WIDTH := 4.2
-	for index: int in range(64):
+	for index: int in range(128):
 		var x0 := float(index) * STEP
 		var x1 := float(index + 1) * STEP
 		var z0 := _river_center(x0)
 		var z1 := _river_center(x1)
-		_append_water_vertex(vertices, normals, uvs, Vector3(x0, -2.15, z0 - HALF_WIDTH), Vector2(x0 / 16.0, 0.0))
-		_append_water_vertex(vertices, normals, uvs, Vector3(x1, -2.15, z1 - HALF_WIDTH), Vector2(x1 / 16.0, 0.0))
-		_append_water_vertex(vertices, normals, uvs, Vector3(x1, -2.15, z1 + HALF_WIDTH), Vector2(x1 / 16.0, 1.0))
-		_append_water_vertex(vertices, normals, uvs, Vector3(x0, -2.15, z0 - HALF_WIDTH), Vector2(x0 / 16.0, 0.0))
-		_append_water_vertex(vertices, normals, uvs, Vector3(x1, -2.15, z1 + HALF_WIDTH), Vector2(x1 / 16.0, 1.0))
-		_append_water_vertex(vertices, normals, uvs, Vector3(x0, -2.15, z0 + HALF_WIDTH), Vector2(x0 / 16.0, 1.0))
+		_append_water_quad(vertices, normals, uvs, Vector3(x0, WATER_LEVEL, z0), Vector3(x1, WATER_LEVEL, z1), HALF_WIDTH, x0 / 16.0, x1 / 16.0)
+	# The former dry ravine is now the river's flooded northern branch.
+	const BRANCH_STEP := 2.0
+	for index: int in range(59):
+		var z0 := 112.0 + float(index) * BRANCH_STEP
+		var z1 := z0 + BRANCH_STEP
+		var x0 := _ravine_center(z0)
+		var x1 := _ravine_center(z1)
+		_append_water_quad(vertices, normals, uvs, Vector3(x0, WATER_LEVEL, z0), Vector3(x1, WATER_LEVEL, z1), 3.15, z0 / 16.0, z1 / 16.0)
 	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
@@ -70,10 +80,59 @@ func _create_river() -> void:
 	add_child(river)
 
 
+func _append_water_quad(vertices: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array, start: Vector3, finish: Vector3, half_width: float, uv_start: float, uv_finish: float) -> void:
+	var sideways := Vector3(-(finish.z - start.z), 0.0, finish.x - start.x).normalized() * half_width
+	_append_water_vertex(vertices, normals, uvs, start - sideways, Vector2(uv_start, 0.0))
+	_append_water_vertex(vertices, normals, uvs, finish - sideways, Vector2(uv_finish, 0.0))
+	_append_water_vertex(vertices, normals, uvs, finish + sideways, Vector2(uv_finish, 1.0))
+	_append_water_vertex(vertices, normals, uvs, start - sideways, Vector2(uv_start, 0.0))
+	_append_water_vertex(vertices, normals, uvs, finish + sideways, Vector2(uv_finish, 1.0))
+	_append_water_vertex(vertices, normals, uvs, start + sideways, Vector2(uv_start, 1.0))
+
+
 func _append_water_vertex(vertices: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array, point: Vector3, uv: Vector2) -> void:
 	vertices.append(point)
 	normals.append(Vector3.UP)
 	uvs.append(uv)
+
+
+func _scatter_grass_multimesh() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 6_601_419
+	var transforms: Array[Transform3D] = []
+	var attempts: int = 0
+	while transforms.size() < GRASS_INSTANCE_COUNT and attempts < GRASS_INSTANCE_COUNT * 7:
+		attempts += 1
+		var x := rng.randf_range(4.0, 252.0)
+		var z := rng.randf_range(4.0, 252.0)
+		var height := _grid_manager.terrain_height(x, z)
+		var slope := _estimate_slope(x, z)
+		if height < 0.15 or height > 16.5 or slope > 0.28 or is_water_at(x, z):
+			continue
+		# Low-frequency fields form broad meadows, holes and isolated fringe blades.
+		var broad := sin(x * 0.055) * 0.32 + cos(z * 0.047) * 0.30 + sin((x + z) * 0.021) * 0.38
+		var fine := sin(x * 0.31 - z * 0.27) * 0.18
+		var density := clampf(0.48 + broad + fine, 0.04, 0.96)
+		if rng.randf() > density:
+			continue
+		var scale_y := rng.randf_range(0.62, 1.34) * lerpf(0.78, 1.12, density)
+		var scale_xz := rng.randf_range(0.72, 1.22)
+		var blade_basis := Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(scale_xz, scale_y, scale_xz))
+		transforms.append(Transform3D(blade_basis, Vector3(x, height + 0.025, z)))
+	var multimesh := MultiMesh.new()
+	multimesh.transform_format = MultiMesh.TRANSFORM_3D
+	multimesh.mesh = GRASS_MESH
+	multimesh.instance_count = transforms.size()
+	for index: int in range(transforms.size()):
+		multimesh.set_instance_transform(index, transforms[index])
+	var grass := MultiMeshInstance3D.new()
+	grass.name = "SimpleGrassTextured_Meadows"
+	grass.multimesh = multimesh
+	grass.material_override = GRASS_MATERIAL.duplicate(true) as ShaderMaterial
+	grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	grass.visibility_range_end = 78.0
+	grass.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+	add_child(grass)
 
 
 func _scatter_rocks() -> void:
@@ -152,8 +211,8 @@ func _scatter_tree_multimeshes() -> void:
 		var tree_basis := Basis(Vector3.UP, yaw) * Basis(Vector3.FORWARD, slight_tilt)
 		tree_basis = tree_basis.scaled(tree_scale)
 		var root_burial := clampf(target_height * 0.012, 0.10, 0.28)
-		var transform := Transform3D(tree_basis, Vector3(x, height - root_burial, z))
-		transforms_by_variant[variant].append(transform)
+		var tree_transform := Transform3D(tree_basis, Vector3(x, height - root_burial, z))
+		transforms_by_variant[variant].append(tree_transform)
 		accepted_points.append(point)
 		placed += 1
 	for variant: int in range(_tree_meshes.size()):
@@ -308,15 +367,25 @@ func _create_rock_material() -> StandardMaterial3D:
 	return material
 
 
-func _create_water_material() -> StandardMaterial3D:
-	var material := StandardMaterial3D.new()
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.albedo_color = Color(0.08, 0.34, 0.52, 0.78)
-	material.metallic = 0.18
-	material.roughness = 0.16
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+func _create_water_material() -> ShaderMaterial:
+	var material := ShaderMaterial.new()
+	material.shader = WATER_SHADER
 	return material
 
 
 func _river_center(x: float) -> float:
 	return 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
+
+
+func _ravine_center(z: float) -> float:
+	return 72.0 + sin(z * 0.052) * 5.0
+
+
+func is_water_at(x: float, z: float) -> bool:
+	if absf(z - _river_center(x)) <= 4.4:
+		return true
+	return z >= 110.0 and z <= 231.0 and absf(x - _ravine_center(z)) <= 3.4
+
+
+func water_surface_height_at(x: float, z: float) -> float:
+	return WATER_LEVEL if is_water_at(x, z) else -INF

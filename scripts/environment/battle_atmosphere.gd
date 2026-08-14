@@ -2,6 +2,8 @@ class_name BattleAtmosphere
 extends WorldEnvironment
 
 const MOON_DIRECTION := Vector3(-0.42, 0.48, -0.77)
+const SOLO_CLOUDS: CompositorEffect = preload("res://addons/SunshineClouds2/SunshineCloudsGDTestResource.tres")
+const CLOUD_DRIVER_SCRIPT: Script = preload("res://addons/SunshineClouds2/SunshineCloudsDriver.gd")
 
 @onready var sun: DirectionalLight3D = get_parent().get_node_or_null("Sun") as DirectionalLight3D
 
@@ -9,6 +11,7 @@ func _ready() -> void:
 	var session := get_node_or_null("/root/GameSession") as GameSessionState
 	if session != null and session.selected_map_id == "builtin:solo_trail":
 		_configure_sunny_environment()
+		_configure_medium_clouds()
 		return
 	_configure_moonlit_environment()
 	_configure_moon_light()
@@ -19,13 +22,13 @@ func _ready() -> void:
 func _configure_sunny_environment() -> void:
 	var env := environment.duplicate(true) as Environment if environment != null else Environment.new()
 	env.background_mode = Environment.BG_SKY
-	env.background_energy_multiplier = 1.05
+	env.background_energy_multiplier = 0.86
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_sky_contribution = 0.72
-	env.ambient_light_energy = 0.82
+	env.ambient_light_energy = 0.68
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	env.tonemap_mode = Environment.TONE_MAPPER_AGX
-	env.tonemap_exposure = 1.04
+	env.tonemap_exposure = 0.96
 	env.tonemap_agx_contrast = 1.08
 	env.ssao_enabled = true
 	env.ssao_radius = 2.0
@@ -46,13 +49,37 @@ func _configure_sunny_environment() -> void:
 	env.sky = sky
 	environment = env
 	if sun != null:
-		sun.rotation_degrees = Vector3(-48.0, -32.0, 0.0)
-		sun.light_color = Color(1.0, 0.94, 0.80)
-		sun.light_energy = 1.55
-		sun.light_indirect_energy = 0.85
+		sun.rotation_degrees = Vector3(-34.0, -38.0, 0.0)
+		sun.light_color = Color(1.0, 0.86, 0.68)
+		sun.light_energy = 1.18
+		sun.light_indirect_energy = 0.72
 		sun.shadow_enabled = true
 		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 		sun.directional_shadow_max_distance = 240.0
+
+
+func _configure_medium_clouds() -> void:
+	var clouds := SOLO_CLOUDS.duplicate(true) as CompositorEffect
+	clouds.set("clouds_coverage", 0.56)
+	clouds.set("clouds_density", 0.88)
+	clouds.set("clouds_sharpness", 0.72)
+	clouds.set("clouds_detail_strength", 0.72)
+	clouds.set("resolution_scale", 1)
+	clouds.set("max_step_count", 72.0)
+	clouds.set("accumulation_decay", 0.72)
+	var cloud_compositor := Compositor.new()
+	cloud_compositor.compositor_effects = [clouds]
+	compositor = cloud_compositor
+	var driver := Node.new()
+	driver.name = "SunshineCloudsDriver"
+	driver.set_script(CLOUD_DRIVER_SCRIPT)
+	driver.set("update_continuously", true)
+	driver.set("clouds_resource", clouds)
+	driver.set("ambience_sample_environment", environment)
+	driver.set("tracked_directional_lights", [sun] if sun != null else [])
+	driver.set("tracked_directional_light_shadow_steps", [24] if sun != null else [])
+	driver.set("wind_direction", Vector3(0.7, 0.0, 0.25))
+	add_child(driver)
 
 func _darken_play_map_lighting() -> void:
 	if environment != null:

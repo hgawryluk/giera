@@ -511,11 +511,12 @@ func _solo_trail_height(x: float, z: float) -> float:
 	var river_center := 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
 	var river_weight := 1.0 - smoothstep(4.5, 11.0, absf(z - river_center))
 	height = lerpf(height, -2.8 + absf(z - river_center) * 0.12, river_weight)
-	# A narrow, dry ravine branches northward from the river.
+	# A narrow flooded canyon branches northward from the river.
 	var ravine_x := 72.0 + sin(z * 0.052) * 5.0
 	var ravine_extent := smoothstep(92.0, 116.0, z) * (1.0 - smoothstep(211.0, 230.0, z))
 	var ravine_weight := (1.0 - smoothstep(2.5, 8.5, absf(x - ravine_x))) * ravine_extent
-	height -= ravine_weight * 11.5
+	var canyon_floor := -2.9 + absf(x - ravine_x) * 0.13
+	height = lerpf(height, canyon_floor, ravine_weight)
 	return height
 
 func _height_peak(point: Vector2, center: Vector2, amplitude: float, radius: float) -> float:
