@@ -18,6 +18,9 @@ const PLAYER_COLORS: Array[Color] = [
 ]
 
 @onready var round_label: Label = %RoundLabel
+@onready var initiative_bar: PanelContainer = $InitiativeBar
+@onready var status_panel: PanelContainer = $StatusPanel
+@onready var details_panel: PanelContainer = $DetailsPanel
 @onready var active_label: Label = %ActiveLabel
 @onready var phase_label: Label = %PhaseLabel
 @onready var initiative_cards: HBoxContainer = %InitiativeCards
@@ -39,6 +42,7 @@ var _enemy_panel: PanelContainer
 var _enemy_name_label: Label
 var _enemy_hp_bar: ProgressBar
 var _enemy_hp_label: Label
+var _crosshair: Panel
 
 func _ready() -> void:
 	end_turn_button.pressed.connect(_request_end_turn)
@@ -47,6 +51,24 @@ func _ready() -> void:
 	details_label.text = "Brak zaznaczonej jednostki"
 	_update_action_point_dots(null)
 	_build_enemy_panel()
+	_build_crosshair()
+
+
+func _build_crosshair() -> void:
+	_crosshair = Panel.new()
+	_crosshair.name = "FirstPersonCrosshair"
+	_crosshair.custom_minimum_size = Vector2(6.0, 6.0)
+	_crosshair.set_anchors_preset(Control.PRESET_CENTER)
+	_crosshair.position = Vector2(-3.0, -3.0)
+	_crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var dot_style := StyleBoxFlat.new()
+	dot_style.bg_color = Color(1.0, 1.0, 1.0, 0.96)
+	dot_style.set_corner_radius_all(3)
+	dot_style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
+	dot_style.shadow_size = 1
+	_crosshair.add_theme_stylebox_override("panel", dot_style)
+	_crosshair.visible = false
+	add_child(_crosshair)
 
 func _build_enemy_panel() -> void:
 	var details_vbox := details_label.get_parent()
@@ -148,8 +170,13 @@ func set_active_unit(unit: TacticalUnit, can_end_turn: bool = false, phase_text:
 
 func set_exploration_mode(enabled: bool) -> void:
 	_exploration_mode = enabled
+	initiative_bar.visible = not enabled
+	status_panel.visible = not enabled
+	details_panel.visible = not enabled
 	end_turn_button.disabled = enabled or not _can_end_active_turn or _active_unit == null or _active_unit.has_finished_turn
 	skill_bar.visible = not enabled and _active_unit != null and not _active_unit.abilities.is_empty()
+	if _crosshair != null:
+		_crosshair.visible = enabled
 
 func _rebuild_skill_bar() -> void:
 	for child: Node in skill_buttons.get_children():

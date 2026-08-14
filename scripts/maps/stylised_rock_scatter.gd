@@ -16,11 +16,13 @@ const WATER_LEVEL: float = -1.7
 var _grid_manager: GridManager
 var _meshes: Array[Mesh] = []
 var _grass_clearances: Array[Vector3] = []
+var _collision_candidates: Array[Dictionary] = []
 
 
 func setup(grid_manager: GridManager) -> void:
 	_grid_manager = grid_manager
 	_grass_clearances.clear()
+	_collision_candidates.clear()
 	_load_collection_meshes()
 	if _meshes.is_empty():
 		push_warning("StylisedRockScatter: imported collection contains no usable meshes")
@@ -155,6 +157,12 @@ func _append_rock(rng: RandomNumberGenerator, batches: Array[Array], x: float, z
 	var burial := target_height * (0.12 + clampf(slope, 0.0, 1.0) * 0.10)
 	var height := _grid_manager.terrain_height(x, z) if is_nan(height_override) else height_override
 	batches[mesh_index].append(Transform3D(rock_basis, Vector3(x, height - burial, z)))
+	if target_height >= 1.35:
+		_collision_candidates.append({
+			"position": Vector3(x, height - burial, z),
+			"radius": maxf(0.55, target_height * width_ratio * 0.46),
+			"height": target_height * 0.82,
+		})
 	# Grass cards intersecting an opaque boulder look as if they were rendered
 	# through it. Keep the meadow dense, but reserve only the actual footprint
 	# (plus a very small natural margin) of every generated rock.
@@ -188,6 +196,10 @@ func _create_batch(mesh_index: int, transforms: Array) -> void:
 
 func get_grass_clearances() -> Array[Vector3]:
 	return _grass_clearances.duplicate()
+
+
+func get_collision_candidates() -> Array[Dictionary]:
+	return _collision_candidates.duplicate(true)
 
 
 func _can_place(x: float, z: float, max_slope: float, water_margin: float) -> bool:

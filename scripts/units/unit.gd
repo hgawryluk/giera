@@ -174,6 +174,18 @@ func get_first_person_skin_color() -> Color:
 		return _definition_color.lerp(Color(0.56, 0.34, 0.22), 0.48)
 	return Color(0.50, 0.29, 0.18)
 
+
+func create_first_person_visual() -> Node3D:
+	var source := _definition_visual_scene
+	if source == null:
+		return null
+	var model := source.instantiate() as Node3D
+	if model == null:
+		return null
+	model.scale = Vector3.ONE * _definition_scale
+	model.rotation_degrees = _definition_visual_rotation
+	return model
+
 func set_first_person_body_hidden(hidden: bool) -> void:
 	if _visual_root != null and _visual_root != self:
 		_visual_root.visible = not hidden

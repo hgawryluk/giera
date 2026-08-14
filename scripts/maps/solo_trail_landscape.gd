@@ -40,11 +40,13 @@ const GRASS_TEXTURES: Array[Texture2D] = [
 	preload("res://assets/environment/grass_textures/realtime/textures/Plate3.png"),
 ]
 const STYLISED_ROCK_SCATTER: Script = preload("res://scripts/maps/stylised_rock_scatter.gd")
+const PROXIMITY_COLLISIONS: Script = preload("res://scripts/maps/proximity_obstacle_collisions.gd")
 
 var _grid_manager: GridManager
 var _tree_meshes: Array[ArrayMesh] = []
 var _bush_meshes: Array[ArrayMesh] = []
 var _rock_grass_clearance_grid: Dictionary = {}
+var _tree_collision_candidates: Array[Dictionary] = []
 
 
 func setup(grid_manager: GridManager) -> void:
@@ -61,6 +63,10 @@ func setup(grid_manager: GridManager) -> void:
 	_scatter_grass_multimesh()
 	_scatter_tree_multimeshes()
 	_scatter_bush_multimeshes()
+	var proximity_collisions := PROXIMITY_COLLISIONS.new() as Node3D
+	proximity_collisions.name = "ProximityObstacleCollisions"
+	add_child(proximity_collisions)
+	proximity_collisions.call("setup", _tree_collision_candidates, stylised_rocks.call("get_collision_candidates"))
 
 
 func _create_river() -> void:
@@ -327,6 +333,11 @@ func _scatter_tree_multimeshes() -> void:
 		var root_burial := clampf(target_height * 0.012, 0.10, 0.28)
 		var tree_transform := Transform3D(tree_basis, Vector3(x, height - root_burial, z))
 		transforms_by_variant[variant].append(tree_transform)
+		_tree_collision_candidates.append({
+			"position": Vector3(x, height, z),
+			"radius": clampf(target_height * 0.052, 0.42, 1.35),
+			"height": target_height * 0.72,
+		})
 		accepted_points.append(point)
 		placed += 1
 	for variant: int in range(_tree_meshes.size()):
@@ -556,6 +567,11 @@ func _load_obj_mesh(definition: Dictionary) -> ArrayMesh:
 						_append_obj_corner(surface, parts[1], vertices, texcoords, normals)
 						_append_obj_corner(surface, parts[triangle_index + 1], vertices, texcoords, normals)
 						_append_obj_corner(surface, parts[triangle_index + 2], vertices, texcoords, normals)
+						if current_material == "leaves":
+							var crown_rotation := Basis(Vector3.UP, PI * 0.5)
+							_append_obj_corner(surface, parts[1], vertices, texcoords, normals, crown_rotation)
+							_append_obj_corner(surface, parts[triangle_index + 1], vertices, texcoords, normals, crown_rotation)
+							_append_obj_corner(surface, parts[triangle_index + 2], vertices, texcoords, normals, crown_rotation)
 	var mesh := ArrayMesh.new()
 	for material_name: String in ["bark", "leaves"]:
 		if not surfaces.has(material_name):
@@ -575,7 +591,7 @@ func _get_obj_surface(surfaces: Dictionary[String, SurfaceTool], material_name: 
 	return surfaces[material_name] as SurfaceTool
 
 
-func _append_obj_corner(surface: SurfaceTool, token: String, vertices: Array[Vector3], texcoords: Array[Vector2], normals: Array[Vector3]) -> void:
+func _append_obj_corner(surface: SurfaceTool, token: String, vertices: Array[Vector3], texcoords: Array[Vector2], normals: Array[Vector3], transform_basis: Basis = Basis.IDENTITY) -> void:
 	var indices := token.split("/", true)
 	var vertex_index := int(indices[0]) - 1
 	var uv_index := int(indices[1]) - 1 if indices.size() > 1 and not indices[1].is_empty() else -1
@@ -583,9 +599,9 @@ func _append_obj_corner(surface: SurfaceTool, token: String, vertices: Array[Vec
 	if uv_index >= 0 and uv_index < texcoords.size():
 		surface.set_uv(texcoords[uv_index])
 	if normal_index >= 0 and normal_index < normals.size():
-		surface.set_normal(normals[normal_index])
+		surface.set_normal((transform_basis * normals[normal_index]).normalized())
 	if vertex_index >= 0 and vertex_index < vertices.size():
-		surface.add_vertex(vertices[vertex_index])
+		surface.add_vertex(transform_basis * vertices[vertex_index])
 
 
 func _create_tree_material(texture_path: String, transparent: bool) -> StandardMaterial3D:
@@ -602,7 +618,7 @@ func _create_tree_material(texture_path: String, transparent: bool) -> StandardM
 	material.proximity_fade_enabled = false
 	if transparent:
 		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
-		material.alpha_scissor_threshold = 0.42
+		material.alpha_scissor_threshold = 0.24
 		material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	return material
 
