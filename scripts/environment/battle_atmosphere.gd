@@ -22,17 +22,23 @@ func _ready() -> void:
 func _configure_sunny_environment() -> void:
 	var env := environment.duplicate(true) as Environment if environment != null else Environment.new()
 	env.background_mode = Environment.BG_SKY
-	env.background_energy_multiplier = 0.86
+	env.background_energy_multiplier = 0.80
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_sky_contribution = 0.72
-	env.ambient_light_energy = 0.68
+	env.ambient_light_sky_contribution = 0.58
+	env.ambient_light_energy = 0.56
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	env.tonemap_mode = Environment.TONE_MAPPER_AGX
-	env.tonemap_exposure = 0.96
+	env.tonemap_exposure = 0.92
 	env.tonemap_agx_contrast = 1.08
 	env.ssao_enabled = true
-	env.ssao_radius = 2.0
-	env.ssao_intensity = 1.35
+	env.ssao_radius = 4.0
+	env.ssao_intensity = 1.12
+	env.ssao_power = 1.25
+	env.ssao_light_affect = 0.48
+	env.ssao_ao_channel_affect = 0.65
+	env.ssil_enabled = true
+	env.ssil_radius = 7.0
+	env.ssil_intensity = 0.68
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.72, 0.82, 0.92)
 	env.fog_light_energy = 0.65
@@ -50,12 +56,16 @@ func _configure_sunny_environment() -> void:
 	environment = env
 	if sun != null:
 		sun.rotation_degrees = Vector3(-34.0, -38.0, 0.0)
-		sun.light_color = Color(1.0, 0.86, 0.68)
-		sun.light_energy = 1.18
-		sun.light_indirect_energy = 0.72
+		sun.light_color = Color(1.0, 0.91, 0.79)
+		sun.light_energy = 0.96
+		sun.light_indirect_energy = 0.68
 		sun.shadow_enabled = true
 		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 		sun.directional_shadow_max_distance = 240.0
+		sun.shadow_blur = 3.5
+		sun.light_angular_distance = 0.45
+		sun.shadow_bias = 0.035
+		sun.shadow_normal_bias = 0.65
 
 
 func _configure_medium_clouds() -> void:

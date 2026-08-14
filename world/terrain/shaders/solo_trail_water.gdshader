@@ -36,12 +36,16 @@ void vertex() {
 }
 
 void fragment() {
-	float e = 0.22;
+	float e = 0.12;
 	float slow_time = TIME * flow_speed;
-	float h = waves(world_position.xz * 0.31, slow_time) * 0.72 + waves(world_position.xz * 0.73 + vec2(9.1, 3.7), -slow_time * 0.63) * 0.28;
-	float hx = waves((world_position.xz + vec2(e, 0.0)) * 0.31, slow_time) * 0.72 + waves((world_position.xz + vec2(e, 0.0)) * 0.73 + vec2(9.1, 3.7), -slow_time * 0.63) * 0.28;
-	float hz = waves((world_position.xz + vec2(0.0, e)) * 0.31, slow_time) * 0.72 + waves((world_position.xz + vec2(0.0, e)) * 0.73 + vec2(9.1, 3.7), -slow_time * 0.63) * 0.28;
-	vec3 detail_normal = normalize(vec3((h - hx) * 1.8, 1.0, (h - hz) * 1.8));
+	float h = waves(world_position.xz * 0.24, slow_time) * wave_height;
+	float hx = waves((world_position.xz + vec2(e, 0.0)) * 0.24, slow_time) * wave_height;
+	float hz = waves((world_position.xz + vec2(0.0, e)) * 0.24, slow_time) * wave_height;
+	vec3 geometric_normal = normalize(vec3((h - hx) / e, 1.0, (h - hz) / e));
+	float detail_h = waves(world_position.xz * 0.73 + vec2(9.1, 3.7), -slow_time * 0.63);
+	float detail_hx = waves((world_position.xz + vec2(e, 0.0)) * 0.73 + vec2(9.1, 3.7), -slow_time * 0.63);
+	float detail_hz = waves((world_position.xz + vec2(0.0, e)) * 0.73 + vec2(9.1, 3.7), -slow_time * 0.63);
+	vec3 detail_normal = normalize(geometric_normal + vec3((detail_h - detail_hx) * 0.18, 0.0, (detail_h - detail_hz) * 0.18));
 
 	float scene_depth = texture(depth_texture, SCREEN_UV).r;
 	vec4 view_position = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, scene_depth, 1.0);
@@ -53,11 +57,13 @@ void fragment() {
 	vec2 distortion = detail_normal.xz * refraction_strength * (0.25 + water_depth * 0.75);
 	vec3 refracted = textureLod(screen_texture, SCREEN_UV + distortion, 0.0).rgb;
 	vec3 water_color = mix(shallow_color, deep_color, smoothstep(0.08, 0.85, water_depth));
-	float fresnel = pow(1.0 - clamp(dot(normalize(VIEW), detail_normal), 0.0, 1.0), 4.0);
+	vec3 view_normal = normalize((VIEW_MATRIX * vec4(detail_normal, 0.0)).xyz);
+	float fresnel = pow(1.0 - clamp(dot(normalize(VIEW), view_normal), 0.0, 1.0), 5.0);
 	ALBEDO = mix(refracted, water_color, 0.48 + water_depth * 0.33 + fresnel * 0.12);
 	ALBEDO = mix(ALBEDO, foam_color, broken_edge * 0.48);
-	NORMAL = detail_normal;
-	ROUGHNESS = 0.085 + broken_edge * 0.31;
+	NORMAL = view_normal;
+	ROUGHNESS = 0.20 + broken_edge * 0.32;
+	SPECULAR = 0.45;
 	METALLIC = 0.0;
-	ALPHA = clamp(0.68 + water_depth * 0.22 + fresnel * 0.08, 0.0, 0.96);
+	ALPHA = clamp(0.76 + water_depth * 0.18 + fresnel * 0.05, 0.0, 0.96);
 }

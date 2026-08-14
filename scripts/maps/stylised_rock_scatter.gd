@@ -99,7 +99,7 @@ func _scatter_riverbanks(rng: RandomNumberGenerator, batches: Array[Array]) -> v
 			z = _river_center(x) + river_side * (rng.randf_range(5.8, 7.1) if semi_submerged else rng.randf_range(9.0, 14.2))
 		# Keep the ford readable and traversable instead of building a rock wall
 		# across the authored route.
-		if _trail_distance(x, z) < 5.8:
+		if _trail_distance(x, z) < 7.5:
 			continue
 		if not semi_submerged and not _can_place(x, z, 0.72, 0.08):
 			continue
@@ -149,6 +149,12 @@ func _scatter_landmarks(rng: RandomNumberGenerator, batches: Array[Array]) -> vo
 
 
 func _append_rock(rng: RandomNumberGenerator, batches: Array[Array], x: float, z: float, target_height: float, width_ratio: float, height_override: float = NAN) -> void:
+	# Enforce route clearance centrally so trail-edge, riverbank and landmark
+	# scatter passes cannot accidentally place an obstacle on either road.
+	# Scale the margin for landmarks as their footprint can be several metres
+	# wide even when the origin itself sits outside the road mask.
+	if _trail_distance(x, z) < 7.5 + target_height * 0.5:
+		return
 	var mesh_index := rng.randi_range(0, _meshes.size() - 1)
 	var bounds := _meshes[mesh_index].get_aabb()
 	var uniform_scale := target_height / maxf(bounds.size.y, 0.01)

@@ -265,6 +265,8 @@ func _create_grass_batch(variant: int, chunk_index: int, transforms: Array) -> v
 	grass.set("scale_var", -0.22)
 	grass.set("grass_strength", 0.48)
 	grass.set("alpha_scissor_threshold", 0.30)
+	grass.set("roughness", 1.0)
+	grass.set("specular", 0.0)
 	grass.set("light_mode", 1)
 	grass.set("interactive", false)
 	# The plugin's distance dither discards different instances while the
@@ -308,6 +310,8 @@ func _scatter_tree_multimeshes() -> void:
 		var max_slope := 0.52 if is_large_forest_tree else 0.34
 		var max_height := 38.0 if is_large_forest_tree else 17.0
 		if slope > max_slope or height > max_height or height < 0.5:
+			continue
+		if _trail_distance(x, z) < 8.5:
 			continue
 		if river_distance < 13.0 or (z > 105.0 and z < 228.0 and absf(x - ravine_x) < 13.0):
 			continue

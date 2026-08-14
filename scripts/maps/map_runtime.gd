@@ -13,6 +13,7 @@ const ASSETS: Dictionary[String, String] = {
 const OBSTACLE_TYPES: Array[String] = ["purple_tree_1", "purple_tree_2", "purple_tree_3", "large_tree"]
 const ROAD_OGRE_SCRIPT := preload("res://scripts/world/road_ogre_walker.gd")
 const SOLO_TRAIL_LANDSCAPE_SCRIPT := preload("res://scripts/maps/solo_trail_landscape.gd")
+const LONG_WOOD_BRIDGE_SCRIPT := preload("res://scripts/maps/long_wood_bridge.gd")
 
 @export var grid_manager: GridManager
 @export var decorator: Node3D
@@ -35,6 +36,10 @@ func _apply_selected_map() -> void:
 		landscape.name = "SoloTrailLandscape"
 		add_child(landscape)
 		landscape.setup(grid_manager)
+		var bridge := LONG_WOOD_BRIDGE_SCRIPT.new() as LongWoodBridge
+		bridge.name = "MainRiverTrailBridge"
+		add_child(bridge)
+		bridge.setup(grid_manager)
 		var roaming_ogre := ROAD_OGRE_SCRIPT.new() as RoadOgreWalker
 		roaming_ogre.name = "GiantPathOgre"
 		add_child(roaming_ogre)

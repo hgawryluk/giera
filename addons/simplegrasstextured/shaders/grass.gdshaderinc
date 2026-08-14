@@ -157,6 +157,9 @@ void vertex() {
 
 
 void light() {
+	// Grass blades are matte dielectrics. Explicitly suppress per-light
+	// highlights so alpha-card normals cannot flash white in deep shade.
+	SPECULAR_LIGHT = vec3(0.0);
 	switch(light_mode) {
 	case 0: // Lambert
 		DIFFUSE_LIGHT += clamp(dot(NORMAL, LIGHT), 0.0, 1.0) * ATTENUATION * 0.3 * LIGHT_COLOR;
@@ -186,7 +189,7 @@ void fragment() {
 	float metallic_tex = dot(texture(texture_metallic, uv), metallic_texture_channel);
 	METALLIC = metallic_tex * metallic;
 	float roughness_tex = dot(texture(texture_roughness, uv), roughness_texture_channel);
-	ROUGHNESS = roughness_tex * roughness;
+	ROUGHNESS = max(roughness_tex * roughness, 0.88);
 	ALPHA *= albedo.a * albedo_tex.a;
 	ALPHA_SCISSOR_THRESHOLD = alpha_scissor_threshold;
 }

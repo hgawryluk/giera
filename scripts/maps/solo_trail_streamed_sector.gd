@@ -2,9 +2,12 @@ class_name SoloTrailStreamedSector
 extends Node3D
 
 const SIZE: float = 256.0
-const CELLS: int = 64
+# The authored center mesh samples every metre. Matching that resolution is
+# required at its borders: a four-metre streamed edge only shares every fourth
+# vertex and leaves visible gaps along the nonlinear height profile.
+const CELLS: int = 256
 const WATER_LEVEL: float = -1.7
-const TREE_COUNT: int = 90
+const TREE_COUNT: int = 300
 const GRASS_COUNT: int = 2400
 const ROCK_COUNT: int = 32
 const TREE_MESHES: Array[Mesh] = [
@@ -24,7 +27,9 @@ var _grid_manager: GridManager
 func configure(sector_coordinate: Vector2i, grid_manager: GridManager) -> void:
 	coordinate = sector_coordinate
 	_grid_manager = grid_manager
-	position = Vector3(float(coordinate.x) * SIZE, 0.0, float(coordinate.y) * SIZE)
+	# The authored center terrain spans -0.5..255.5. Using the same half-cell
+	# origin makes every streamed mesh share its boundary vertices exactly.
+	position = Vector3(float(coordinate.x) * SIZE - 0.5, 0.0, float(coordinate.y) * SIZE - 0.5)
 	name = "SoloTrailSector_%d_%d" % [coordinate.x, coordinate.y]
 
 
@@ -42,6 +47,9 @@ func _build_terrain() -> void:
 	for vertex_z: int in range(CELLS + 1):
 		for vertex_x: int in range(CELLS + 1):
 			var point := _terrain_point(float(vertex_x) * step, float(vertex_z) * step)
+			var global_x := global_position.x + point.x
+			var global_z := global_position.z + point.z
+			surface.set_normal(_terrain_normal(global_x, global_z))
 			surface.set_uv(Vector2(point.x, point.z) / 8.0)
 			surface.add_vertex(point)
 	for cell_z: int in range(CELLS):
@@ -52,7 +60,6 @@ func _build_terrain() -> void:
 			var bottom_right := bottom_left + 1
 			for index: int in [top_left, top_right, bottom_right, top_left, bottom_right, bottom_left]:
 				surface.add_index(index)
-	surface.generate_normals()
 	var mesh := surface.commit()
 	var terrain := MeshInstance3D.new()
 	terrain.name = "StreamedTerrain"
@@ -77,11 +84,19 @@ func _terrain_point(local_x: float, local_z: float) -> Vector3:
 	return Vector3(local_x, _grid_manager.terrain_height(global_x, global_z), local_z)
 
 
+func _terrain_normal(global_x: float, global_z: float) -> Vector3:
+	# Identical sampling to GridManager's authored center mesh prevents a
+	# lighting discontinuity even though streamed vertices are indexed.
+	var dx := _grid_manager.terrain_height(global_x - 0.2, global_z) - _grid_manager.terrain_height(global_x + 0.2, global_z)
+	var dz := _grid_manager.terrain_height(global_x, global_z - 0.2) - _grid_manager.terrain_height(global_x, global_z + 0.2)
+	return Vector3(dx, 0.4, dz).normalized()
+
+
 func _build_water() -> void:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var origin_x := float(coordinate.x) * SIZE
-	var origin_z := float(coordinate.y) * SIZE
+	var origin_x := global_position.x
+	var origin_z := global_position.z
 	for index: int in range(128):
 		var gx0 := origin_x + float(index) * 2.0
 		var gx1 := gx0 + 2.0
@@ -142,11 +157,11 @@ func _build_decorations() -> void:
 	var rocks: Array[Transform3D] = []
 	var tree_collisions: Array[Dictionary] = []
 	var rock_collisions: Array[Dictionary] = []
-	for _index: int in range(TREE_COUNT * 4):
+	for _index: int in range(TREE_COUNT * 200):
 		if trees[0].size() + trees[1].size() >= TREE_COUNT:
 			break
 		var p := _random_global_point(rng)
-		if not _can_decorate(p, 7.0, 0.48):
+		if not _can_decorate(p, 8.5, 0.72):
 			continue
 		var variant := rng.randi_range(0, 1)
 		var bounds := TREE_MESHES[variant].get_aabb()
@@ -163,7 +178,7 @@ func _build_decorations() -> void:
 		grass.append(Transform3D(Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(scale_value, scale_value, scale_value)), Vector3(p.x - global_position.x, _grid_manager.terrain_height(p.x, p.y) + 0.02, p.y - global_position.z)))
 	for _index: int in range(ROCK_COUNT):
 		var p := _random_global_point(rng)
-		if _grid_manager.solo_trail_path_distance(p.x, p.y) < 5.5:
+		if _grid_manager.solo_trail_path_distance(p.x, p.y) < 7.5:
 			continue
 		var scale_value := rng.randf_range(0.5, 2.3)
 		var ground := _grid_manager.terrain_height(p.x, p.y)
@@ -178,6 +193,9 @@ func _build_decorations() -> void:
 	grass_material.alpha_scissor_threshold = 0.28
 	grass_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	grass_material.albedo_color = Color(0.73, 0.76, 0.54)
+	grass_material.roughness = 1.0
+	grass_material.metallic = 0.0
+	grass_material.metallic_specular = 0.0
 	_add_multimesh("StreamedGrass", GRASS_MESH, grass, false, grass_material)
 	var rock_mesh := SphereMesh.new()
 	rock_mesh.radius = 0.75
