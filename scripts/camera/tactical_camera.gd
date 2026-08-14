@@ -89,7 +89,7 @@ func _input(event: InputEvent) -> void:
 			else:
 				_is_panning = mouse_button.pressed and _is_ground_under_cursor(mouse_button.position)
 			get_viewport().set_input_as_handled()
-	elif event is InputEventMouseMotion and (_is_rotating or _is_panning):
+	elif event is InputEventMouseMotion and (_first_person_mode or _is_rotating or _is_panning):
 		var mouse_motion := event as InputEventMouseMotion
 		if _first_person_mode:
 			_look_around_first_person(mouse_motion.relative)
@@ -107,6 +107,7 @@ func _toggle_camera_mode() -> void:
 
 func _enter_first_person() -> void:
 	_first_person_mode = true
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_is_panning = false
 	_is_rotating = false
 	var horizontal_forward := board_center - position
@@ -133,6 +134,7 @@ func _leave_first_person() -> void:
 	if _active_unit != null and is_instance_valid(_active_unit):
 		_active_unit.set_first_person_body_hidden(false)
 	_first_person_mode = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_is_rotating = false
 	_spotted_mobs.clear()
 	_set_torch_visibility()
