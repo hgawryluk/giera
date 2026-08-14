@@ -25,6 +25,8 @@ const TREE_COUNT: int = 300
 const BASE_TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
 const GRASS_INSTANCE_COUNT: int = 68000
+# Fine sectors matter for alpha vegetation: they prevent thousands of hidden
+# cards behind the camera from surviving as part of one oversized AABB.
 const VEGETATION_CHUNK_SIZE: float = 32.0
 const VEGETATION_CHUNKS_PER_AXIS: int = 8
 const VEGETATION_CHUNK_COUNT: int = VEGETATION_CHUNKS_PER_AXIS * VEGETATION_CHUNKS_PER_AXIS
@@ -263,8 +265,8 @@ func _create_grass_batch(variant: int, chunk_index: int, transforms: Array) -> v
 	# camera moves. On this procedural MultiMesh it looked like random popping.
 	grass.set("optimization_by_distance", false)
 	grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	grass.visibility_range_end = 105.0
-	grass.visibility_range_end_margin = 18.0
+	grass.visibility_range_end = 76.0
+	grass.visibility_range_end_margin = 14.0
 	grass.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(grass)
 	grass.call_deferred("recalculate_custom_aabb")
@@ -438,10 +440,12 @@ func _create_bush_batch(variant: int, chunk_index: int, transforms: Array) -> vo
 	batch.name = "BushMultiMesh_%d_%02d" % [variant + 1, chunk_index]
 	batch.position = chunk_center
 	batch.multimesh = multimesh
-	batch.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	# Alpha-tested understorey shadows were a disproportionate GPU cost while
+	# moving through dense vegetation. Trees still provide the dominant shadow.
+	batch.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	batch.gi_mode = GeometryInstance3D.GI_MODE_STATIC
-	batch.visibility_range_end = 145.0
-	batch.visibility_range_end_margin = 22.0
+	batch.visibility_range_end = 112.0
+	batch.visibility_range_end_margin = 18.0
 	batch.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	add_child(batch)
 
@@ -589,6 +593,13 @@ func _create_tree_material(texture_path: String, transparent: bool) -> StandardM
 	material.albedo_texture = load(texture_path) as Texture2D
 	material.roughness = 0.86
 	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	# Imported foliage must remain world-aligned. Explicit settings prevent an
+	# inherited/imported camera-facing or distance-fade mode from making whole
+	# crowns appear to rotate while the player strafes.
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_DISABLED
+	material.billboard_keep_scale = false
+	material.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_DISABLED
+	material.proximity_fade_enabled = false
 	if transparent:
 		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
 		material.alpha_scissor_threshold = 0.42
