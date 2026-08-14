@@ -21,7 +21,8 @@ const TREE_DEFINITIONS: Array[Dictionary] = [
 		"leaves": "res://assets/environment/tree_packs/tree_02/Tree 02/DB2X2_L01.png",
 	},
 ]
-const TREE_COUNT: int = 100
+const TREE_COUNT: int = 300
+const BASE_TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
 const GRASS_INSTANCE_COUNT: int = 32000
 const WATER_LEVEL: float = -1.7
@@ -113,10 +114,12 @@ func _scatter_grass_multimesh() -> void:
 		var water_distance := _waterway_distance(x, z)
 		var meadow_factor := 1.0 - smoothstep(0.08, 0.28, slope)
 		meadow_factor *= 1.0 - smoothstep(12.0, 16.5, height)
+		var forest_hill_factor := 1.0 - smoothstep(38.0, 82.0, Vector2(x, z).distance_to(Vector2(208.0, 54.0)))
 		# Low-frequency fields form broad meadows and natural empty pockets.
 		var broad := sin(x * 0.055) * 0.32 + cos(z * 0.047) * 0.30 + sin((x + z) * 0.021) * 0.38
 		var fine := sin(x * 0.31 - z * 0.27) * 0.18
 		var density := clampf(0.52 + broad + fine, 0.03, 0.97) * lerpf(0.18, 1.0, meadow_factor)
+		density *= lerpf(1.0, 0.18, forest_hill_factor)
 		# Density fades towards water. The narrow bank band keeps only isolated,
 		# slightly slimmer tufts instead of an artificial clean strip.
 		var bank_tuft := water_distance < 9.0
@@ -146,9 +149,10 @@ func _scatter_grass_multimesh() -> void:
 	grass.multimesh = multimesh
 	grass.set("texture_albedo", GRASS_TEXTURE)
 	grass.set("albedo", Color(0.43, 0.54, 0.29))
-	# Large meadow clumps: roughly seven times the previous card dimensions.
-	grass.set("scale_h", 2.80)
-	grass.set("scale_w", 1.61)
+	# Taller than the original plugin grass, but clearly smaller than the
+	# oversized previous pass. Per-instance transforms add natural variation.
+	grass.set("scale_h", 1.35)
+	grass.set("scale_w", 0.72)
 	grass.set("scale_var", -0.16)
 	grass.set("grass_strength", 0.66)
 	grass.set("alpha_scissor_threshold", 0.38)
@@ -207,28 +211,43 @@ func _scatter_tree_multimeshes() -> void:
 	var accepted_points: Array[Vector2] = []
 	var placed: int = 0
 	var attempts: int = 0
-	while placed < TREE_COUNT and attempts < 5000:
+	while placed < TREE_COUNT and attempts < 18000:
 		attempts += 1
-		var x := rng.randf_range(9.0, 247.0)
-		var z := rng.randf_range(9.0, 247.0)
+		var is_large_forest_tree := placed >= BASE_TREE_COUNT
+		var x: float
+		var z: float
+		if is_large_forest_tree and rng.randf() < 0.68:
+			var angle := rng.randf_range(0.0, TAU)
+			var radius := sqrt(rng.randf()) * rng.randf_range(18.0, 66.0)
+			x = 208.0 + cos(angle) * radius * 1.08
+			z = 54.0 + sin(angle) * radius * 0.78
+		else:
+			x = rng.randf_range(9.0, 247.0)
+			z = rng.randf_range(9.0, 247.0)
 		var point := Vector2(x, z)
+		if x < 8.0 or x > 248.0 or z < 8.0 or z > 248.0:
+			continue
 		var height := _grid_manager.terrain_height(x, z)
 		var slope := _estimate_slope(x, z)
 		var river_distance := absf(z - _river_center(x))
 		var ravine_x := 72.0 + sin(z * 0.052) * 5.0
-		if slope > 0.34 or height > 17.0 or height < 0.5:
+		var max_slope := 0.52 if is_large_forest_tree else 0.34
+		var max_height := 38.0 if is_large_forest_tree else 17.0
+		if slope > max_slope or height > max_height or height < 0.5:
 			continue
 		if river_distance < 13.0 or (z > 105.0 and z < 228.0 and absf(x - ravine_x) < 13.0):
 			continue
-		if point.distance_to(Vector2(130.0, 150.0)) < 34.0:
+		if point.distance_to(Vector2(130.0, 150.0)) < (28.0 if is_large_forest_tree else 34.0):
 			continue
-		if _is_too_close_to_tree(point, accepted_points, 4.6):
+		if _is_too_close_to_tree(point, accepted_points, 3.2 if is_large_forest_tree else 4.6):
 			continue
 		var variant := rng.randi_range(0, _tree_meshes.size() - 1)
 		var mesh_bounds := _tree_meshes[variant].get_aabb()
 		var source_height := maxf(mesh_bounds.size.y, 0.01)
 		var target_height := rng.randf_range(7.5, 12.5)
-		if placed < GIANT_TREE_COUNT:
+		if is_large_forest_tree:
+			target_height = rng.randf_range(25.0, 35.0)
+		elif placed < GIANT_TREE_COUNT:
 			target_height = 25.0
 		var uniform_scale := target_height / source_height
 		var width_variation := rng.randf_range(0.88, 1.14)

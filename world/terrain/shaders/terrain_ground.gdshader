@@ -5,6 +5,10 @@ uniform sampler2D grass_albedo : source_color, repeat_enable, filter_linear_mipm
 uniform sampler2D dry_grass_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
 uniform sampler2D dirt_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
 uniform sampler2D rock_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D meadow_albedo_alt : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D sand_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D rock_albedo_alt : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D forest_soil_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
 
 // Reserved slots for a later PBR texture pass.
 uniform sampler2D grass_normal_roughness : hint_normal, repeat_enable, filter_linear_mipmap_anisotropic;
@@ -67,6 +71,10 @@ void fragment() {
 	vec3 dry_grass = anti_tile(dry_grass_albedo, p + vec2(31.7, -14.2));
 	vec3 dirt = anti_tile(dirt_albedo, p + vec2(-9.4, 26.8));
 	vec3 rock = anti_tile(rock_albedo, p + vec2(47.1, -33.6));
+	vec3 meadow_alt = anti_tile(meadow_albedo_alt, p + vec2(63.4, 18.9));
+	vec3 sand = anti_tile(sand_albedo, p + vec2(-42.2, 51.7));
+	vec3 rock_alt = anti_tile(rock_albedo_alt, p + vec2(22.8, 74.1));
+	vec3 forest_soil = anti_tile(forest_soil_albedo, p + vec2(-71.3, -24.6));
 
 	float boundary_noise = (value_noise(p / 4.8) - 0.5) * blend_noise_strength;
 	float broad_a = value_noise(p / 23.0 + vec2(4.7, 11.2));
@@ -111,11 +119,18 @@ void fragment() {
 		float cliff = smoothstep(0.22, 0.56, slope + (value_noise(p / 7.0) - 0.5) * 0.16);
 		float alpine = smoothstep(13.0, 28.0, world_position.y);
 		float meadow_noise = value_noise(p / 19.0 + vec2(2.4, 7.1));
-		vec3 meadow = mix(grass, dry_grass, smoothstep(0.58, 0.82, meadow_noise) * 0.42);
+		float meadow_alt_mask = smoothstep(0.38, 0.74, value_noise(p / 29.0 + vec2(17.2, 6.8))) * 0.46;
+		vec3 meadow_base = mix(grass, meadow_alt, meadow_alt_mask);
+		vec3 meadow = mix(meadow_base, dry_grass, smoothstep(0.58, 0.82, meadow_noise) * 0.38);
 		float wet_bank = max(river_bank, ravine_bank);
 		float bank_blend = smoothstep(0.0, 1.0, wet_bank);
-		ground = mix(meadow, dirt, bank_blend * 0.82);
-		ground = mix(ground, rock, max(cliff, alpine * 0.72));
+		ground = mix(meadow, sand, bank_blend * 0.86);
+		float forest_hill = 1.0 - smoothstep(35.0, 86.0, distance(p, vec2(208.0, 54.0)));
+		forest_hill *= smoothstep(0.40, 0.72, value_noise(p / 21.0 + vec2(3.7, 12.4)));
+		ground = mix(ground, forest_soil, forest_hill * 0.76);
+		float rock_variant = smoothstep(0.28, 0.72, value_noise(p / 34.0 + vec2(9.5, 4.2)));
+		vec3 varied_rock = mix(rock, rock_alt, rock_variant);
+		ground = mix(ground, varied_rock, max(cliff, alpine * 0.72));
 		ground *= 0.94 + (value_noise(p / 58.0) - 0.5) * 0.11;
 	}
 

@@ -500,10 +500,10 @@ func _solo_trail_height(x: float, z: float) -> float:
 	# Mountain walls and individual summits frame the playable valley.
 	var edge_distance := minf(minf(x, z), minf(255.0 - x, 255.0 - z))
 	height += smoothstep(62.0, 5.0, edge_distance) * 22.0
-	height += _height_peak(p, Vector2(30.0, 38.0), 43.0, 28.0)
-	height += _height_peak(p, Vector2(218.0, 42.0), 36.0, 34.0)
-	height += _height_peak(p, Vector2(230.0, 205.0), 48.0, 31.0)
-	height += _height_peak(p, Vector2(35.0, 220.0), 33.0, 38.0)
+	height += _irregular_peak(p, Vector2(30.0, 38.0), 43.0, 28.0, 0.4)
+	height += _irregular_peak(p, Vector2(218.0, 42.0), 36.0, 34.0, 2.1)
+	height += _irregular_peak(p, Vector2(230.0, 205.0), 48.0, 31.0, 4.2)
+	height += _irregular_peak(p, Vector2(35.0, 220.0), 33.0, 38.0, 5.4)
 	# A broad meadow keeps the player spawn readable and walkable.
 	var clearing_weight := 1.0 - smoothstep(22.0, 46.0, p.distance_to(Vector2(130.0, 150.0)))
 	height = lerpf(height, 3.0 + sin(x * 0.11) * 0.22 + cos(z * 0.09) * 0.18, clearing_weight)
@@ -525,6 +525,19 @@ func _height_peak(point: Vector2, center: Vector2, amplitude: float, radius: flo
 		return 0.0
 	var profile := 1.0 - normalized_distance * normalized_distance
 	return amplitude * profile * profile
+
+
+func _irregular_peak(point: Vector2, center: Vector2, amplitude: float, radius: float, phase: float) -> float:
+	var offset := point - center
+	var angle := atan2(offset.y, offset.x)
+	var radial_warp := 1.0 + sin(angle * 3.0 + phase) * 0.16 + sin(angle * 5.0 - phase * 0.7) * 0.09
+	var skewed := Vector2(offset.x * (0.88 + 0.08 * sin(phase)), offset.y * (1.12 - 0.06 * cos(phase)))
+	var normalized_distance := skewed.length() / (radius * radial_warp)
+	if normalized_distance >= 1.0:
+		return 0.0
+	var profile := 1.0 - normalized_distance * normalized_distance
+	var shoulder := sin(point.x * 0.095 + phase) * cos(point.y * 0.083 - phase) * 0.075
+	return amplitude * profile * profile * (1.0 + shoulder)
 
 func _initialize_terrain_features() -> void:
 	_terrain_features.clear()
