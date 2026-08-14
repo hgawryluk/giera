@@ -18,7 +18,9 @@ const BUSH_DEFINITIONS: Array[Dictionary] = [
 	{"scene": preload("res://assets/environment/bush_packs/bush_01/source/Bush.fbx"), "albedo": preload("res://assets/environment/bush_packs/bush_01/textures/leaves_01_alb.png"), "normal": preload("res://assets/environment/bush_packs/bush_01/textures/leaves_01_nrm.jpeg")},
 	{"scene": preload("res://assets/environment/bush_packs/cliff_shrub/source/wallBush-01-terrainWallBush.fbx"), "albedo": preload("res://assets/environment/bush_packs/cliff_shrub/textures/oooo_diffuseOriginal.png"), "normal": preload("res://assets/environment/bush_packs/cliff_shrub/textures/oooo_normal.png")},
 ]
-const BUSH_COUNT: int = 900
+# Dense enough to read as woodland understorey, but still conservative for the
+# imported multi-surface FBX meshes. Spatial chunks keep the draw workload local.
+const BUSH_COUNT: int = 1350
 const TREE_COUNT: int = 300
 const BASE_TREE_COUNT: int = 100
 const GIANT_TREE_COUNT: int = 3
@@ -40,6 +42,7 @@ const STYLISED_ROCK_SCATTER: Script = preload("res://scripts/maps/stylised_rock_
 var _grid_manager: GridManager
 var _tree_meshes: Array[ArrayMesh] = []
 var _bush_meshes: Array[ArrayMesh] = []
+var _rock_grass_clearance_grid: Dictionary = {}
 
 
 func setup(grid_manager: GridManager) -> void:
@@ -48,11 +51,12 @@ func setup(grid_manager: GridManager) -> void:
 	_load_tree_meshes()
 	_load_bush_meshes()
 	_create_river()
-	_scatter_grass_multimesh()
 	var stylised_rocks := STYLISED_ROCK_SCATTER.new() as Node3D
 	stylised_rocks.name = "StylisedRockScatter"
 	add_child(stylised_rocks)
 	stylised_rocks.call("setup", _grid_manager)
+	_cache_rock_grass_clearances(stylised_rocks.call("get_grass_clearances") as Array)
+	_scatter_grass_multimesh()
 	_scatter_tree_multimeshes()
 	_scatter_bush_multimeshes()
 
@@ -63,20 +67,18 @@ func _create_river() -> void:
 	var uvs := PackedVector2Array()
 	const STEP := 2.0
 	const HALF_WIDTH := 7.0
-	for index: int in range(128):
-		var x0 := float(index) * STEP
-		var x1 := float(index + 1) * STEP
-		var z0 := _river_center(x0)
-		var z1 := _river_center(x1)
-		_append_water_quad(vertices, normals, uvs, Vector3(x0, WATER_LEVEL, z0), Vector3(x1, WATER_LEVEL, z1), HALF_WIDTH, x0 / 16.0, x1 / 16.0)
+	var main_centers := PackedVector3Array()
+	for index: int in range(129):
+		var x := float(index) * STEP
+		main_centers.append(Vector3(x, WATER_LEVEL, _river_center(x)))
+	_append_water_strip(vertices, normals, uvs, main_centers, HALF_WIDTH, true)
 	# The former dry ravine is now the river's flooded northern branch.
 	const BRANCH_STEP := 2.0
-	for index: int in range(59):
-		var z0 := 112.0 + float(index) * BRANCH_STEP
-		var z1 := z0 + BRANCH_STEP
-		var x0 := _ravine_center(z0)
-		var x1 := _ravine_center(z1)
-		_append_water_quad(vertices, normals, uvs, Vector3(x0, WATER_LEVEL, z0), Vector3(x1, WATER_LEVEL, z1), 5.0, z0 / 16.0, z1 / 16.0)
+	var branch_centers := PackedVector3Array()
+	for index: int in range(62):
+		var z := 110.0 + float(index) * BRANCH_STEP
+		branch_centers.append(Vector3(_ravine_center(z), WATER_LEVEL + 0.002, z))
+	_append_water_strip(vertices, normals, uvs, branch_centers, 5.0, false)
 	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
@@ -92,14 +94,31 @@ func _create_river() -> void:
 	add_child(river)
 
 
-func _append_water_quad(vertices: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array, start: Vector3, finish: Vector3, half_width: float, uv_start: float, uv_finish: float) -> void:
-	var sideways := Vector3(-(finish.z - start.z), 0.0, finish.x - start.x).normalized() * half_width
-	_append_water_vertex(vertices, normals, uvs, start - sideways, Vector2(uv_start, 0.0))
-	_append_water_vertex(vertices, normals, uvs, finish - sideways, Vector2(uv_finish, 0.0))
-	_append_water_vertex(vertices, normals, uvs, finish + sideways, Vector2(uv_finish, 1.0))
-	_append_water_vertex(vertices, normals, uvs, start - sideways, Vector2(uv_start, 0.0))
-	_append_water_vertex(vertices, normals, uvs, finish + sideways, Vector2(uv_finish, 1.0))
-	_append_water_vertex(vertices, normals, uvs, start + sideways, Vector2(uv_start, 1.0))
+func _append_water_strip(vertices: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array, centers: PackedVector3Array, half_width: float, runs_along_x: bool) -> void:
+	# The terrain river masks measure main-channel width along Z and branch width
+	# along X. Building the ribbon with those same axes makes the water meet the
+	# carved banks exactly. Reusing each calculated edge for adjacent triangles
+	# also eliminates cracks and sheared joins at bends.
+	if centers.size() < 2:
+		return
+	var left_edges := PackedVector3Array()
+	var right_edges := PackedVector3Array()
+	for center: Vector3 in centers:
+		var offset := Vector3(0.0, 0.0, half_width) if runs_along_x else Vector3(half_width, 0.0, 0.0)
+		left_edges.append(center - offset)
+		right_edges.append(center + offset)
+	var traveled := 0.0
+	for index: int in range(centers.size() - 1):
+		var next_traveled := traveled + centers[index].distance_to(centers[index + 1])
+		var uv_start := traveled / 16.0
+		var uv_finish := next_traveled / 16.0
+		_append_water_vertex(vertices, normals, uvs, left_edges[index], Vector2(uv_start, 0.0))
+		_append_water_vertex(vertices, normals, uvs, left_edges[index + 1], Vector2(uv_finish, 0.0))
+		_append_water_vertex(vertices, normals, uvs, right_edges[index + 1], Vector2(uv_finish, 1.0))
+		_append_water_vertex(vertices, normals, uvs, left_edges[index], Vector2(uv_start, 0.0))
+		_append_water_vertex(vertices, normals, uvs, right_edges[index + 1], Vector2(uv_finish, 1.0))
+		_append_water_vertex(vertices, normals, uvs, right_edges[index], Vector2(uv_start, 1.0))
+		traveled = next_traveled
 
 
 func _append_water_vertex(vertices: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array, point: Vector3, uv: Vector2) -> void:
@@ -125,7 +144,10 @@ func _scatter_grass_multimesh() -> void:
 		var slope := _estimate_slope(x, z)
 		if height < 0.15 or height > 16.5 or slope > 0.28 or is_water_at(x, z):
 			continue
-		if _trail_distance(x, z) < 3.8:
+		var trail_distance := _trail_distance(x, z)
+		if trail_distance < 0.85:
+			continue
+		if _is_inside_rock_grass_clearance(x, z):
 			continue
 		var water_distance := _waterway_distance(x, z)
 		var meadow_factor := 1.0 - smoothstep(0.08, 0.28, slope)
@@ -136,6 +158,13 @@ func _scatter_grass_multimesh() -> void:
 		var fine := sin(x * 0.31 - z * 0.27) * 0.18
 		var density := clampf(0.52 + broad + fine, 0.03, 0.97) * lerpf(0.18, 1.0, meadow_factor)
 		density *= lerpf(1.0, 0.18, forest_hill_factor)
+		# A noisy probability ramp replaces the former ruler-straight exclusion.
+		# Individual tufts become both rarer and smaller towards the path, while
+		# occasional pockets naturally reach closer to its edge.
+		var trail_edge_noise := sin(x * 0.73 + z * 0.41) * 0.70 + cos(x * 0.29 - z * 0.61) * 0.45
+		var effective_trail_distance := trail_distance + trail_edge_noise
+		var trail_density_factor := smoothstep(1.0, 7.2, effective_trail_distance)
+		density *= lerpf(0.035, 1.0, trail_density_factor)
 		# Density fades towards water. The narrow bank band keeps only isolated,
 		# slightly slimmer tufts instead of an artificial clean strip.
 		var bank_tuft := water_distance < 9.0
@@ -149,6 +178,9 @@ func _scatter_grass_multimesh() -> void:
 		# is deliberately twice the previous size for stronger FPP coverage.
 		var scale_y := rng.randf_range(0.80, 1.56) * lerpf(0.92, 1.08, meadow_factor)
 		var scale_xz := rng.randf_range(0.48, 1.04)
+		var trail_scale_factor := lerpf(0.38, 1.0, smoothstep(1.0, 6.2, effective_trail_distance))
+		scale_y *= trail_scale_factor
+		scale_xz *= lerpf(0.55, 1.0, trail_scale_factor)
 		if bank_tuft:
 			scale_y *= rng.randf_range(0.82, 1.08)
 			scale_xz *= rng.randf_range(0.50, 0.75)
@@ -308,20 +340,24 @@ func _scatter_bush_multimeshes() -> void:
 		var slope := _estimate_slope(x, z)
 		if height < 0.35 or height > 34.0 or slope > 0.58 or is_water_at(x, z):
 			continue
-		if _waterway_distance(x, z) < 7.0 or point.distance_to(Vector2(130.0, 150.0)) < 25.0:
+		var water_distance := _waterway_distance(x, z)
+		var beach_bush := water_distance >= 7.35 and water_distance < 12.5 and height < 3.4 and rng.randf() < 0.18
+		if water_distance < 7.35 or point.distance_to(Vector2(130.0, 150.0)) < 25.0:
 			continue
-		if _trail_distance(x, z) < 5.0:
+		if _trail_distance(x, z) < (3.3 if beach_bush else 5.0):
 			continue
 		var forest_factor := 1.0 - smoothstep(45.0, 100.0, point.distance_to(Vector2(208.0, 54.0)))
 		var sheltered_factor := clampf(0.34 + sin(x * 0.071 + z * 0.037) * 0.22 + cos(z * 0.093) * 0.18, 0.04, 0.82)
 		# Dense understorey belongs chiefly between the trees. Meadow shrubs stay
 		# sparse, while sheltered forest pockets can accept most candidates.
-		var acceptance := lerpf(0.055, 0.88, forest_factor) * lerpf(0.52, 1.0, sheltered_factor)
+		var acceptance := lerpf(0.10, 0.93, forest_factor) * lerpf(0.58, 1.0, sheltered_factor)
+		if beach_bush:
+			acceptance = maxf(acceptance, 0.72)
 		if slope > 0.24 and height > 10.0:
 			acceptance += 0.13
 		if rng.randf() > acceptance:
 			continue
-		if _is_too_close_to_tree(point, accepted_points, rng.randf_range(1.15, 2.35)):
+		if _is_too_close_to_tree(point, accepted_points, rng.randf_range(0.82, 1.75) if not beach_bush else rng.randf_range(2.4, 4.2)):
 			continue
 		# Stable 5:3:2 distribution guarantees that all three imported shrub
 		# variants occur. The cliff shrub remains confined to suitable terrain.
@@ -337,6 +373,8 @@ func _scatter_bush_multimeshes() -> void:
 			target_height *= rng.randf_range(1.05, 1.45)
 		if variant == 2:
 			target_height = rng.randf_range(0.55, 1.15)
+		if beach_bush:
+			target_height *= rng.randf_range(0.55, 0.88)
 		var uniform_scale := target_height / maxf(bounds.size.y, 0.01)
 		var width_variation := rng.randf_range(0.78, 1.28)
 		var bush_scale := Vector3(uniform_scale * width_variation, uniform_scale * rng.randf_range(0.90, 1.12), uniform_scale * rng.randf_range(0.82, 1.22))
@@ -573,6 +611,30 @@ func _trail_distance(x: float, z: float) -> float:
 	var inverse := 1.0 - t
 	var center_x := inverse * inverse * inverse * 35.0 + 3.0 * inverse * inverse * t * 45.0 + 3.0 * inverse * t * t * 225.0 + t * t * t * 218.0
 	return absf(x - center_x)
+
+
+func _cache_rock_grass_clearances(clearances: Array) -> void:
+	_rock_grass_clearance_grid.clear()
+	for value: Variant in clearances:
+		var clearance := value as Vector3
+		var cell := Vector2i(floori(clearance.x / 12.0), floori(clearance.y / 12.0))
+		if not _rock_grass_clearance_grid.has(cell):
+			_rock_grass_clearance_grid[cell] = []
+		(_rock_grass_clearance_grid[cell] as Array).append(clearance)
+
+
+func _is_inside_rock_grass_clearance(x: float, z: float) -> bool:
+	var center_cell := Vector2i(floori(x / 12.0), floori(z / 12.0))
+	for offset_z: int in range(-1, 2):
+		for offset_x: int in range(-1, 2):
+			var cell := center_cell + Vector2i(offset_x, offset_z)
+			if not _rock_grass_clearance_grid.has(cell):
+				continue
+			for clearance_value: Variant in _rock_grass_clearance_grid[cell] as Array:
+				var clearance := clearance_value as Vector3
+				if Vector2(x - clearance.x, z - clearance.y).length_squared() < clearance.z * clearance.z:
+					return true
+	return false
 
 
 func _ravine_center(z: float) -> float:

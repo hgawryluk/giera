@@ -15,10 +15,12 @@ const WATER_LEVEL: float = -1.7
 
 var _grid_manager: GridManager
 var _meshes: Array[Mesh] = []
+var _grass_clearances: Array[Vector3] = []
 
 
 func setup(grid_manager: GridManager) -> void:
 	_grid_manager = grid_manager
+	_grass_clearances.clear()
 	_load_collection_meshes()
 	if _meshes.is_empty():
 		push_warning("StylisedRockScatter: imported collection contains no usable meshes")
@@ -149,6 +151,13 @@ func _append_rock(rng: RandomNumberGenerator, batches: Array[Array], x: float, z
 	var burial := target_height * (0.12 + clampf(slope, 0.0, 1.0) * 0.10)
 	var height := _grid_manager.terrain_height(x, z)
 	batches[mesh_index].append(Transform3D(rock_basis, Vector3(x, height - burial, z)))
+	# Grass cards intersecting an opaque boulder look as if they were rendered
+	# through it. Keep the meadow dense, but reserve only the actual footprint
+	# (plus a very small natural margin) of every generated rock.
+	var footprint_x := bounds.size.x * rock_scale.x * 0.5
+	var footprint_z := bounds.size.z * rock_scale.z * 0.5
+	var clearance := maxf(0.42, maxf(footprint_x, footprint_z) + minf(target_height * 0.10, 0.45))
+	_grass_clearances.append(Vector3(x, z, clearance))
 
 
 func _create_batch(mesh_index: int, transforms: Array) -> void:
@@ -165,7 +174,16 @@ func _create_batch(mesh_index: int, transforms: Array) -> void:
 	batch.multimesh = multimesh
 	batch.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	batch.gi_mode = GeometryInstance3D.GI_MODE_STATIC
+	# Rocks are never an LOD/fade object. Explicitly disable range fading so a
+	# parent/environment default cannot turn them translucent near the camera.
+	batch.visibility_range_begin = 0.0
+	batch.visibility_range_end = 0.0
+	batch.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 	add_child(batch)
+
+
+func get_grass_clearances() -> Array[Vector3]:
+	return _grass_clearances.duplicate()
 
 
 func _can_place(x: float, z: float, max_slope: float, water_margin: float) -> bool:
@@ -232,5 +250,8 @@ func _create_rock_material() -> StandardMaterial3D:
 	material.roughness_texture = ROCK_ROUGHNESS
 	material.roughness = 0.92
 	material.albedo_color = Color(0.84, 0.82, 0.72)
+	material.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_DISABLED
 	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	return material
