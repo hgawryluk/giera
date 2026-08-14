@@ -11,6 +11,10 @@ const TYPE_SCALE_MULTIPLIERS: Dictionary[String, float] = {
 	"bush": 1.3,
 	"grass_1": 0.65,
 	"grass_2": 0.65,
+	"bush_real": 1.0,
+	"bush_heather": 1.0,
+	"bush_cliff": 1.0,
+	"stylised_rocks": 1.0,
 }
 
 var _assets: Dictionary[String, String] = {}

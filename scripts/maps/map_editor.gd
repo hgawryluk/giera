@@ -9,30 +9,37 @@ const ASSETS: Dictionary[String, String] = {
 	"bush": "res://assets/models/environment/bush_grass_02.glb",
 	"grass_1": "res://assets/models/environment/grass_clump_01.glb",
 	"grass_2": "res://assets/models/environment/grass_clump_02.glb",
+	"bush_real": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
+	"bush_heather": "res://assets/environment/bush_packs/bush_01/source/Bush.fbx",
+	"bush_cliff": "res://assets/environment/bush_packs/cliff_shrub/source/wallBush-01-terrainWallBush.fbx",
+	"stylised_rocks": "res://assets/environment/stylised_rocks/source/Stylised_Rock_Collection.fbx",
 }
 const TOOL_GROUPS: Array[Dictionary] = [
-	{"title": "LAD", "open": true, "tools": [
-		["terrain_raise", "Podnies teren"], ["terrain_lower", "Obniz teren"],
-		["terrain_smooth", "Wygladz teren"], ["paint_0", "Trawa"],
-		["paint_1", "Ziemia"], ["paint_2", "Piasek"], ["paint_3", "Skala"],
-		["water_add", "Woda"], ["water_remove", "Usun wode"],
+	{"title": "RZEŹBIENIE TERRAIN3D", "open": true, "tools": [
+		["terrain_raise", "Podnieś"], ["terrain_lower", "Obniż"],
+		["terrain_smooth", "Wygładź"], ["terrain_flatten", "Wyrównaj"],
 	]},
-	{"title": "OBIEKTY", "open": true, "thumbnails": true, "tools": [
+	{"title": "WODA", "open": false, "tools": [
+		["water_add", "Dodaj wodę"], ["water_remove", "Usuń wodę"],
+	]},
+	{"title": "OBIEKTY ŚRODOWISKOWE", "open": true, "thumbnails": true, "tools": [
 		["purple_tree_1", "Drzewo I"], ["purple_tree_2", "Drzewo II"],
 		["purple_tree_3", "Drzewo III"], ["large_tree", "Wielkie drzewo"],
 		["bush", "Krzak"], ["grass_1", "Trawa I"], ["grass_2", "Trawa II"],
+		["bush_real", "Krzew leśny"], ["bush_heather", "Krzew niski"],
+		["bush_cliff", "Krzew skalny"], ["stylised_rocks", "Zestaw skał"],
 	]},
 	{"title": "POSTACIE", "open": false, "tools": [
 		["player_spawn", "Start gracza"], ["enemy_spawn", "Start wroga"],
 	]},
 	{"title": "EDYCJA", "open": true, "tools": [
-		["select", "Zaznacz obiekt"], ["erase", "Usun obiekt"],
+		["select", "Zaznacz obiekt"], ["erase", "Usuń obiekt"],
 	]},
 ]
 
 var objects: Array[Dictionary] = []
-var player_spawns: Array[Dictionary] = [{"x": 78, "z": 9}, {"x": 81, "z": 9}]
-var enemy_spawns: Array[Dictionary] = [{"x": 78, "z": 180}, {"x": 81, "z": 180}]
+var player_spawns: Array[Dictionary] = []
+var enemy_spawns: Array[Dictionary] = []
 var active_tool: String = "terrain_raise"
 var brush_radius: float = 6.0
 var brush_strength: float = 0.65
@@ -80,7 +87,7 @@ func _ready() -> void:
 	_connect_ui()
 	_rebuild_objects()
 	_update_markers()
-	_update_status("Edytor gotowy — wybierz widoczne narzedzie")
+	_update_status("Terrain3D gotowy — wybierz narzędzie")
 
 func _build_sidebar_controls() -> void:
 	%ToolOption.visible = false
@@ -98,6 +105,8 @@ func _build_sidebar_controls() -> void:
 	tools_panel.add_theme_constant_override("separation", 5)
 	scroll.add_child(tools_panel)
 	for group: Dictionary in TOOL_GROUPS:
+		if str(group["title"]) == "WODA":
+			_add_material_section(tools_panel)
 		var section := VBoxContainer.new()
 		section.add_theme_constant_override("separation", 4)
 		tools_panel.add_child(section)
@@ -126,8 +135,8 @@ func _build_sidebar_controls() -> void:
 	tools_panel.add_child(transform_grid)
 	for entry: Array in [
 		["↶ 15°", -15.0, 0.0, false], ["↷ 15°", 15.0, 0.0, false],
-		["Odwroc", 0.0, 0.0, true], ["Obniz", 0.0, -0.25, false],
-		["Wyzeruj", 0.0, INF, false], ["Podnies", 0.0, 0.25, false],
+		["Odwróć", 0.0, 0.0, true], ["Obniż", 0.0, -0.25, false],
+		["Wyzeruj", 0.0, INF, false], ["Podnieś", 0.0, 0.25, false],
 	]:
 		var button := Button.new()
 		button.text = str(entry[0])
@@ -177,6 +186,31 @@ func _create_tool_button(tool_id: String, label: String, thumbnail: bool) -> But
 		button.expand_icon = true
 		button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	return button
+
+func _add_material_section(parent: VBoxContainer) -> void:
+	var section := VBoxContainer.new()
+	section.add_theme_constant_override("separation", 4)
+	parent.add_child(section)
+	var title := Button.new()
+	title.text = "▼ MATERIAŁY TERRAIN3D"
+	title.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	title.tooltip_text = "Natywne warstwy Terrain3D: albedo, normal, roughness i płynny blend"
+	section.add_child(title)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 4)
+	grid.add_theme_constant_override("v_separation", 4)
+	section.add_child(grid)
+	title.pressed.connect(_toggle_section.bind(title, grid, "MATERIAŁY TERRAIN3D"))
+	for texture_id: int in range(TerrainMapSurface.PAINT_TEXTURES.size()):
+		var definition: Dictionary = TerrainMapSurface.PAINT_TEXTURES[texture_id]
+		var button := _create_tool_button("paint_%d" % texture_id, str(definition["name"]), false)
+		button.custom_minimum_size = Vector2(140.0, 62.0)
+		button.icon = load(str(definition["path"])) as Texture2D
+		button.expand_icon = true
+		button.add_theme_constant_override("icon_max_width", 48)
+		button.tooltip_text = "%s\nNatywna warstwa Terrain3D" % str(definition["name"])
+		grid.add_child(button)
 
 func _create_asset_preview(scene_path: String) -> Texture2D:
 	var preview := SubViewport.new()
@@ -657,13 +691,15 @@ func _create_spawn_marker(data: Dictionary, color: Color) -> void:
 
 func _clear_map() -> void:
 	objects.clear()
+	player_spawns.clear()
+	enemy_spawns.clear()
 	_selected_object_index = -1
-	_terrain_surface.clear_height()
+	_terrain_surface.reset_blank()
 	_water_surface.clear()
 	_rebuild_objects()
 	_update_markers()
 	_update_selection_ui()
-	_update_status("Mapa wyczyszczona")
+	_update_status("Utworzono pustą mapę Terrain3D")
 
 func _save() -> void:
 	var map_name := str(%NameEdit.text).strip_edges()
@@ -685,7 +721,7 @@ func _save() -> void:
 	_update_status("Zapisano: " + path)
 
 func _update_brush_label() -> void:
-	_brush_label.text = "PEDZEL — promien %.1f / sila %.2f / gestosc %.2f" % [brush_radius, brush_strength, object_density]
+	_brush_label.text = "PĘDZEL — promień %.1f / siła %.2f / gęstość %.2f" % [brush_radius, brush_strength, object_density]
 
 func _update_status(message: String) -> void:
-	%StatusLabel.text = message + "\nLPM: maluj | PPM/MMB: przesun | Shift+Tab: ustaw ducha | Tab: FPP"
+	%StatusLabel.text = message + "\nLPM: maluj | PPM/MMB: przesuń | Shift+Tab: ustaw ducha | Tab: FPP"

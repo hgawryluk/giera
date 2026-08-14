@@ -5,26 +5,32 @@ const MAP_SIZE := Vector2i(160, 190)
 const REGION_LOCATION := Vector2i.ZERO
 const MIN_HEIGHT := -12.0
 const MAX_HEIGHT := 18.0
+const TERRAIN_TEXTURE_SIZE := 1024
 const PBR_ROOT := "res://assets/textures/terrain/ambientcg_2k/"
-const MATERIAL_COLORS: Array[Color] = [
-	Color(0.20, 0.43, 0.16),
-	Color(0.30, 0.20, 0.12),
-	Color(0.62, 0.51, 0.29),
-	Color(0.31, 0.32, 0.30),
-]
+const GLHF_ROOT := "res://assets/environment/terrain/glhf/"
 const PAINT_TEXTURES: Array[Dictionary] = [
 	{"name": "Trawa", "path": PBR_ROOT + "Grass001_2K-PNG/Grass001_2K-PNG_Color.png", "normal": PBR_ROOT + "Grass001_2K-PNG/Grass001_2K-PNG_NormalGL.png", "height": PBR_ROOT + "Grass001_2K-PNG/Grass001_2K-PNG_Displacement.png", "roughness_map": PBR_ROOT + "Grass001_2K-PNG/Grass001_2K-PNG_Roughness.png", "uv_scale": 0.18, "roughness": 0.72},
-	{"name": "Ziemia", "path": PBR_ROOT + "Ground103_2K-PNG/Ground103_2K-PNG_Color.png", "normal": PBR_ROOT + "Ground103_2K-PNG/Ground103_2K-PNG_NormalGL.png", "height": PBR_ROOT + "Ground103_2K-PNG/Ground103_2K-PNG_Displacement.png", "roughness_map": PBR_ROOT + "Ground103_2K-PNG/Ground103_2K-PNG_Roughness.png", "uv_scale": 0.20, "roughness": 0.82},
-	{"name": "Piasek", "path": PBR_ROOT + "Ground108_2K-PNG/Ground108_2K-PNG_Color.png", "normal": PBR_ROOT + "Ground108_2K-PNG/Ground108_2K-PNG_NormalGL.png", "height": PBR_ROOT + "Ground108_2K-PNG/Ground108_2K-PNG_Displacement.png", "roughness_map": PBR_ROOT + "Ground108_2K-PNG/Ground108_2K-PNG_Roughness.png", "uv_scale": 0.19, "roughness": 0.76},
-	{"name": "Skała", "path": PBR_ROOT + "Rock060_2K-PNG/Rock060_2K-PNG_Color.png", "normal": PBR_ROOT + "Rock060_2K-PNG/Rock060_2K-PNG_NormalGL.png", "height": PBR_ROOT + "Rock060_2K-PNG/Rock060_2K-PNG_Displacement.png", "roughness_map": PBR_ROOT + "Rock060_2K-PNG/Rock060_2K-PNG_Roughness.png", "uv_scale": 0.16, "roughness": 0.86},
+	{"name": "Sucha trawa", "path": PBR_ROOT + "Grass004_2K-PNG/Grass004_2K-PNG_Color.png", "normal": PBR_ROOT + "Grass004_2K-PNG/Grass004_2K-PNG_NormalGL.png", "uv_scale": 0.18, "roughness": 0.78},
+	{"name": "Leśna ściółka 03", "path": GLHF_ROOT + "forrest_ground_03/forrest_ground_03_diff_4k.jpg", "normal": GLHF_ROOT + "forrest_ground_03/forrest_ground_03_nor_gl_4k.jpg", "uv_scale": 0.20, "roughness": 0.88},
+	{"name": "Leśna ziemia 05", "path": GLHF_ROOT + "forest_ground_05/forest_ground_05_diff_4k.jpg", "normal": GLHF_ROOT + "forest_ground_05/forest_ground_05_nor_gl_4k.jpg", "uv_scale": 0.20, "roughness": 0.86},
+	{"name": "Leśna ziemia 06", "path": GLHF_ROOT + "forest_ground_06/forest_ground_06_diff_4k.jpg", "normal": GLHF_ROOT + "forest_ground_06/forest_ground_06_nor_gl_4k.jpg", "uv_scale": 0.20, "roughness": 0.84},
+	{"name": "Kamyki rzeczne", "path": GLHF_ROOT + "dry_river_pebbles/dry_river_pebbles_diff_4k.jpg", "normal": GLHF_ROOT + "dry_river_pebbles/dry_river_pebbles_nor_gl_4k.jpg", "uv_scale": 0.19, "roughness": 0.82},
+	{"name": "Skaliste podłoże", "path": GLHF_ROOT + "rocks_ground_01/rocks_ground_01_diff_4k.jpg", "normal": GLHF_ROOT + "rocks_ground_01/rocks_ground_01_nor_gl_4k.jpg", "uv_scale": 0.17, "roughness": 0.90},
+	{"name": "Szare skały", "path": GLHF_ROOT + "gray_rocks/gray_rocks_diff_4k.jpg", "normal": GLHF_ROOT + "gray_rocks/gray_rocks_nor_gl_4k.jpg", "uv_scale": 0.16, "roughness": 0.89},
+	{"name": "Ciemna skała", "path": GLHF_ROOT + "dark_rock/dark_rock_diff_4k.jpg", "normal": GLHF_ROOT + "dark_rock/dark_rock_nor_gl_4k.jpg", "uv_scale": 0.16, "roughness": 0.91},
+	{"name": "Marmurowy klif 04", "path": GLHF_ROOT + "marble_cliff_04/marble_cliff_04_diff_4k.jpg", "normal": GLHF_ROOT + "marble_cliff_04/marble_cliff_04_nor_gl_4k.jpg", "uv_scale": 0.15, "roughness": 0.88},
+	{"name": "Marmurowy klif 05", "path": GLHF_ROOT + "marble_cliff_05/marble_cliff_05_diff_4k.jpg", "normal": GLHF_ROOT + "marble_cliff_05/marble_cliff_05_nor_gl_4k.jpg", "uv_scale": 0.15, "roughness": 0.88},
+	{"name": "Marmurowa skała 03", "path": GLHF_ROOT + "marble_rock_03/marble_rock_03_diff_4k.jpg", "normal": GLHF_ROOT + "marble_rock_03/marble_rock_03_nor_gl_4k.jpg", "uv_scale": 0.16, "roughness": 0.87},
+	{"name": "Droga brukowana", "path": PBR_ROOT + "PavingStones138_2K-PNG/PavingStones138_2K-PNG_Color.png", "normal": PBR_ROOT + "PavingStones138_2K-PNG/PavingStones138_2K-PNG_NormalGL.png", "uv_scale": 0.18, "roughness": 0.82},
 ]
 
 var terrain: Terrain3D
 var _region: Terrain3DRegion
 var _data_directory: String = ""
+## Legacy overlay storage retained only for backward-compatible helper methods.
+## The editor no longer creates this surface; Terrain3D renders directly.
 var _overlay_multimesh: MultiMesh
 var _overlay_instance: MultiMeshInstance3D
-var _visual_surface: TerrainVisualSurface
 
 func setup(camera: Camera3D = null, data_directory: String = "", legacy_strokes: Array = []) -> void:
 	_data_directory = data_directory
@@ -48,10 +54,6 @@ func setup(camera: Camera3D = null, data_directory: String = "", legacy_strokes:
 		_region = terrain.data.add_region_blank(REGION_LOCATION, false)
 		_initialize_base_height()
 	_ensure_paintable_control()
-	_visual_surface = TerrainVisualSurface.new()
-	_visual_surface.name = "SeamlessTerrainVisual"
-	add_child(_visual_surface)
-	_visual_surface.setup(self, PAINT_TEXTURES)
 	if not legacy_strokes.is_empty():
 		_import_legacy_strokes(legacy_strokes)
 
@@ -87,8 +89,6 @@ func apply_brush(center: Vector3, radius: float, strength: float, operation: Str
 	for change: Vector3 in changes:
 		terrain.data.set_height(Vector3(change.x, 0.0, change.z), change.y)
 	_finish_height_edit()
-	if _visual_surface != null:
-		_visual_surface.rebuild_region(center, radius)
 
 func paint_texture(center: Vector3, radius: float, strength: float, texture_id: int) -> void:
 	if terrain == null or _region == null or texture_id < 0 or texture_id >= PAINT_TEXTURES.size():
@@ -119,12 +119,9 @@ func paint_texture(center: Vector3, radius: float, strength: float, texture_id: 
 				terrain.data.set_control_blend(point, clampf(strength * 0.18 * influence, 0.0, 1.0))
 			terrain.data.set_control_auto(point, false)
 			var current_color := terrain.data.get_color(point)
-			var target_color := MATERIAL_COLORS[texture_id]
-			terrain.data.set_color(point, current_color.lerp(target_color, clampf(strength * 0.24 * influence, 0.0, 1.0)))
+			terrain.data.set_color(point, current_color.lerp(Color.WHITE, clampf(strength * 0.24 * influence, 0.0, 1.0)))
 	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, false, false)
 	terrain.data.update_maps(Terrain3DRegion.TYPE_COLOR, false, false)
-	if _visual_surface != null:
-		_visual_surface.rebuild_region(center, radius)
 
 func get_height(world_x: float, world_z: float) -> float:
 	if terrain == null or terrain.data == null:
@@ -144,8 +141,23 @@ func clear_height() -> void:
 		for x: int in range(MAP_SIZE.x):
 			terrain.data.set_height(Vector3(float(x), 0.0, float(z)), 0.0)
 	_finish_height_edit()
-	if _visual_surface != null:
-		_visual_surface.rebuild()
+
+func reset_blank() -> void:
+	if terrain == null or _region == null:
+		return
+	for z: int in range(MAP_SIZE.y):
+		for x: int in range(MAP_SIZE.x):
+			var point := Vector3(float(x), 0.0, float(z))
+			terrain.data.set_height(point, 0.0)
+			terrain.data.set_control_base_id(point, 0)
+			terrain.data.set_control_overlay_id(point, 0)
+			terrain.data.set_control_blend(point, 0.0)
+			terrain.data.set_control_auto(point, false)
+			terrain.data.set_color(point, Color.WHITE)
+	_region.calc_height_range()
+	terrain.data.update_maps(Terrain3DRegion.TYPE_HEIGHT, false, false)
+	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, false, false)
+	terrain.data.update_maps(Terrain3DRegion.TYPE_COLOR, false, false)
 
 func save_to_directory(directory: String) -> void:
 	if terrain == null:
@@ -160,8 +172,7 @@ func get_data_directory() -> String:
 func _initialize_base_height() -> void:
 	for z: int in range(MAP_SIZE.y):
 		for x: int in range(MAP_SIZE.x):
-			var height := _base_height(float(x), float(z))
-			terrain.data.set_height(Vector3(float(x), 0.0, float(z)), height)
+			terrain.data.set_height(Vector3(float(x), 0.0, float(z)), 0.0)
 	_finish_height_edit()
 
 func _ensure_paintable_control() -> void:
@@ -170,8 +181,7 @@ func _ensure_paintable_control() -> void:
 		color_map = Image.create(terrain.region_size, terrain.region_size, false, Image.FORMAT_RGBA8)
 		for z: int in range(terrain.region_size):
 			for x: int in range(terrain.region_size):
-				var variation := 0.88 + 0.12 * sin(float(x) * 0.37 + float(z) * 0.19) * cos(float(z) * 0.23)
-				color_map.set_pixel(x, z, Color(MATERIAL_COLORS[0].r * variation, MATERIAL_COLORS[0].g * variation, MATERIAL_COLORS[0].b * variation, 1.0))
+				color_map.set_pixel(x, z, Color.WHITE)
 		_region.set_color_map(color_map)
 	for z: int in range(MAP_SIZE.y):
 		for x: int in range(MAP_SIZE.x):
@@ -186,12 +196,6 @@ func _ensure_paintable_control() -> void:
 			terrain.data.set_control_auto(point, false)
 	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, false, false)
 	terrain.data.update_maps(Terrain3DRegion.TYPE_COLOR, false, false)
-
-func _base_height(world_x: float, world_z: float) -> float:
-	return (
-		0.018 * sin(world_x * 0.41 + world_z * 0.19)
-		+ 0.012 * cos(world_x * 0.23 - world_z * 0.37)
-	)
 
 func _neighbor_average(x: int, z: int) -> float:
 	var total: float = get_height(float(x), float(z))
@@ -311,14 +315,35 @@ func _configure_material() -> void:
 		var asset := Terrain3DTextureAsset.new()
 		asset.id = texture_id
 		asset.name = str(definition["name"])
-		asset.albedo_texture = load(str(definition["path"])) as Texture2D
-		asset.normal_texture = load(str(definition["normal"])) as Texture2D
+		asset.albedo_texture = _prepare_terrain_texture(str(definition["path"]), false)
+		asset.normal_texture = _prepare_terrain_texture(str(definition["normal"]), true)
 		asset.uv_scale = float(definition["uv_scale"])
 		asset.roughness = float(definition["roughness"])
 		texture_assets.append(asset)
 	terrain.assets.set_texture_list(texture_assets)
 	terrain.assets.update_texture_list()
-	terrain.material.show_colormap = false
+	terrain.material.show_colormap = true
 	terrain.material.update()
-	terrain.show_grey = true
+	terrain.show_grey = false
 	terrain.material.world_background = Terrain3DMaterial.NONE
+
+func _prepare_terrain_texture(path: String, is_normal: bool) -> Texture2D:
+	var source := load(path) as Texture2D
+	if source == null:
+		push_error("Brak tekstury Terrain3D: " + path)
+		return null
+	var image := source.get_image()
+	if image == null or image.is_empty():
+		push_error("Nie można odczytać tekstury Terrain3D: " + path)
+		return null
+	if image.is_compressed():
+		image.decompress()
+	if image.get_width() != TERRAIN_TEXTURE_SIZE or image.get_height() != TERRAIN_TEXTURE_SIZE:
+		image.resize(TERRAIN_TEXTURE_SIZE, TERRAIN_TEXTURE_SIZE, Image.INTERPOLATE_LANCZOS)
+	image.convert(Image.FORMAT_RGBA8)
+	if is_normal:
+		# Terrain3D expects all normal layers in the same linear RGBA layout.
+		image.generate_mipmaps(false)
+	else:
+		image.generate_mipmaps(true)
+	return ImageTexture.create_from_image(image)
