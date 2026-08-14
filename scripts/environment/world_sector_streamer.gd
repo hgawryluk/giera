@@ -8,6 +8,7 @@ const MIN_SECTOR := Vector2i(-3, -3)
 const MAX_SECTOR := Vector2i(3, 3)
 const PRELOAD_MARGIN := Vector2(115.0, 135.0)
 const UPDATE_INTERVAL := 0.18
+const SOLO_PREFETCH_DISTANCE := 112.0
 
 var _world: Dictionary = {}
 var _loaded_sectors: Dictionary[Vector2i, Node3D] = {}
@@ -15,6 +16,8 @@ var _enabled := false
 var _elapsed := 0.0
 var _solo_trail_mode := false
 var _pending_sectors: Array[Vector2i] = []
+var _solo_build_in_progress := false
+var _solo_build_coordinate := Vector2i(999, 999)
 
 func _ready() -> void:
 	add_to_group("world_sector_streamer")
@@ -38,7 +41,7 @@ func _process(delta: float) -> void:
 	_elapsed = 0.0
 	var explorer := get_tree().get_first_node_in_group("exploration_player") as Node3D
 	if explorer != null: _update_loaded_sectors(explorer.global_position)
-	if _solo_trail_mode and not _pending_sectors.is_empty():
+	if _solo_trail_mode and not _solo_build_in_progress and not _pending_sectors.is_empty():
 		_load_sector(_pending_sectors.pop_front())
 
 func clamp_world_position(world_position: Vector3) -> Vector3:
@@ -68,6 +71,13 @@ func _update_loaded_sectors(world_position: Vector3) -> void:
 	if _solo_trail_mode:
 		x_offsets = [-1, 0, 1]
 		z_offsets = [-1, 0, 1]
+		# Begin the following row/column before crossing the current boundary.
+		# This gives the incremental builder over 100 m of travel time and avoids
+		# both an empty horizon and a synchronous hitch at the seam.
+		if local.x < SOLO_PREFETCH_DISTANCE: x_offsets.append(-2)
+		if local.x > sector_size.x - SOLO_PREFETCH_DISTANCE: x_offsets.append(2)
+		if local.y < SOLO_PREFETCH_DISTANCE: z_offsets.append(-2)
+		if local.y > sector_size.y - SOLO_PREFETCH_DISTANCE: z_offsets.append(2)
 	else:
 		if local.x < PRELOAD_MARGIN.x: x_offsets.append(-1)
 		if local.x > sector_size.x - PRELOAD_MARGIN.x: x_offsets.append(1)
@@ -90,10 +100,14 @@ func _update_loaded_sectors(world_position: Vector3) -> void:
 		for coordinate: Vector2i in _pending_sectors:
 			if desired.has(coordinate): retained_pending.append(coordinate)
 		_pending_sectors = retained_pending
+		_pending_sectors.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+			return Vector2(a - current).length_squared() < Vector2(b - current).length_squared()
+		)
 	var loaded_coordinates: Array[Vector2i] = []
 	loaded_coordinates.assign(_loaded_sectors.keys())
 	for coordinate: Vector2i in loaded_coordinates:
-		if not desired.has(coordinate): _unload_sector(coordinate)
+		if not desired.has(coordinate) and coordinate != _solo_build_coordinate:
+			_unload_sector(coordinate)
 
 func _world_to_sector(world_position: Vector3) -> Vector2i:
 	var sector_size := _sector_size()
@@ -113,6 +127,9 @@ func _load_sector(coordinate: Vector2i) -> void:
 			return
 		var solo_sector := SOLO_SECTOR_SCRIPT.new() as SoloTrailStreamedSector
 		solo_sector.configure(coordinate, grid_manager)
+		_solo_build_in_progress = true
+		_solo_build_coordinate = coordinate
+		solo_sector.build_completed.connect(_on_solo_sector_build_completed, CONNECT_ONE_SHOT)
 		add_child(solo_sector)
 		_loaded_sectors[coordinate] = solo_sector
 		return
@@ -128,6 +145,11 @@ func _unload_sector(coordinate: Vector2i) -> void:
 	var sector := _loaded_sectors.get(coordinate) as Node3D
 	if sector != null and is_instance_valid(sector): sector.queue_free()
 	_loaded_sectors.erase(coordinate)
+
+
+func _on_solo_sector_build_completed(_coordinate: Vector2i) -> void:
+	_solo_build_in_progress = false
+	_solo_build_coordinate = Vector2i(999, 999)
 
 
 func _sector_size() -> Vector2:

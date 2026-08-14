@@ -146,9 +146,14 @@ void fragment() {
 	// gone: every visible road now comes from this single continuous route.
 	float trail_distance = min(abs(p.x - solo_path_center_x(p.y)), abs(p.y - solo_horizontal_path_z(p.x)));
 	float irregular_edge = (value_noise(p / 3.1 + vec2(8.2, 3.4)) - 0.5) * blend_noise_strength;
-	float trail_mask = show_trails ? 1.0 - smoothstep(1.65 + irregular_edge, 3.0 + irregular_edge, trail_distance) : 0.0;
+	// Keep a narrow paving core and a considerably wider, noisy soil shoulder.
+	// A single paving mask used to meet meadow at full contrast and could read as
+	// a rectangular texture patch when a path crossed a low-poly terrain edge.
+	float trail_core = show_trails ? 1.0 - smoothstep(1.35 + irregular_edge * 0.45, 2.65 + irregular_edge, trail_distance) : 0.0;
+	float trail_shoulder = show_trails ? 1.0 - smoothstep(2.0 + irregular_edge * 0.35, 5.7 + irregular_edge, trail_distance) : 0.0;
 	float paving_relief = texture(paving_height, p / texture_world_size).r;
-	float surface_paving_weight = clamp(trail_mask + (paving_relief - 0.5) * height_blend_strength * trail_mask * 0.28, 0.0, 1.0);
+	float surface_paving_weight = clamp(trail_core * 0.94 + (paving_relief - 0.5) * height_blend_strength * trail_core * 0.18, 0.0, 1.0);
+	float surface_path_soil_weight = max(trail_shoulder - trail_core * 0.72, 0.0) * 0.70;
 
 	if (is_arena) {
 		dirt_patch = mix(0.52, 0.82, broad_b);
@@ -206,7 +211,12 @@ void fragment() {
 	// Noise is restricted to an already-soft boundary. Adding it to an entire
 	// layer created isolated 0 -> positive soil islands with a visible outline.
 	float dry_boundary = dry_mask * (1.0 - dry_mask);
-	float soil_field = max(dirt_patch * 0.72, surface_bank_soil_weight);
+	// Smooth-union independent soil influences instead of max(). max() leaves a
+	// visible crease where two masks cross even when both masks are individually
+	// soft. The probabilistic union is continuous on every side of the patch.
+	float soil_field = 1.0 - (1.0 - dirt_patch * 0.72)
+		* (1.0 - surface_bank_soil_weight)
+		* (1.0 - surface_path_soil_weight);
 	float soil_boundary = soil_field * (1.0 - soil_field);
 	float sand_boundary = surface_sand_weight * (1.0 - surface_sand_weight);
 	float dry_weight = clamp(dry_mask * 0.42 + edge_noise * dry_boundary, 0.0, 1.0);
@@ -221,6 +231,10 @@ void fragment() {
 	float shared_height = dot(base_weights, layer_heights) / max(dot(base_weights, vec4(1.0)), 0.0001);
 	base_weights *= max(vec4(0.05), vec4(1.0) + (layer_heights - vec4(shared_height)) * height_blend_strength * 0.55);
 	base_weights /= max(dot(base_weights, vec4(1.0)), 0.0001);
+	// Slightly broaden only existing transitions. pow(0, x) remains zero, so
+	// this does not scatter dirt or sand across otherwise pure grass regions.
+	base_weights = pow(base_weights, vec4(0.82));
+	base_weights /= max(dot(base_weights, vec4(1.0)), 0.0001);
 	float final_paving_weight = surface_paving_weight * 0.88;
 	float final_forest_weight = surface_forest_weight * (1.0 - final_paving_weight) * (1.0 - sand_weight);
 	float rock_relief = triplanar_color(rock_height, world_position, normalize(world_normal), texture_world_size).r;
@@ -228,6 +242,12 @@ void fragment() {
 	final_rock_weight *= 1.0 - final_paving_weight;
 	// Normalize overlay coverage once, then reuse these exact weights for color,
 	// roughness and normals. No channel performs a second sequence of mixes.
+	// Feather overlay endpoints as well. This is especially important for rock
+	// selected by slope: interpolated mesh normals must never produce a binary
+	// material switch at a triangle or sector boundary.
+	final_paving_weight = pow(final_paving_weight, 0.86);
+	final_forest_weight = pow(final_forest_weight, 0.86);
+	final_rock_weight = pow(final_rock_weight, 0.86);
 	float overlay_sum = final_paving_weight + final_forest_weight + final_rock_weight;
 	float overlay_normalizer = max(1.0, overlay_sum);
 	final_paving_weight /= overlay_normalizer;
