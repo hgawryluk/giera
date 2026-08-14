@@ -71,14 +71,14 @@ func _create_river() -> void:
 	for index: int in range(129):
 		var x := float(index) * STEP
 		main_centers.append(Vector3(x, WATER_LEVEL, _river_center(x)))
-	_append_water_strip(vertices, normals, uvs, main_centers, HALF_WIDTH, true)
+	_append_water_strip(vertices, normals, uvs, main_centers, 15.5, true)
 	# The former dry ravine is now the river's flooded northern branch.
 	const BRANCH_STEP := 2.0
 	var branch_centers := PackedVector3Array()
 	for index: int in range(62):
 		var z := 110.0 + float(index) * BRANCH_STEP
 		branch_centers.append(Vector3(_ravine_center(z), WATER_LEVEL + 0.002, z))
-	_append_water_strip(vertices, normals, uvs, branch_centers, 5.0, false)
+	_append_water_strip(vertices, normals, uvs, branch_centers, 12.8, false)
 	var arrays: Array = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
@@ -94,7 +94,7 @@ func _create_river() -> void:
 	add_child(river)
 
 
-func _append_water_strip(vertices: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array, centers: PackedVector3Array, half_width: float, runs_along_x: bool) -> void:
+func _append_water_strip(vertices: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array, centers: PackedVector3Array, max_bank_distance: float, runs_along_x: bool) -> void:
 	# The terrain river masks measure main-channel width along Z and branch width
 	# along X. Building the ribbon with those same axes makes the water meet the
 	# carved banks exactly. Reusing each calculated edge for adjacent triangles
@@ -104,9 +104,12 @@ func _append_water_strip(vertices: PackedVector3Array, normals: PackedVector3Arr
 	var left_edges := PackedVector3Array()
 	var right_edges := PackedVector3Array()
 	for center: Vector3 in centers:
-		var offset := Vector3(0.0, 0.0, half_width) if runs_along_x else Vector3(half_width, 0.0, 0.0)
-		left_edges.append(center - offset)
-		right_edges.append(center + offset)
+		var negative_axis := Vector3(0.0, 0.0, -1.0) if runs_along_x else Vector3(-1.0, 0.0, 0.0)
+		var positive_axis := -negative_axis
+		var negative_distance := _find_water_bank_distance(center, negative_axis, max_bank_distance)
+		var positive_distance := _find_water_bank_distance(center, positive_axis, max_bank_distance)
+		left_edges.append(center + negative_axis * negative_distance)
+		right_edges.append(center + positive_axis * positive_distance)
 	var traveled := 0.0
 	for index: int in range(centers.size() - 1):
 		var next_traveled := traveled + centers[index].distance_to(centers[index + 1])
@@ -119,6 +122,27 @@ func _append_water_strip(vertices: PackedVector3Array, normals: PackedVector3Arr
 		_append_water_vertex(vertices, normals, uvs, right_edges[index + 1], Vector2(uv_finish, 1.0))
 		_append_water_vertex(vertices, normals, uvs, right_edges[index], Vector2(uv_start, 1.0))
 		traveled = next_traveled
+
+
+func _find_water_bank_distance(center: Vector3, direction: Vector3, max_distance: float) -> float:
+	# Find the actual terrain/water intersection for every cross-section. This
+	# keeps the ribbon attached to irregular banks instead of assuming that the
+	# submerged shelf width is also the shoreline width.
+	var low := 0.0
+	var high := max_distance
+	var high_point := center + direction * high
+	if _grid_manager.terrain_height(high_point.x, high_point.z) < WATER_LEVEL:
+		return max_distance - 0.01
+	for _iteration: int in range(10):
+		var middle := (low + high) * 0.5
+		var sample := center + direction * middle
+		if _grid_manager.terrain_height(sample.x, sample.z) < WATER_LEVEL:
+			low = middle
+		else:
+			high = middle
+	# Keep only a centimetre of overlap: enough to hide a numerical hairline,
+	# without visibly floating the water above a steep bank.
+	return maxf(0.25, (low + high) * 0.5 - 0.01)
 
 
 func _append_water_vertex(vertices: PackedVector3Array, normals: PackedVector3Array, uvs: PackedVector2Array, point: Vector3, uv: Vector2) -> void:
@@ -145,7 +169,9 @@ func _scatter_grass_multimesh() -> void:
 		if height < 0.15 or height > 16.5 or slope > 0.28 or is_water_at(x, z):
 			continue
 		var trail_distance := _trail_distance(x, z)
-		if trail_distance < 0.85:
+		# The paving material reaches roughly three metres from the authored
+		# centreline. Keep the entire road physically clear of grass cards.
+		if trail_distance < 3.35:
 			continue
 		if _is_inside_rock_grass_clearance(x, z):
 			continue
@@ -163,8 +189,12 @@ func _scatter_grass_multimesh() -> void:
 		# occasional pockets naturally reach closer to its edge.
 		var trail_edge_noise := sin(x * 0.73 + z * 0.41) * 0.70 + cos(x * 0.29 - z * 0.61) * 0.45
 		var effective_trail_distance := trail_distance + trail_edge_noise
-		var trail_density_factor := smoothstep(1.0, 7.2, effective_trail_distance)
-		density *= lerpf(0.035, 1.0, trail_density_factor)
+		var trail_density_factor := smoothstep(3.35, 10.5, effective_trail_distance)
+		density *= lerpf(0.02, 1.0, trail_density_factor)
+		# Meadows and the softer forest floor carry the richest cover. This is a
+		# broad field, so it does not form a visible ring parallel to the road.
+		var meadow_or_forest_cover := maxf(meadow_factor, forest_hill_factor * 0.78)
+		density *= lerpf(0.72, 1.18, meadow_or_forest_cover)
 		# Density fades towards water. The narrow bank band keeps only isolated,
 		# slightly slimmer tufts instead of an artificial clean strip.
 		var bank_tuft := water_distance < 9.0
@@ -178,7 +208,7 @@ func _scatter_grass_multimesh() -> void:
 		# is deliberately twice the previous size for stronger FPP coverage.
 		var scale_y := rng.randf_range(0.80, 1.56) * lerpf(0.92, 1.08, meadow_factor)
 		var scale_xz := rng.randf_range(0.48, 1.04)
-		var trail_scale_factor := lerpf(0.38, 1.0, smoothstep(1.0, 6.2, effective_trail_distance))
+		var trail_scale_factor := lerpf(0.34, 1.0, smoothstep(3.35, 9.0, effective_trail_distance))
 		scale_y *= trail_scale_factor
 		scale_xz *= lerpf(0.55, 1.0, trail_scale_factor)
 		if bank_tuft:
@@ -368,13 +398,15 @@ func _scatter_bush_multimeshes() -> void:
 				continue
 			variant = mini(2, _bush_meshes.size() - 1)
 		var bounds := _bush_meshes[variant].get_aabb()
-		var target_height := rng.randf_range(0.85, 1.65)
+		# Shrubs form a readable middle storey: taller than grass, but clearly
+		# below the 7.5--12.5 m ordinary trees.
+		var target_height := rng.randf_range(1.8, 4.2)
 		if variant == 0 and forest_factor > 0.55:
-			target_height *= rng.randf_range(1.05, 1.45)
+			target_height *= rng.randf_range(1.08, 1.28)
 		if variant == 2:
-			target_height = rng.randf_range(0.55, 1.15)
+			target_height = rng.randf_range(1.45, 3.1)
 		if beach_bush:
-			target_height *= rng.randf_range(0.55, 0.88)
+			target_height *= rng.randf_range(0.72, 0.94)
 		var uniform_scale := target_height / maxf(bounds.size.y, 0.01)
 		var width_variation := rng.randf_range(0.78, 1.28)
 		var bush_scale := Vector3(uniform_scale * width_variation, uniform_scale * rng.randf_range(0.90, 1.12), uniform_scale * rng.randf_range(0.82, 1.22))

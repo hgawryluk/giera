@@ -10,7 +10,7 @@ const TRAIL_ROCK_COUNT: int = 54
 const HILL_ROCK_COUNT: int = 24
 const WILD_ROCK_COUNT: int = 18
 const LANDMARK_ROCK_COUNT: int = 4
-const RIVERSIDE_ROCK_COUNT: int = 190
+const RIVERSIDE_ROCK_COUNT: int = 90
 const WATER_LEVEL: float = -1.7
 
 var _grid_manager: GridManager
@@ -86,22 +86,26 @@ func _scatter_riverbanks(rng: RandomNumberGenerator, batches: Array[Array]) -> v
 		var use_branch := rng.randf() < 0.38
 		var x: float
 		var z: float
+		var semi_submerged := rng.randf() < 0.28
 		if use_branch:
 			z = rng.randf_range(114.0, 226.0)
 			var branch_side := -1.0 if rng.randf() < 0.5 else 1.0
-			x = _ravine_center(z) + branch_side * rng.randf_range(5.5, 11.8)
+			x = _ravine_center(z) + branch_side * (rng.randf_range(4.2, 5.1) if semi_submerged else rng.randf_range(7.2, 11.8))
 		else:
 			x = rng.randf_range(7.0, 249.0)
 			var river_side := -1.0 if rng.randf() < 0.5 else 1.0
-			z = _river_center(x) + river_side * rng.randf_range(7.5, 14.2)
+			z = _river_center(x) + river_side * (rng.randf_range(5.8, 7.1) if semi_submerged else rng.randf_range(9.0, 14.2))
 		# Keep the ford readable and traversable instead of building a rock wall
 		# across the authored route.
-		if _trail_distance(x, z) < 5.8 or not _can_place(x, z, 0.72, 0.08):
+		if _trail_distance(x, z) < 5.8:
+			continue
+		if not semi_submerged and not _can_place(x, z, 0.72, 0.08):
 			continue
 		var target_height := rng.randf_range(0.38, 1.35)
 		if rng.randf() < 0.16:
 			target_height = rng.randf_range(1.35, 2.35)
-		_append_rock(rng, batches, x, z, target_height, rng.randf_range(0.70, 1.26))
+		var waterline_override := WATER_LEVEL - target_height * rng.randf_range(0.18, 0.34) if semi_submerged else NAN
+		_append_rock(rng, batches, x, z, target_height, rng.randf_range(0.70, 1.26), waterline_override)
 		placed += 1
 
 
@@ -141,7 +145,7 @@ func _scatter_landmarks(rng: RandomNumberGenerator, batches: Array[Array]) -> vo
 		_append_rock(rng, batches, x, z, rng.randf_range(5.8, 8.2), rng.randf_range(0.82, 1.18))
 
 
-func _append_rock(rng: RandomNumberGenerator, batches: Array[Array], x: float, z: float, target_height: float, width_ratio: float) -> void:
+func _append_rock(rng: RandomNumberGenerator, batches: Array[Array], x: float, z: float, target_height: float, width_ratio: float, height_override: float = NAN) -> void:
 	var mesh_index := rng.randi_range(0, _meshes.size() - 1)
 	var bounds := _meshes[mesh_index].get_aabb()
 	var uniform_scale := target_height / maxf(bounds.size.y, 0.01)
@@ -149,7 +153,7 @@ func _append_rock(rng: RandomNumberGenerator, batches: Array[Array], x: float, z
 	var slope := _estimate_slope(x, z)
 	var rock_basis := _basis_aligned_to_normal(_terrain_normal(x, z), rng.randf_range(0.0, TAU)).scaled(rock_scale)
 	var burial := target_height * (0.12 + clampf(slope, 0.0, 1.0) * 0.10)
-	var height := _grid_manager.terrain_height(x, z)
+	var height := _grid_manager.terrain_height(x, z) if is_nan(height_override) else height_override
 	batches[mesh_index].append(Transform3D(rock_basis, Vector3(x, height - burial, z)))
 	# Grass cards intersecting an opaque boulder look as if they were rendered
 	# through it. Keep the meadow dense, but reserve only the actual footprint
