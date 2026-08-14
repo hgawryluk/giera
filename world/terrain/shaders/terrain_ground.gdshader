@@ -9,12 +9,27 @@ uniform sampler2D meadow_albedo_alt : source_color, repeat_enable, filter_linear
 uniform sampler2D sand_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
 uniform sampler2D rock_albedo_alt : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
 uniform sampler2D forest_soil_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D paving_albedo : source_color, repeat_enable, filter_linear_mipmap_anisotropic;
 
 // Reserved slots for a later PBR texture pass.
 uniform sampler2D grass_normal_roughness : hint_normal, repeat_enable, filter_linear_mipmap_anisotropic;
 uniform sampler2D dry_grass_normal_roughness : hint_normal, repeat_enable, filter_linear_mipmap_anisotropic;
 uniform sampler2D dirt_normal_roughness : hint_normal, repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D rock_normal : hint_normal, repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D grass_height : repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D dirt_height : repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D rock_height : repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D grass_roughness : repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D dirt_roughness : repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D sand_roughness : repeat_enable, filter_linear_mipmap_anisotropic;
+uniform sampler2D rock_roughness : repeat_enable, filter_linear_mipmap_anisotropic;
 uniform bool use_normal_roughness = false;
+
+uniform float blend_softness : hint_range(0.02, 1.0, 0.01) = 0.32;
+uniform float height_blend_strength : hint_range(0.0, 1.0, 0.01) = 0.42;
+uniform float noise_strength : hint_range(0.0, 0.5, 0.01) = 0.10;
+uniform float noise_scale : hint_range(0.01, 2.0, 0.01) = 0.14;
+uniform float triplanar_sharpness : hint_range(1.0, 16.0, 0.1) = 6.0;
 
 uniform float texture_world_size : hint_range(0.5, 8.0, 0.1) = 2.5;
 uniform float macro_world_size : hint_range(10.0, 160.0, 1.0) = 55.0;
@@ -59,6 +74,12 @@ vec3 anti_tile(sampler2D source, vec2 world_xz) {
 	return mix(varied, sample_c, blend_b * detail_rotation_mix);
 }
 
+vec3 triplanar_color(sampler2D source, vec3 pos, vec3 normal, float scale) {
+	vec3 weights = pow(abs(normal), vec3(triplanar_sharpness));
+	weights /= max(dot(weights, vec3(1.0)), 0.0001);
+	return texture(source, pos.zy / scale).rgb * weights.x + texture(source, pos.xz / scale).rgb * weights.y + texture(source, pos.xy / scale).rgb * weights.z;
+}
+
 void vertex() {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_normal = normalize(MODEL_NORMAL_MATRIX * NORMAL);
@@ -75,12 +96,18 @@ void fragment() {
 	vec3 sand = anti_tile(sand_albedo, p + vec2(-42.2, 51.7));
 	vec3 rock_alt = anti_tile(rock_albedo_alt, p + vec2(22.8, 74.1));
 	vec3 forest_soil = anti_tile(forest_soil_albedo, p + vec2(-71.3, -24.6));
+	vec3 paving = anti_tile(paving_albedo, p + vec2(13.2, -61.4));
 
 	float boundary_noise = (value_noise(p / 4.8) - 0.5) * blend_noise_strength;
 	float broad_a = value_noise(p / 23.0 + vec2(4.7, 11.2));
 	float broad_b = value_noise(p / 37.0 + vec2(19.3, 2.8));
 	float dry_mask = smoothstep(0.50, 0.75, broad_a + boundary_noise * 0.18);
 	float dirt_patch = smoothstep(0.66, 0.86, broad_b + boundary_noise * 0.14) * 0.72;
+	float material_noise = (value_noise(p * noise_scale) - 0.5) * noise_strength;
+	float grass_h = texture(grass_height, p / texture_world_size).r;
+	float dirt_h = texture(dirt_height, p / texture_world_size).r;
+	dry_mask = smoothstep(0.5 - blend_softness, 0.5 + blend_softness, dry_mask + material_noise + (dirt_h - grass_h) * height_blend_strength);
+	dirt_patch = smoothstep(0.5 - blend_softness, 0.5 + blend_softness, dirt_patch + material_noise + (dirt_h - grass_h) * height_blend_strength);
 
 	float north_south_x = grid_size.x * 0.5 + sin(p.y * 0.055) * 12.0;
 	float diagonal_z = 30.0 + p.x * 0.72 + sin(p.x * 0.09) * 6.0;
@@ -96,6 +123,7 @@ void fragment() {
 
 	vec3 ground = mix(grass, dry_grass, dry_mask);
 	ground = mix(ground, dirt, max(dirt_patch, trail_mask));
+	ground = mix(ground, paving, trail_mask * 0.82);
 	float macro = value_noise(p / macro_world_size) * 2.0 - 1.0;
 	ground *= 1.0 + macro * macro_strength;
 	float ground_luminance = dot(ground, vec3(0.299, 0.587, 0.114));
@@ -104,6 +132,7 @@ void fragment() {
 		float green_variation = value_noise(p / 42.0) * 0.035;
 		ground = vec3(0.19, 0.42, 0.14) * (0.98 + green_variation);
 	}
+	float surface_sand_weight = 0.0;
 	if (solo_trail_landscape) {
 		vec2 warp = vec2(value_noise(p / 31.0 + vec2(4.1, 9.7)), value_noise(p / 27.0 + vec2(15.3, 2.2))) - 0.5;
 		vec2 shaped_p = p + warp * 5.5;
@@ -128,6 +157,7 @@ void fragment() {
 		// cutting directly into green meadow along the waterway.
 		float bank_outer = smoothstep(0.03, 0.64, wet_bank);
 		float bank_inner = smoothstep(0.42, 0.96, wet_bank);
+		surface_sand_weight = bank_inner * 0.78;
 		float bank_mottle = smoothstep(0.30, 0.72, value_noise(p / 5.8 + vec2(23.1, 1.7)));
 		vec3 bank_soil = mix(dry_grass, dirt, 0.38 + bank_mottle * 0.34);
 		ground = mix(meadow, bank_soil, bank_outer * 0.78);
@@ -136,7 +166,8 @@ void fragment() {
 		forest_hill *= smoothstep(0.40, 0.72, value_noise(p / 21.0 + vec2(3.7, 12.4)));
 		ground = mix(ground, forest_soil, forest_hill * 0.76);
 		float rock_variant = smoothstep(0.28, 0.72, value_noise(p / 34.0 + vec2(9.5, 4.2)));
-		vec3 varied_rock = mix(rock, rock_alt, rock_variant);
+		vec3 steep_rock = triplanar_color(rock_albedo, world_position, normalize(world_normal), texture_world_size);
+		vec3 varied_rock = mix(mix(rock, rock_alt, rock_variant), steep_rock, smoothstep(0.12, 0.36, slope));
 		ground = mix(ground, varied_rock, max(cliff, alpine * 0.72));
 		ground *= 0.94 + (value_noise(p / 58.0) - 0.5) * 0.11;
 	}
@@ -146,5 +177,18 @@ void fragment() {
 	float grid_line = 1.0 - smoothstep(0.02, 0.055, min(edge.x, edge.y));
 	ground = mix(ground, vec3(0.035, 0.055, 0.03), (grid_visible ? grid_line : 0.0) * 0.82);
 	ALBEDO = ground;
-	ROUGHNESS = mix(0.86, 0.94, max(dirt_patch, trail_mask));
+	float grass_r = texture(grass_roughness, p / texture_world_size).r;
+	float dirt_r = texture(dirt_roughness, p / texture_world_size).r;
+	float sand_r = texture(sand_roughness, p / texture_world_size).r;
+	float rock_r = triplanar_color(rock_roughness, world_position, normalize(world_normal), texture_world_size).r;
+	ROUGHNESS = mix(grass_r, dirt_r, clamp(dirt_patch + dry_mask * 0.5, 0.0, 1.0));
+	ROUGHNESS = mix(ROUGHNESS, sand_r, surface_sand_weight);
+	ROUGHNESS = mix(ROUGHNESS, rock_r, smoothstep(0.20, 0.56, 1.0 - world_normal.y));
+	if (use_normal_roughness) {
+		vec3 grass_n = texture(grass_normal_roughness, p / texture_world_size).rgb;
+		vec3 dirt_n = texture(dirt_normal_roughness, p / texture_world_size).rgb;
+		vec3 rock_n = triplanar_color(rock_normal, world_position, normalize(world_normal), texture_world_size);
+		NORMAL_MAP = mix(mix(grass_n, dirt_n, clamp(dirt_patch + dry_mask * 0.5, 0.0, 1.0)), rock_n, smoothstep(0.20, 0.56, 1.0 - world_normal.y));
+		NORMAL_MAP_DEPTH = 0.65;
+	}
 }

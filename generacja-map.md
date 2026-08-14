@@ -33,3 +33,14 @@
 - Drzewa pozostają zasadniczo pionowe; dopuszczalne jest jedynie subtelne przechylenie. Kamienie mogą podążać za normalną zbocza.
 - Duże landmarki mogą używać znacznie większej skali, lecz powinny być nieliczne i umieszczone świadomie.
 - Przy losowaniu zachowujemy minimalny odstęp między drzewami oraz wykluczamy rzeki, wąwozy, polany startowe i bardzo strome zbocza.
+
+## Materiały terenu i paczki PBR
+
+- Preferujemy kompletne zestawy PBR: `Color`, `NormalGL`, `Roughness` i `Displacement/Height`; map `NormalDX` nie używamy w Godot bez odwrócenia kanału Y.
+- Warstwy malowane muszą zachowywać ciągłe, wygładzone wagi. Po height blendzie i noise zawsze normalizujemy sumę wag przed mieszaniem albedo, normal oraz roughness.
+- Height blending służy do naturalnego wchodzenia materiału o wyższym reliefie w sąsiednią warstwę; nie może zamieniać miękkiej maski pędzla w próg 0/1.
+- Na stromych zboczach stosujemy triplanar mapping z regulowaną ostrością, aby ograniczyć rozciąganie tekstur oglądanych pod kątem.
+- Noise granic ma być subtelny i działać na kilku metrach świata. Nie może tworzyć regularnego pasa wzdłuż rzeki ani ujawniać granic kafla.
+- Parametry `blend_softness`, `height_blend_strength`, `noise_strength`, `noise_scale` i `triplanar_sharpness` pozostawiamy w materiale jako łatwo edytowalne uniformy Inspectora.
+- Importowane paczki tekstur przechowujemy logicznie pod `res://assets/textures/terrain/`; nie kopiujemy do projektu plików Blender, USD, miniaturek ani duplikatów, jeśli runtime ich nie używa.
+- Zmiana materiałów nie może naruszać map kontrolnych Terrain3D, geometrii heightmapy ani kolizji; malowanie tekstur musi pozostać kompatybilne z istniejącymi ID warstw.

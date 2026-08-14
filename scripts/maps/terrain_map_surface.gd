@@ -5,7 +5,7 @@ const MAP_SIZE := Vector2i(160, 190)
 const REGION_LOCATION := Vector2i.ZERO
 const MIN_HEIGHT := -12.0
 const MAX_HEIGHT := 18.0
-const GRASS_TEXTURE: Texture2D = preload("res://assets/textures/terrain/paint/meadow_grass_rgba.png")
+const PBR_ROOT := "res://assets/textures/terrain/ambientcg_2k/"
 const MATERIAL_COLORS: Array[Color] = [
 	Color(0.20, 0.43, 0.16),
 	Color(0.30, 0.20, 0.12),
@@ -13,10 +13,10 @@ const MATERIAL_COLORS: Array[Color] = [
 	Color(0.31, 0.32, 0.30),
 ]
 const PAINT_TEXTURES: Array[Dictionary] = [
-	{"name": "Trawa", "path": "res://assets/textures/terrain/paint/meadow_grass_rgba.png", "uv_scale": 0.12, "roughness": 0.65},
-	{"name": "Ziemia", "path": "res://assets/textures/terrain/paint/forest_soil_rgba.png", "uv_scale": 0.16, "roughness": 0.78},
-	{"name": "Piasek", "path": "res://assets/textures/terrain/paint/river_sand_rgba.png", "uv_scale": 0.18, "roughness": 0.72},
-	{"name": "Skała", "path": "res://assets/textures/terrain/paint/weathered_rock_rgba.png", "uv_scale": 0.13, "roughness": 0.82},
+	{"name": "Trawa", "path": PBR_ROOT + "Grass004_2K-PNG/Grass004_2K-PNG_Color.png", "normal": PBR_ROOT + "Grass004_2K-PNG/Grass004_2K-PNG_NormalGL.png", "height": PBR_ROOT + "Grass004_2K-PNG/Grass004_2K-PNG_Displacement.png", "roughness_map": PBR_ROOT + "Grass004_2K-PNG/Grass004_2K-PNG_Roughness.png", "uv_scale": 0.18, "roughness": 0.72},
+	{"name": "Ziemia", "path": PBR_ROOT + "Ground103_2K-PNG/Ground103_2K-PNG_Color.png", "normal": PBR_ROOT + "Ground103_2K-PNG/Ground103_2K-PNG_NormalGL.png", "height": PBR_ROOT + "Ground103_2K-PNG/Ground103_2K-PNG_Displacement.png", "roughness_map": PBR_ROOT + "Ground103_2K-PNG/Ground103_2K-PNG_Roughness.png", "uv_scale": 0.20, "roughness": 0.82},
+	{"name": "Piasek", "path": PBR_ROOT + "Ground108_2K-PNG/Ground108_2K-PNG_Color.png", "normal": PBR_ROOT + "Ground108_2K-PNG/Ground108_2K-PNG_NormalGL.png", "height": PBR_ROOT + "Ground108_2K-PNG/Ground108_2K-PNG_Displacement.png", "roughness_map": PBR_ROOT + "Ground108_2K-PNG/Ground108_2K-PNG_Roughness.png", "uv_scale": 0.19, "roughness": 0.76},
+	{"name": "Skała", "path": PBR_ROOT + "Rock060_2K-PNG/Rock060_2K-PNG_Color.png", "normal": PBR_ROOT + "Rock060_2K-PNG/Rock060_2K-PNG_NormalGL.png", "height": PBR_ROOT + "Rock060_2K-PNG/Rock060_2K-PNG_Displacement.png", "roughness_map": PBR_ROOT + "Rock060_2K-PNG/Rock060_2K-PNG_Roughness.png", "uv_scale": 0.16, "roughness": 0.86},
 ]
 
 var terrain: Terrain3D
@@ -312,7 +312,7 @@ func _configure_material() -> void:
 		asset.id = texture_id
 		asset.name = str(definition["name"])
 		asset.albedo_texture = load(str(definition["path"])) as Texture2D
-		asset.normal_texture = load("res://assets/textures/terrain/paint/flat_normal_roughness_1024.png") as Texture2D
+		asset.normal_texture = load(str(definition["normal"])) as Texture2D
 		asset.uv_scale = float(definition["uv_scale"])
 		asset.roughness = float(definition["roughness"])
 		texture_assets.append(asset)
