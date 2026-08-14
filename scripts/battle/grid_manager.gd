@@ -68,7 +68,7 @@ func _load_selected_terrain() -> void:
 		return
 	if session.selected_map_id == "builtin:solo_trail":
 		_use_procedural_features = false
-		player_positions = [Vector2i(128, 148), Vector2i(132, 148)]
+		player_positions = [Vector2i(128, 128), Vector2i(132, 128)]
 		return
 	if session.selected_map_id == "builtin:arena":
 		const ARENA_RECTS: Array[Rect2i] = [
@@ -509,13 +509,19 @@ func _solo_trail_height(x: float, z: float) -> float:
 	var rolling := sin(x * 0.052) * 1.7 + cos(z * 0.041) * 1.4
 	rolling += sin((x + z) * 0.021) * 2.1 + sin(x * 0.17 - z * 0.13) * 0.38
 	var height: float = 3.2 + rolling
-	# Mountain walls and individual summits frame the playable valley.
-	var edge_distance := minf(minf(x, z), minf(255.0 - x, 255.0 - z))
-	height += smoothstep(62.0, 5.0, edge_distance) * 22.0
+	# Global ridges are independent of tile edges, so streamed neighbours share
+	# exactly the same height samples along every seam.
+	var global_ridge := smoothstep(0.57, 0.82, _terrain_noise(p, 0.0085, 137.0))
+	height += global_ridge * global_ridge * 18.0
 	height += _irregular_peak(p, Vector2(30.0, 38.0), 43.0, 28.0, 0.4)
 	height += _irregular_peak(p, REFINEMENT_HILL_CENTER, 34.0, REFINEMENT_HILL_RADIUS, 2.1)
 	height += _irregular_peak(p, Vector2(230.0, 205.0), 48.0, 31.0, 4.2)
 	height += _irregular_peak(p, Vector2(35.0, 220.0), 33.0, 38.0, 5.4)
+	# Flatten both connected roads after hills, but before rivers. The path over
+	# the northern hill is therefore walkable, while submerged crossings remain low.
+	var path_flatten := 1.0 - smoothstep(3.2, 9.5, solo_trail_path_distance(x, z))
+	var path_height := 3.1 + (_terrain_noise(p, 0.010, 211.0) - 0.5) * 1.0
+	height = lerpf(height, path_height, path_flatten * 0.94)
 	# A broad meadow keeps the player spawn readable and walkable.
 	var clearing_weight := 1.0 - smoothstep(22.0, 46.0, p.distance_to(Vector2(130.0, 150.0)))
 	height = lerpf(height, 3.0 + sin(x * 0.11) * 0.22 + cos(z * 0.09) * 0.18, clearing_weight)
@@ -537,7 +543,7 @@ func _solo_trail_height(x: float, z: float) -> float:
 	height = lerpf(height, river_floor, river_weight)
 	# A flooded canyon branches northward from the main river.
 	var ravine_x := _solo_ravine_center(z)
-	var ravine_extent := smoothstep(92.0, 116.0, z) * (1.0 - smoothstep(211.0, 230.0, z))
+	var ravine_extent := 1.0
 	var ravine_side := x - ravine_x
 	var ravine_distance := absf(ravine_side)
 	var ravine_curvature := _solo_ravine_center(z + 2.0) - 2.0 * ravine_x + _solo_ravine_center(z - 2.0)
@@ -558,6 +564,28 @@ func _solo_river_center(x: float) -> float:
 
 func _solo_ravine_center(z: float) -> float:
 	return 72.0 + sin(z * 0.052) * 5.0
+
+
+func solo_trail_path_center_x(z: float) -> float:
+	if z < 20.0:
+		return 218.0 + sin((z - 20.0) * 0.016) * 28.0
+	if z > 246.0:
+		return 35.0 + sin((z - 246.0) * 0.016) * 28.0
+	var t := clampf((246.0 - z) / 226.0, 0.0, 1.0)
+	var inverse := 1.0 - t
+	return inverse * inverse * inverse * 35.0 + 3.0 * inverse * inverse * t * 45.0 + 3.0 * inverse * t * t * 225.0 + t * t * t * 218.0
+
+
+func solo_trail_horizontal_path_z(x: float) -> float:
+	return 132.0 + sin(x * 0.014 + 0.8) * 34.0 + sin(x * 0.037) * 8.0
+
+
+func solo_trail_path_distance(x: float, z: float) -> float:
+	return minf(absf(x - solo_trail_path_center_x(z)), absf(z - solo_trail_horizontal_path_z(x)))
+
+
+func solo_trail_is_water(x: float, z: float) -> bool:
+	return absf(z - _solo_river_center(x)) <= 7.2 or absf(x - _solo_ravine_center(z)) <= 5.2
 
 
 func _terrain_noise(point: Vector2, scale_value: float, seed_offset: float) -> float:

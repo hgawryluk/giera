@@ -94,12 +94,22 @@ vec3 triplanar_color(sampler2D source, vec3 pos, vec3 normal, float scale) {
 // Keeping the route as one curve (instead of combining several line masks)
 // prevents the old three-way road junctions from reappearing.
 float solo_path_center_x(float world_z) {
+	if (world_z < 20.0) {
+		return 218.0 + sin((world_z - 20.0) * 0.016) * 28.0;
+	}
+	if (world_z > 246.0) {
+		return 35.0 + sin((world_z - 246.0) * 0.016) * 28.0;
+	}
 	float t = clamp((246.0 - world_z) / 226.0, 0.0, 1.0);
 	float inverse_t = 1.0 - t;
 	return inverse_t * inverse_t * inverse_t * 35.0
 		+ 3.0 * inverse_t * inverse_t * t * 45.0
 		+ 3.0 * inverse_t * t * t * 225.0
 		+ t * t * t * 218.0;
+}
+
+float solo_horizontal_path_z(float world_x) {
+	return 132.0 + sin(world_x * 0.014 + 0.8) * 34.0 + sin(world_x * 0.037) * 8.0;
 }
 
 void vertex() {
@@ -134,7 +144,7 @@ void fragment() {
 
 	// The former north/south, diagonal and east/west masks are intentionally
 	// gone: every visible road now comes from this single continuous route.
-	float trail_distance = abs(p.x - solo_path_center_x(p.y));
+	float trail_distance = min(abs(p.x - solo_path_center_x(p.y)), abs(p.y - solo_horizontal_path_z(p.x)));
 	float irregular_edge = (value_noise(p / 3.1 + vec2(8.2, 3.4)) - 0.5) * blend_noise_strength;
 	float trail_mask = show_trails ? 1.0 - smoothstep(1.65 + irregular_edge, 3.0 + irregular_edge, trail_distance) : 0.0;
 	float paving_relief = texture(paving_height, p / texture_world_size).r;
@@ -166,7 +176,7 @@ void fragment() {
 		float river_distance = abs(shaped_p.y - river_center) + bank_noise;
 		float river_bank = 1.0 - smoothstep(7.0, 23.0, river_distance);
 		float ravine_center = 72.0 + sin(shaped_p.y * 0.052) * 5.0;
-		float ravine_extent = smoothstep(96.0, 119.0, shaped_p.y) * (1.0 - smoothstep(211.0, 232.0, shaped_p.y));
+		float ravine_extent = 1.0;
 		float ravine_distance = abs(shaped_p.x - ravine_center) + bank_noise * 0.7;
 		float ravine_bank = (1.0 - smoothstep(5.0, 20.0, ravine_distance)) * ravine_extent;
 		float slope = 1.0 - clamp(world_normal.y, 0.0, 1.0);
@@ -214,7 +224,7 @@ void fragment() {
 	float final_paving_weight = surface_paving_weight * 0.88;
 	float final_forest_weight = surface_forest_weight * (1.0 - final_paving_weight) * (1.0 - sand_weight);
 	float rock_relief = triplanar_color(rock_height, world_position, normalize(world_normal), texture_world_size).r;
-	float final_rock_weight = max(surface_rock_weight, smoothstep(0.24, 0.64, 1.0 - world_normal.y + (rock_relief - 0.5) * height_blend_strength * 0.10));
+	float final_rock_weight = max(surface_rock_weight, smoothstep(0.18, 0.72, 1.0 - world_normal.y + (rock_relief - 0.5) * height_blend_strength * 0.08));
 	final_rock_weight *= 1.0 - final_paving_weight;
 	// Normalize overlay coverage once, then reuse these exact weights for color,
 	// roughness and normals. No channel performs a second sequence of mixes.

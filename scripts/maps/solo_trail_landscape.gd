@@ -83,8 +83,8 @@ func _create_river() -> void:
 	# The former dry ravine is now the river's flooded northern branch.
 	const BRANCH_STEP := 2.0
 	var branch_centers := PackedVector3Array()
-	for index: int in range(62):
-		var z := 110.0 + float(index) * BRANCH_STEP
+	for index: int in range(129):
+		var z := float(index) * BRANCH_STEP
 		branch_centers.append(Vector3(_ravine_center(z), WATER_LEVEL + 0.002, z))
 	_append_water_strip(vertices, normals, uvs, branch_centers, 12.8, false)
 	var arrays: Array = []
@@ -659,17 +659,11 @@ func _river_center(x: float) -> float:
 
 func _waterway_distance(x: float, z: float) -> float:
 	var river_distance := absf(z - _river_center(x))
-	if z < 106.0 or z > 234.0:
-		return river_distance
 	return minf(river_distance, absf(x - _ravine_center(z)))
 
 
 func _trail_distance(x: float, z: float) -> float:
-	# Keep synchronized with solo_path_center_x() in terrain_ground.gdshader.
-	var t := clampf((246.0 - z) / 226.0, 0.0, 1.0)
-	var inverse := 1.0 - t
-	var center_x := inverse * inverse * inverse * 35.0 + 3.0 * inverse * inverse * t * 45.0 + 3.0 * inverse * t * t * 225.0 + t * t * t * 218.0
-	return absf(x - center_x)
+	return _grid_manager.solo_trail_path_distance(x, z)
 
 
 func _cache_rock_grass_clearances(clearances: Array) -> void:
@@ -703,7 +697,7 @@ func _ravine_center(z: float) -> float:
 func is_water_at(x: float, z: float) -> bool:
 	if absf(z - _river_center(x)) <= 7.0:
 		return true
-	return z >= 110.0 and z <= 231.0 and absf(x - _ravine_center(z)) <= 5.0
+	return absf(x - _ravine_center(z)) <= 5.0
 
 
 func water_surface_height_at(x: float, z: float) -> float:

@@ -218,7 +218,7 @@ func _trail_center_x(z: float) -> float:
 
 
 func _trail_distance(x: float, z: float) -> float:
-	return absf(x - _trail_center_x(z))
+	return _grid_manager.solo_trail_path_distance(x, z)
 
 
 func _river_center(x: float) -> float:
@@ -232,7 +232,7 @@ func _ravine_center(z: float) -> float:
 func _is_water_at(x: float, z: float) -> bool:
 	if absf(z - _river_center(x)) <= 7.0:
 		return true
-	return z >= 110.0 and z <= 231.0 and absf(x - _ravine_center(z)) <= 5.0
+	return absf(x - _ravine_center(z)) <= 5.0
 
 
 func _estimate_slope(x: float, z: float) -> float:

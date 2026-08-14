@@ -35,6 +35,10 @@ func _apply_selected_map() -> void:
 		landscape.name = "SoloTrailLandscape"
 		add_child(landscape)
 		landscape.setup(grid_manager)
+		var roaming_ogre := ROAD_OGRE_SCRIPT.new() as RoadOgreWalker
+		roaming_ogre.name = "GiantPathOgre"
+		add_child(roaming_ogre)
+		roaming_ogre.setup(grid_manager, true)
 		return
 	var data: Dictionary = get_node("/root/MapCatalog").load_map(session.selected_map_id)
 	if data.is_empty():
