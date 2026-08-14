@@ -110,14 +110,27 @@ func _scatter_grass_multimesh() -> void:
 		var slope := _estimate_slope(x, z)
 		if height < 0.15 or height > 16.5 or slope > 0.28 or is_water_at(x, z):
 			continue
-		# Low-frequency fields form broad meadows, holes and isolated fringe blades.
+		var water_distance := _waterway_distance(x, z)
+		var meadow_factor := 1.0 - smoothstep(0.08, 0.28, slope)
+		meadow_factor *= 1.0 - smoothstep(12.0, 16.5, height)
+		# Low-frequency fields form broad meadows and natural empty pockets.
 		var broad := sin(x * 0.055) * 0.32 + cos(z * 0.047) * 0.30 + sin((x + z) * 0.021) * 0.38
 		var fine := sin(x * 0.31 - z * 0.27) * 0.18
-		var density := clampf(0.48 + broad + fine, 0.04, 0.96)
+		var density := clampf(0.52 + broad + fine, 0.03, 0.97) * lerpf(0.18, 1.0, meadow_factor)
+		# Density fades towards water. The narrow bank band keeps only isolated,
+		# slightly slimmer tufts instead of an artificial clean strip.
+		var bank_tuft := water_distance < 9.0
+		if bank_tuft:
+			density *= lerpf(0.012, 0.085, smoothstep(4.4, 9.0, water_distance))
+		else:
+			density *= smoothstep(7.0, 18.0, water_distance)
 		if rng.randf() > density:
 			continue
-		var scale_y := rng.randf_range(0.72, 1.18) * lerpf(0.82, 1.08, density)
-		var scale_xz := rng.randf_range(0.78, 1.15)
+		var scale_y := rng.randf_range(0.78, 1.58) * lerpf(0.92, 1.14, meadow_factor)
+		var scale_xz := rng.randf_range(0.68, 1.28)
+		if bank_tuft:
+			scale_y *= rng.randf_range(0.88, 1.20)
+			scale_xz *= rng.randf_range(0.34, 0.54)
 		var blade_basis := Basis(Vector3.UP, rng.randf_range(0.0, TAU)).scaled(Vector3(scale_xz, scale_y, scale_xz))
 		transforms.append(Transform3D(blade_basis, Vector3(x, height + 0.025, z)))
 	var multimesh := MultiMesh.new()
@@ -132,7 +145,7 @@ func _scatter_grass_multimesh() -> void:
 	grass.name = "SimpleGrassTextured_Meadows"
 	grass.multimesh = multimesh
 	grass.set("texture_albedo", GRASS_TEXTURE)
-	grass.set("albedo", Color(0.48, 0.58, 0.32))
+	grass.set("albedo", Color(0.43, 0.54, 0.29))
 	# Large meadow clumps: roughly seven times the previous card dimensions.
 	grass.set("scale_h", 2.80)
 	grass.set("scale_w", 1.61)
@@ -389,6 +402,13 @@ func _create_water_material() -> ShaderMaterial:
 
 func _river_center(x: float) -> float:
 	return 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
+
+
+func _waterway_distance(x: float, z: float) -> float:
+	var river_distance := absf(z - _river_center(x))
+	if z < 106.0 or z > 234.0:
+		return river_distance
+	return minf(river_distance, absf(x - _ravine_center(z)))
 
 
 func _ravine_center(z: float) -> float:
