@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" load_steps=30 format=3]
+[gd_resource type="ShaderMaterial" load_steps=42 format=3]
 
 [ext_resource type="Shader" path="res://world/terrain/shaders/terrain_ground.gdshader" id="1_shader"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/Grass001_2K-PNG/Grass001_2K-PNG_Color.png" id="2_grass"]
@@ -29,6 +29,18 @@
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/PavingStones138_2K-PNG/PavingStones138_2K-PNG_Displacement.png" id="27_ph"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/ScatteredLeaves009_2K-PNG/ScatteredLeaves009_2K-PNG_Roughness.png" id="28_lr"]
 [ext_resource type="Texture2D" path="res://assets/textures/terrain/ambientcg_2k/PavingStones138_2K-PNG/PavingStones138_2K-PNG_Roughness.png" id="29_pr"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock011/Rock011_2K-PNG_Color.png" id="30_r11a"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock012/Rock012_2K-PNG_Color.png" id="31_r12a"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock013/Rock013_2K-PNG_Color.png" id="32_r13a"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock011/Rock011_2K-PNG_NormalGL.png" id="33_r11n"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock012/Rock012_2K-PNG_NormalGL.png" id="34_r12n"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock013/Rock013_2K-PNG_NormalGL.png" id="35_r13n"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock011/Rock011_2K-PNG_Roughness.png" id="36_r11r"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock012/Rock012_2K-PNG_Roughness.png" id="37_r12r"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock013/Rock013_2K-PNG_Roughness.png" id="38_r13r"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock011/Rock011_2K-PNG_Displacement.png" id="39_r11h"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock012/Rock012_2K-PNG_Displacement.png" id="40_r12h"]
+[ext_resource type="Texture2D" path="res://assets/environment/terrain/rocks/Rock013/Rock013_2K-PNG_Displacement.png" id="41_r13h"]
 
 [resource]
 shader = ExtResource("1_shader")
@@ -36,6 +48,9 @@ shader_parameter/grass_albedo = ExtResource("2_grass")
 shader_parameter/dry_grass_albedo = ExtResource("3_dry")
 shader_parameter/dirt_albedo = ExtResource("4_dirt")
 shader_parameter/rock_albedo = ExtResource("5_rock")
+shader_parameter/rock011_albedo = ExtResource("30_r11a")
+shader_parameter/rock012_albedo = ExtResource("31_r12a")
+shader_parameter/rock013_albedo = ExtResource("32_r13a")
 shader_parameter/meadow_albedo_alt = ExtResource("6_meadow")
 shader_parameter/sand_albedo = ExtResource("7_sand")
 shader_parameter/rock_albedo_alt = ExtResource("8_rock_alt")
@@ -44,14 +59,23 @@ shader_parameter/grass_normal_roughness = ExtResource("10_gn")
 shader_parameter/dirt_normal_roughness = ExtResource("11_dn")
 shader_parameter/dry_grass_normal_roughness = ExtResource("12_sn")
 shader_parameter/rock_normal = ExtResource("13_rn")
+shader_parameter/rock011_normal = ExtResource("33_r11n")
+shader_parameter/rock012_normal = ExtResource("34_r12n")
+shader_parameter/rock013_normal = ExtResource("35_r13n")
 shader_parameter/grass_height = ExtResource("14_gh")
 shader_parameter/dirt_height = ExtResource("15_dh")
 shader_parameter/rock_height = ExtResource("16_rh")
+shader_parameter/rock011_height = ExtResource("39_r11h")
+shader_parameter/rock012_height = ExtResource("40_r12h")
+shader_parameter/rock013_height = ExtResource("41_r13h")
 shader_parameter/paving_albedo = ExtResource("17_paving")
 shader_parameter/grass_roughness = ExtResource("18_gr")
 shader_parameter/dirt_roughness = ExtResource("19_dr")
 shader_parameter/sand_roughness = ExtResource("20_sr")
 shader_parameter/rock_roughness = ExtResource("21_rr")
+shader_parameter/rock011_roughness = ExtResource("36_r11r")
+shader_parameter/rock012_roughness = ExtResource("37_r12r")
+shader_parameter/rock013_roughness = ExtResource("38_r13r")
 shader_parameter/leaf_normal = ExtResource("22_ln")
 shader_parameter/sand_normal = ExtResource("23_sn")
 shader_parameter/paving_normal = ExtResource("24_pn")
@@ -60,9 +84,9 @@ shader_parameter/sand_height = ExtResource("26_sh")
 shader_parameter/paving_height = ExtResource("27_ph")
 shader_parameter/leaf_roughness = ExtResource("28_lr")
 shader_parameter/paving_roughness = ExtResource("29_pr")
-shader_parameter/blend_softness = 0.54
-shader_parameter/height_blend_strength = 0.22
-shader_parameter/noise_strength = 0.065
+shader_parameter/blend_softness = 0.6
+shader_parameter/height_blend_strength = 0.18
+shader_parameter/noise_strength = 0.05
 shader_parameter/noise_scale = 0.14
 shader_parameter/triplanar_sharpness = 6.0
 shader_parameter/use_normal_roughness = true

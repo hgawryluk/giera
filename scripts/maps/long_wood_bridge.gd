@@ -5,7 +5,7 @@ const BRIDGE_SCENE: PackedScene = preload("res://assets/environment/bridges/long
 const WOOD_ALBEDO: Texture2D = preload("res://assets/environment/bridges/long_wood_bridge/textures/BridgeWood.jpg")
 const WOOD_NORMAL: Texture2D = preload("res://assets/environment/bridges/long_wood_bridge/textures/BridgeWood_Normal.jpg")
 const WATER_LEVEL: float = -1.7
-const MIN_BRIDGE_LENGTH: float = 25.0
+const MIN_BRIDGE_LENGTH: float = 16.0
 const MAX_BRIDGE_LENGTH: float = 42.0
 const TARGET_WIDTH: float = 5.2
 const DECK_COLLISION_THICKNESS: float = 0.42
@@ -36,12 +36,16 @@ func _build_bridge() -> void:
 	var crossing := Vector2(crossing_x, crossing_z)
 	var endpoint_a := _find_dry_path_bank(crossing, -direction)
 	var endpoint_b := _find_dry_path_bank(crossing, direction)
-	var target_length := clampf(endpoint_a.distance_to(endpoint_b) + 4.0, MIN_BRIDGE_LENGTH, MAX_BRIDGE_LENGTH)
+	var target_length := clampf(endpoint_a.distance_to(endpoint_b) + 2.0, MIN_BRIDGE_LENGTH, MAX_BRIDGE_LENGTH)
 	# Keep the visual and physical bridge centred between the actual dry banks,
 	# not merely over the mathematical centre line of the river.
 	var bridge_center := (endpoint_a + endpoint_b) * 0.5
 	endpoint_a = bridge_center - direction * target_length * 0.5
 	endpoint_b = bridge_center + direction * target_length * 0.5
+	# Each end follows the real path height. Using the higher end for the whole
+	# bridge left the lower end floating several metres above its approach.
+	var height_a := _grid_manager.terrain_height(endpoint_a.x, endpoint_a.y) + 0.06
+	var height_b := _grid_manager.terrain_height(endpoint_b.x, endpoint_b.y) + 0.06
 	var long_axis_is_x := bounds.size.x >= bounds.size.z
 	var source_length := maxf(bounds.size.x if long_axis_is_x else bounds.size.z, 0.01)
 	var source_width := maxf(bounds.size.z if long_axis_is_x else bounds.size.x, 0.01)
@@ -54,11 +58,13 @@ func _build_bridge() -> void:
 	model.scale = model_scale
 
 	rotation.y = atan2(-direction.y, direction.x) if long_axis_is_x else atan2(direction.x, direction.y)
-	var deck_y := maxf(WATER_LEVEL + 2.15, maxf(
-		_grid_manager.terrain_height(endpoint_a.x, endpoint_a.y),
-		_grid_manager.terrain_height(endpoint_b.x, endpoint_b.y)
-	) + 0.18)
-	position = Vector3(bridge_center.x, deck_y, bridge_center.y)
+	var rise := height_b - height_a
+	var pitch := atan2(rise, target_length)
+	if long_axis_is_x:
+		rotation.z = pitch
+	else:
+		rotation.x = -pitch
+	position = Vector3(bridge_center.x, (height_a + height_b) * 0.5, bridge_center.y)
 	# Center the imported geometry horizontally and put its upper walking
 	# surface at the same height as the physical bridge deck.
 	var scaled_center := (bounds.position + bounds.size * 0.5) * model_scale
@@ -79,7 +85,10 @@ func _find_dry_path_bank(crossing: Vector2, direction: Vector2) -> Vector2:
 		# on a bend: a straight ray otherwise lands beside the path at one end.
 		var sample := Vector2(_grid_manager.solo_trail_path_center_x(sample_z), sample_z)
 		last = sample
-		if not _grid_manager.solo_trail_is_water(sample.x, sample.y):
+		# The visual/eroded bank extends beyond the narrow mathematical water
+		# mask. Require an actually dry, walkable elevation at both approaches.
+		if not _grid_manager.solo_trail_is_water(sample.x, sample.y) \
+		and _grid_manager.terrain_height(sample.x, sample.y) >= WATER_LEVEL + 0.12:
 			dry_run += 1
 			if dry_run >= 4:
 				return sample

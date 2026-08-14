@@ -20,6 +20,8 @@ const REFINEMENT_FINE_NOISE_SCALE: float = 0.19
 const REFINEMENT_SEED: float = 814.0426
 const REFINEMENT_MAX_SLOPE: float = 0.78
 const REFINEMENT_FADE_INTENSITY: float = 1.35
+const HIGHLAND_LEDGE_STRENGTH: float = 0.11
+const HIGHLAND_EROSION_STRENGTH: float = 0.16
 const DIRECTIONS: Array[Vector2i] = [
 	Vector2i.LEFT,
 	Vector2i.RIGHT,
@@ -513,10 +515,10 @@ func _solo_trail_height(x: float, z: float) -> float:
 	# exactly the same height samples along every seam.
 	var global_ridge := smoothstep(0.57, 0.82, _terrain_noise(p, 0.0085, 137.0))
 	height += global_ridge * global_ridge * 18.0
-	height += _irregular_peak(p, Vector2(30.0, 38.0), 43.0, 28.0, 0.4)
+	height += _irregular_peak(p, Vector2(30.0, 38.0), 39.0, 40.0, 0.4)
 	height += _irregular_peak(p, REFINEMENT_HILL_CENTER, 34.0, REFINEMENT_HILL_RADIUS, 2.1)
-	height += _irregular_peak(p, Vector2(230.0, 205.0), 48.0, 31.0, 4.2)
-	height += _irregular_peak(p, Vector2(35.0, 220.0), 33.0, 38.0, 5.4)
+	height += _irregular_peak(p, Vector2(230.0, 205.0), 43.0, 46.0, 4.2)
+	height += _irregular_peak(p, Vector2(35.0, 220.0), 31.0, 47.0, 5.4)
 	# Flatten both connected roads after hills, but before rivers. The path over
 	# the northern hill is therefore walkable, while submerged crossings remain low.
 	var path_flatten := 1.0 - smoothstep(3.2, 9.5, solo_trail_path_distance(x, z))
@@ -606,6 +608,13 @@ func _height_peak(point: Vector2, center: Vector2, amplitude: float, radius: flo
 
 func _irregular_peak(point: Vector2, center: Vector2, amplitude: float, radius: float, phase: float) -> float:
 	var offset := point - center
+	# Low-frequency domain warping makes each massif lean and branch instead of
+	# remaining a radial mound. It fades completely at the foot of the hill.
+	var warp := Vector2(
+		_terrain_noise(point, 0.0105, phase * 53.0) - 0.5,
+		_terrain_noise(point, 0.0125, phase * 67.0) - 0.5
+	) * radius * 0.24
+	offset += warp
 	var angle := atan2(offset.y, offset.x)
 	var radial_warp := 1.0 + sin(angle * 3.0 + phase) * 0.16 + sin(angle * 5.0 - phase * 0.7) * 0.09
 	var skewed := Vector2(offset.x * (0.88 + 0.08 * sin(phase)), offset.y * (1.12 - 0.06 * cos(phase)))
@@ -620,7 +629,30 @@ func _irregular_peak(point: Vector2, center: Vector2, amplitude: float, radius: 
 	var fine := (_terrain_noise(point, REFINEMENT_FINE_NOISE_SCALE, phase * 41.0) - 0.5) * 0.045
 	var deformation := (large + ridges + fine) * mask * REFINEMENT_DEFORMATION_STRENGTH
 	var shoulder := sin(point.x * 0.071 + phase) * cos(point.y * 0.063 - phase) * 0.055 * mask
-	return amplitude * profile * profile * maxf(0.55, 1.0 + deformation + shoulder)
+	# Short, broken rock shelves: the angular gate prevents horizontal rings,
+	# while the radial gate lets shelves disappear back into the slope.
+	var shelf_phase := normalized_distance * 9.0 + medium_source * 1.7 + phase
+	var shelf_band := smoothstep(0.72, 0.91, sin(shelf_phase) * 0.5 + 0.5)
+	var shelf_arc := smoothstep(0.45, 0.78, _terrain_noise(point, 0.024, phase * 83.0))
+	var shelf_mask := shelf_band * shelf_arc * smoothstep(0.22, 0.48, normalized_distance) * (1.0 - smoothstep(0.78, 0.96, normalized_distance))
+	var erosion_gully := pow(maxf(0.0, sin(angle * 2.0 + phase + medium_source * 1.8)), 4.0)
+	erosion_gully *= smoothstep(0.25, 0.62, normalized_distance) * (1.0 - smoothstep(0.76, 0.98, normalized_distance))
+	var structural := shelf_mask * HIGHLAND_LEDGE_STRENGTH - erosion_gully * HIGHLAND_EROSION_STRENGTH
+	# Broad offset shoulders break the last remaining single-summit silhouette.
+	# They use low frequency fields, so the form reads from afar without noisy ground.
+	var summit_breakup := lerpf(0.76, 1.18, _terrain_noise(point, 0.014, phase * 97.0))
+	var ridge_bias := 1.0 + 0.13 * sin(angle * 2.0 - phase) * smoothstep(0.18, 0.70, normalized_distance)
+	var local := skewed / radius
+	var ridge_direction := Vector2(cos(phase * 0.83), sin(phase * 0.83))
+	var ridge_along := local.dot(ridge_direction)
+	var ridge_across := local.dot(Vector2(-ridge_direction.y, ridge_direction.x))
+	# A shallow saddle divides the summit into unequal shoulders. The cut is
+	# strongest near the crown and vanishes before reaching the foothills.
+	var saddle := exp(-ridge_across * ridge_across / 0.018) * exp(-ridge_along * ridge_along / 0.34)
+	var asymmetric_crown := 1.0 - saddle * 0.24
+	asymmetric_crown += exp(-local.distance_squared_to(ridge_direction * 0.31) / 0.055) * 0.18
+	asymmetric_crown += exp(-local.distance_squared_to(-ridge_direction * 0.22) / 0.085) * 0.09
+	return amplitude * profile * profile * summit_breakup * ridge_bias * asymmetric_crown * maxf(0.50, 1.0 + deformation + shoulder + structural)
 
 func _initialize_terrain_features() -> void:
 	_terrain_features.clear()
