@@ -25,6 +25,9 @@ const TYPE_SCALE_MULTIPLIERS: Dictionary[String, float] = {
 	"bush_heather": 1.0,
 	"bush_cliff": 1.0,
 	"stylised_rocks": 1.0,
+	"arena_bridge": 0.50,
+	"arena_rock": 0.45,
+	"arena_soil": 1.0,
 }
 const MESH_FILTERS: Dictionary[String, String] = {
 	"bush_real_1": "Medium_bush_2", "bush_real_2": "Medium_bush_1",
@@ -42,6 +45,7 @@ var _instance_positions: Array[Vector3] = []
 var _part_cache: Dictionary[String, Array] = {}
 var _grass_proxy: ArrayMesh
 var _bush_proxy: SphereMesh
+var _soil_proxy: PlaneMesh
 
 func configure(assets: Dictionary[String, String], position_resolver: Callable, create_collisions: bool = false, obstacle_types: Array[String] = DEFAULT_OBSTACLES) -> void:
 	_assets = assets.duplicate()
@@ -101,7 +105,7 @@ func _build_group(key: String, entries: Array) -> void:
 		instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if _obstacle_types.has(kind) else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		# Trees must remain visible from the elevated isometric camera. A zero end
 		# range disables distance culling while retaining regular frustum culling.
-		instance.visibility_range_end = 0.0 if _obstacle_types.has(kind) else 75.0
+		instance.visibility_range_end = 0.0
 		instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		add_child(instance)
 	if _create_collisions and _obstacle_types.has(kind):
@@ -119,6 +123,10 @@ func _get_parts(kind: String) -> Array:
 		if _bush_proxy == null:
 			_bush_proxy = _create_bush_proxy()
 		parts.append({"mesh": _bush_proxy, "transform": Transform3D.IDENTITY})
+	elif kind == "arena_soil":
+		if _soil_proxy == null:
+			_soil_proxy = _create_soil_proxy()
+		parts.append({"mesh": _soil_proxy, "transform": Transform3D.IDENTITY})
 	else:
 		var resource := load(_assets[kind])
 		if resource is Mesh:
@@ -198,6 +206,22 @@ func _create_grass_proxy() -> ArrayMesh:
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	result.surface_set_material(0, material)
 	return result
+
+func _create_soil_proxy() -> PlaneMesh:
+	var result := PlaneMesh.new()
+	result.size = Vector2(2.0, 2.0)
+	result.subdivide_width = 3
+	result.subdivide_depth = 3
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = load("res://assets/environment/terrain/glhf/forest_ground_06/forest_ground_06_diff_4k.jpg") as Texture2D
+	material.normal_enabled = true
+	material.normal_texture = load("res://assets/environment/terrain/glhf/forest_ground_06/forest_ground_06_nor_gl_4k.jpg") as Texture2D
+	material.albedo_color = Color(0.72, 0.62, 0.46)
+	material.roughness = 0.96
+	material.uv1_scale = Vector3(2.4, 2.4, 2.4)
+	result.material = material
+	return result
+
 
 func _create_bush_proxy() -> SphereMesh:
 	var result := SphereMesh.new()

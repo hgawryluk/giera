@@ -44,7 +44,9 @@ func _rebuild_battle() -> void:
 	if _battle_is_arena and arena_rect.has_area():
 		area = Rect2(Vector2(arena_rect.position), Vector2(arena_rect.size))
 	var target_count := 6100 if not _battle_is_arena else clampi(roundi(area.get_area() * 0.22), 180, 720)
-	var attempts := target_count * 3
+	if GameSession.arena_test_mode:
+		target_count = 2400
+	var attempts := target_count * 4
 	var placed: int = 0
 	for attempt: int in range(attempts):
 		if placed >= target_count:
@@ -53,8 +55,11 @@ func _rebuild_battle() -> void:
 			rng.randf_range(area.position.x + 0.6, area.end.x - 0.6),
 			rng.randf_range(area.position.y + 0.6, area.end.y - 0.6)
 		)
+		if _battle_is_arena and _battle_grid.has_method("is_arena_test_water") and bool(_battle_grid.call("is_arena_test_water", position_2d.x, position_2d.y)):
+			continue
 		var weights := _battle_surface_weights(position_2d)
-		if rng.randf() > _density_for_surface(weights) * (0.58 if _battle_is_arena else 0.82):
+		var arena_density := 0.86 if GameSession.arena_test_mode else 0.58
+		if rng.randf() > _density_for_surface(weights) * (arena_density if _battle_is_arena else 0.82):
 			continue
 		var asset_id := _choose_asset(weights, rng)
 		var definition: Dictionary = ASSETS[asset_id]
@@ -191,8 +196,8 @@ func _create_billboard_material(texture_path: String) -> ShaderMaterial:
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque, diffuse_burley;
 uniform sampler2D source_texture : source_color, filter_linear_mipmap_anisotropic;
-uniform vec3 palette_tint : source_color = vec3(0.78, 0.80, 0.72);
-uniform float saturation : hint_range(0.0, 1.0) = 0.72;
+uniform vec3 palette_tint : source_color = vec3(0.70, 0.78, 0.52);
+uniform float saturation : hint_range(0.0, 1.0) = 0.66;
 uniform float alpha_cutoff : hint_range(0.0, 1.0) = 0.5;
 void fragment() {
 	vec4 sample_color = texture(source_texture, UV);

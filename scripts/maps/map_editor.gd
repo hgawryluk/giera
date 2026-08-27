@@ -1,6 +1,8 @@
 extends Control
 
 const GRID_SIZE := Vector2i(160, 190)
+const ARENA_TEST_RECT := Rect2i(25, 6, 110, 178)
+const ARENA_TEST_LANDSCAPE := preload("res://scripts/maps/arena_test_landscape.gd")
 const ASSETS: Dictionary[String, String] = {
 	"purple_tree_1": "res://assets/models/environment/purple_tree_01.glb",
 	"purple_tree_2": "res://assets/models/environment/purple_tree_02.glb",
@@ -23,6 +25,9 @@ const ASSETS: Dictionary[String, String] = {
 	"bush_heather": "res://assets/environment/bush_packs/bush_01/source/Bush.fbx",
 	"bush_cliff": "res://assets/environment/bush_packs/cliff_shrub/source/wallBush-01-terrainWallBush.fbx",
 	"stylised_rocks": "res://assets/environment/stylised_rocks/source/Stylised_Rock_Collection.fbx",
+	"arena_bridge": "res://assets/environment/bridges/long_wood_bridge/source/Long Wood Bridge.fbx",
+	"arena_rock": "res://assets/environment/kyles_rock_pack/Kyle Fuji/Models/rock_4_br.glb",
+	"arena_soil": "",
 }
 const TOOL_GROUPS: Array[Dictionary] = [
 	{"title": "RZEŹBIENIE TERRAIN3D", "open": true, "tools": [
@@ -45,6 +50,7 @@ const TOOL_GROUPS: Array[Dictionary] = [
 		["bush_real_7", "Krzew leśny VII"], ["bush_real_8", "Krzew leśny VIII"],
 		["bush_real_9", "Krzew leśny IX"], ["bush_heather", "Krzew niski"],
 		["bush_cliff", "Krzew skalny"], ["stylised_rocks", "Zestaw skał"],
+		["arena_rock", "Skała areny"], ["arena_bridge", "Most areny"],
 	]},
 	{"title": "POSTACIE", "open": false, "tools": [
 		["player_spawn", "Start gracza"], ["enemy_spawn", "Start wroga"],
@@ -104,7 +110,7 @@ func _ready() -> void:
 	_connect_ui()
 	_rebuild_objects()
 	_update_markers()
-	_update_status("Terrain3D gotowy — wybierz narzędzie")
+	_load_arena_test_preset()
 
 func _build_sidebar_controls() -> void:
 	%ToolOption.visible = false
@@ -121,6 +127,13 @@ func _build_sidebar_controls() -> void:
 	tools_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tools_panel.add_theme_constant_override("separation", 5)
 	scroll.add_child(tools_panel)
+	var arena_preset_button := Button.new()
+	arena_preset_button.name = "LoadArenaTestPresetButton"
+	arena_preset_button.text = "Wczytaj Arena (test)"
+	arena_preset_button.tooltip_text = "Skopiuj aktualny teren, wodę, roślinność i punkty startowe Areny (test) do edytora"
+	arena_preset_button.custom_minimum_size = Vector2(0.0, 42.0)
+	arena_preset_button.pressed.connect(_load_arena_test_preset)
+	tools_panel.add_child(arena_preset_button)
 	for group: Dictionary in TOOL_GROUPS:
 		if str(group["title"]) == "WODA":
 			_add_material_section(tools_panel)
@@ -709,6 +722,106 @@ func _create_spawn_marker(data: Dictionary, color: Color) -> void:
 	var z := float(data.get("z", 0))
 	marker.position = Vector3(x, terrain_height(x, z) + 0.1, z)
 	_markers_root.add_child(marker)
+
+func _load_arena_test_preset() -> void:
+	_update_status("Wczytywanie Areny (test)...")
+	objects.clear()
+	player_spawns = [{"x": 78, "z": 10}, {"x": 81, "z": 10}]
+	enemy_spawns = [{"x": 78, "z": 180}, {"x": 81, "z": 180}]
+	_terrain_surface.reset_blank()
+	_terrain_surface.import_height_sampler(_arena_test_height)
+	var water_cells: Array[Dictionary] = []
+	for x: int in range(ARENA_TEST_RECT.position.x + 1, ARENA_TEST_RECT.end.x - 1):
+		var river_center: float = ARENA_TEST_LANDSCAPE.river_z(ARENA_TEST_RECT, float(x))
+		for z: int in range(floori(river_center - ARENA_TEST_LANDSCAPE.RIVER_HALF_WIDTH), ceili(river_center + ARENA_TEST_LANDSCAPE.RIVER_HALF_WIDTH) + 1):
+			if ARENA_TEST_LANDSCAPE.is_water(ARENA_TEST_RECT, float(x), float(z)):
+				water_cells.append({"x": x, "z": z})
+	_water_surface.load_cells(water_cells)
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 71_409_233
+	for index: int in range(42):
+		var point := _arena_random_natural_point(rng, 7.0)
+		if point != Vector2.INF:
+			objects.append(_arena_editor_object("large_tree" if index % 2 == 0 else "tree_real_1", point, rng, rng.randf_range(0.82, 1.22)))
+	for index: int in range(96):
+		var point := _arena_random_natural_point(rng, 4.0)
+		if point != Vector2.INF:
+			objects.append(_arena_editor_object("bush_heather" if index % 3 == 0 else "bush", point, rng, rng.randf_range(0.72, 1.18)))
+	for index: int in range(180):
+		var point := _arena_random_natural_point(rng, 3.0)
+		if point != Vector2.INF:
+			objects.append(_arena_editor_object("grass_1" if index % 2 == 0 else "grass_2", point, rng, rng.randf_range(0.72, 1.34)))
+	var arena_center := Vector2(ARENA_TEST_RECT.position) + Vector2(ARENA_TEST_RECT.size) * 0.5
+	objects.append({"type": "arena_bridge", "x": arena_center.x, "z": arena_center.y, "rotation": 0.0, "scale": 1.0, "height_offset": 0.20, "flipped": false})
+	for ridge_index: int in range(32):
+		var ridge_side := -1.0 if ridge_index < 16 else 1.0
+		var ridge_point := arena_center + Vector2(ridge_side * rng.randf_range(24.0, 36.0), ridge_side * rng.randf_range(34.0, 54.0))
+		objects.append(_arena_editor_object("arena_rock", ridge_point, rng, rng.randf_range(1.2, 3.4)))
+
+	# Recreate editable soil islands and the route leading exactly into the bridge.
+	var soil_ratios: Array[Vector2] = [
+		Vector2(0.20, 0.32), Vector2(0.80, 0.28), Vector2(0.50, 0.22),
+		Vector2(0.47, 0.68), Vector2(0.32, 0.50), Vector2(0.68, 0.55),
+		Vector2(0.12, 0.60), Vector2(0.88, 0.45), Vector2(0.18, 0.76),
+		Vector2(0.74, 0.78), Vector2(0.84, 0.63), Vector2(0.39, 0.27),
+		Vector2(0.61, 0.31), Vector2(0.24, 0.44), Vector2(0.56, 0.47),
+		Vector2(0.42, 0.57), Vector2(0.79, 0.58), Vector2(0.58, 0.72)
+	]
+	for ratio: Vector2 in soil_ratios:
+		var soil_point := Vector2(ARENA_TEST_RECT.position) + Vector2(ARENA_TEST_RECT.size) * ratio
+		_terrain_surface.paint_texture(Vector3(soil_point.x, _arena_test_height(soil_point.x, soil_point.y), soil_point.y), 9.0, 1.35, 4)
+		objects.append({"type": "arena_soil", "x": soil_point.x, "z": soil_point.y, "rotation": rng.randf_range(0.0, 360.0), "scale": rng.randf_range(4.0, 6.5), "height_offset": 0.08, "flipped": false})
+	for z: int in range(ARENA_TEST_RECT.position.y + 4, ARENA_TEST_RECT.end.y - 4, 6):
+		var path_x := _arena_editor_path_x(float(z))
+		_terrain_surface.paint_texture(Vector3(path_x, _arena_test_height(path_x, float(z)), float(z)), 4.2, 1.0, 3)
+		objects.append({"type": "arena_soil", "x": path_x, "z": float(z), "rotation": 0.0, "scale": 2.7, "height_offset": 0.09, "flipped": false})
+	_selected_object_index = -1
+	_rebuild_objects()
+	_update_markers()
+	_reposition_scene_content()
+	%NameEdit.text = "Arena Test - edycja"
+	_update_status("Arena (test) wczytana — teren, woda i %d obiektow sa edytowalne" % objects.size())
+
+
+func _arena_test_height(x: float, z: float) -> float:
+	if not Rect2(ARENA_TEST_RECT).has_point(Vector2(x, z)):
+		return 0.0
+	return ARENA_TEST_LANDSCAPE.sample_height(ARENA_TEST_RECT, x, z)
+
+
+func _arena_editor_path_x(z: float) -> float:
+	var delta := z - 95.0
+	var bridge_clearance := smoothstep(8.0, 18.0, absf(delta))
+	return 80.0 + bridge_clearance * (sin(delta * 0.041) * 7.2 + sin(delta * 0.093) * 2.4)
+
+
+func _arena_random_natural_point(rng: RandomNumberGenerator, margin: float) -> Vector2:
+	for attempt: int in range(32):
+		var point := Vector2(
+			rng.randf_range(float(ARENA_TEST_RECT.position.x) + margin, float(ARENA_TEST_RECT.end.x) - margin),
+			rng.randf_range(float(ARENA_TEST_RECT.position.y) + margin, float(ARENA_TEST_RECT.end.y) - margin)
+		)
+		var center := Vector2(ARENA_TEST_RECT.position) + Vector2(ARENA_TEST_RECT.size) * 0.5
+		if ARENA_TEST_LANDSCAPE.is_water(ARENA_TEST_RECT, point.x, point.y):
+			continue
+		if absf(point.x - center.x) < 8.0 or absf(point.x - (center.x + ARENA_TEST_LANDSCAPE.FORD_X_OFFSET)) < 9.0:
+			continue
+		return point
+	return Vector2.INF
+
+
+func _arena_editor_object(kind: String, point: Vector2, rng: RandomNumberGenerator, scale_value: float) -> Dictionary:
+	return {
+		"type": kind,
+		"x": point.x,
+		"z": point.y,
+		"rotation": rng.randf_range(0.0, 360.0),
+		"scale": scale_value,
+		"height_offset": 0.0,
+		"flipped": rng.randf() < 0.5,
+	}
+
 
 func _clear_map() -> void:
 	objects.clear()

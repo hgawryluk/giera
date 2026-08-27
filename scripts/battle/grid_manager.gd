@@ -8,6 +8,7 @@ const SOLO_TRAIL_SIZE: Vector2i = Vector2i(256, 256)
 const UNIT_SCENE: PackedScene = preload("res://scenes/units/unit.tscn")
 const TERRAIN_GROUND_MATERIAL: ShaderMaterial = preload("res://world/terrain/materials/terrain_ground_material.tres")
 const GROUND_CLUTTER_SCRIPT := preload("res://world/terrain/ground_clutter_system.gd")
+const ARENA_TEST_LANDSCAPE_SCRIPT := preload("res://scripts/maps/arena_test_landscape.gd")
 # Deterministic Solo Trail refinement controls. The procedural surface is
 # rebuilt from these values, so reverting this file restores the previous map.
 const REFINEMENT_HILL_CENTER := Vector2(208.0, 54.0)
@@ -39,6 +40,7 @@ const DIRECTIONS: Array[Vector2i] = [
 var _arena_rect: Rect2i  # When has_area(), restricts the playable grid to this rectangle
 var _occupancy: Dictionary[Vector2i, TacticalUnit] = {}
 var _blocked_cells: Dictionary[Vector2i, bool] = {}
+var _vision_blocked_cells: Dictionary[Vector2i, bool] = {}
 var _highlight_markers: Dictionary[Vector2i, MeshInstance3D] = {}
 var _highlighted_cells: Dictionary[Vector2i, int] = {}
 var _highlight_material: StandardMaterial3D
@@ -50,12 +52,18 @@ var _water_surface: WaterMapSurface
 var _use_procedural_features: bool = true
 var _terrain_material: ShaderMaterial
 var _grid_visible: bool = false
+var _arena_test_landscape_enabled: bool = false
 
 func _ready() -> void:
 	add_to_group("grid_manager")
 	await _load_selected_terrain()
 	_initialize_terrain_features()
 	_build_grid()
+	if _arena_test_landscape_enabled:
+		var landscape := ARENA_TEST_LANDSCAPE_SCRIPT.new() as ArenaTestLandscape
+		landscape.name = "ArenaTestLandscape"
+		add_child(landscape)
+		landscape.setup(self)
 	if _arena_rect.has_area() and _terrain_material != null:
 		_terrain_material.set_shader_parameter("show_trails", false)
 		_terrain_material.set_shader_parameter("is_arena", true)
@@ -81,17 +89,22 @@ func _load_selected_terrain() -> void:
 		]
 		var si := clampi(session.arena_size_index, 0, ARENA_RECTS.size() - 1)
 		_arena_rect = ARENA_RECTS[si]
+		if session.arena_test_mode:
+			_arena_rect = Rect2i(25, 6, 110, 178)
+			_arena_test_landscape_enabled = true
 		var ax := _arena_rect.position.x
 		var ay := _arena_rect.position.y
 		var aw := _arena_rect.size.x
 		var ah := _arena_rect.size.y
+		var north_spawn_y := ay + ah / 4 if session.arena_test_mode else ay + 5
+		var south_spawn_y := ay + ah * 3 / 4 if session.arena_test_mode else ay + ah - 6
 		player_positions = [
-			Vector2i(ax + aw / 4,     ay + 5),
-			Vector2i(ax + aw * 3 / 4, ay + 5),
+			Vector2i(ax + aw / 4, north_spawn_y),
+			Vector2i(ax + aw * 3 / 4, north_spawn_y),
 		]
 		enemy_positions = [
-			Vector2i(ax + aw / 4,     ay + ah - 6),
-			Vector2i(ax + aw * 3 / 4, ay + ah - 6),
+			Vector2i(ax + aw / 4, south_spawn_y),
+			Vector2i(ax + aw * 3 / 4, south_spawn_y),
 		]
 		_use_procedural_features = false
 		return
@@ -138,6 +151,13 @@ func _parse_spawn_list(raw_values: Variant, fallback: Array[Vector2i]) -> Array[
 
 func is_cell_blocked(cell: Vector2i) -> bool:
 	return _blocked_cells.has(cell)
+
+func block_vision_cell(cell: Vector2i) -> void:
+	if is_inside_grid(cell):
+		_vision_blocked_cells[cell] = true
+
+func blocks_vision(cell: Vector2i) -> bool:
+	return _vision_blocked_cells.has(cell)
 
 func set_grid_visible(should_be_visible: bool) -> void:
 	_grid_visible = should_be_visible
@@ -229,8 +249,8 @@ func spawn_arena_teams(session: GameSessionState, catalog: TeamSaveService) -> v
 	var ah := _arena_rect.size.y
 	var q1x := ax + aw / 4
 	var q3x := ax + aw * 3 / 4
-	var ny  := ay + 5
-	var sy  := ay + ah - 6
+	var ny := ay + ah / 4 if session.arena_test_mode else ay + 5
+	var sy := ay + ah * 3 / 4 if session.arena_test_mode else ay + ah - 6
 	var anchors_table: Array = []
 	if session.player_count <= 2:
 		anchors_table = [
@@ -286,6 +306,10 @@ func _spawn_from_definition(
 	var unit := packed_scene.instantiate() as TacticalUnit
 	unit.name = "%s_P%d_%d" % [definition.display_name, owner_player_id, get_units().size()]
 	unit.apply_character_definition(definition, owner_player_id, team, cell)
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.arena_test_mode:
+		unit.max_action_points = maxi(1, roundi(float(unit.max_action_points) * 1.4))
+		unit.current_action_points = unit.max_action_points
 	var spawn_cell := _find_nearest_free_cell(cell, unit)
 	unit.grid_position = spawn_cell
 	if profile != null:
@@ -317,6 +341,14 @@ func show_reachable_cells(unit: TacticalUnit) -> void:
 	_highlighted_cells = get_reachable_cells(unit.grid_position, unit.current_action_points)
 	for cell: Vector2i in _highlighted_cells:
 		_create_highlight_marker(cell)
+	# Obstacles bordering the reachable area get a restrained red outline.
+	var marked_obstacles: Dictionary[Vector2i, bool] = {}
+	for cell: Vector2i in _highlighted_cells:
+		for direction: Vector2i in DIRECTIONS:
+			var obstacle := cell + direction
+			if is_inside_grid(obstacle) and is_cell_blocked(obstacle) and not marked_obstacles.has(obstacle):
+				_create_danger_marker(obstacle)
+				marked_obstacles[obstacle] = true
 
 func clear_highlights() -> void:
 	for marker: MeshInstance3D in _highlight_markers.values():
@@ -484,6 +516,8 @@ func is_inside_grid(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.x < GRID_WIDTH and cell.y >= 0 and cell.y < GRID_HEIGHT
 
 func terrain_height(world_x: float, world_z: float) -> float:
+	if _arena_test_landscape_enabled:
+		return ArenaTestLandscape.sample_height(_arena_rect, world_x, world_z)
 	if _terrain_surface != null:
 		return _terrain_surface.get_height(world_x, world_z)
 	if _is_solo_trail():
@@ -498,6 +532,9 @@ func terrain_height(world_x: float, world_z: float) -> float:
 		influence = influence * influence * (3.0 - 2.0 * influence)
 		result += feature.w * influence
 	return result
+
+func is_arena_test_water(world_x: float, world_z: float) -> bool:
+	return _arena_test_landscape_enabled and ArenaTestLandscape.is_water(_arena_rect, world_x, world_z)
 
 func get_exploration_world_size() -> Vector2:
 	return Vector2(SOLO_TRAIL_SIZE) if _is_solo_trail() else Vector2(GRID_WIDTH, GRID_HEIGHT)
@@ -757,13 +794,28 @@ func clear_danger_zone() -> void:
 func _create_danger_marker(cell: Vector2i) -> void:
 	var marker := MeshInstance3D.new()
 	marker.name = "DangerHighlight_%02d_%02d" % [cell.x, cell.y]
-	var marker_mesh := BoxMesh.new()
-	marker_mesh.size = Vector3(0.86, 0.035, 0.86)
-	marker.mesh = marker_mesh
+	marker.mesh = _create_cell_outline_mesh(0.86)
 	marker.position = cell_to_world(cell) + Vector3(0.0, 0.12, 0.0)
 	marker.material_override = _danger_material
 	add_child(marker)
 	_danger_markers[cell] = marker
+
+func _create_cell_outline_mesh(size_value: float) -> ImmediateMesh:
+	var mesh := ImmediateMesh.new()
+	var half_size := size_value * 0.5
+	var corners: Array[Vector3] = [
+		Vector3(-half_size, 0.0, -half_size),
+		Vector3(half_size, 0.0, -half_size),
+		Vector3(half_size, 0.0, half_size),
+		Vector3(-half_size, 0.0, half_size)
+	]
+	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	for index: int in range(4):
+		mesh.surface_add_vertex(corners[index])
+		mesh.surface_add_vertex(corners[(index + 1) % 4])
+	mesh.surface_end()
+	return mesh
+
 
 func _create_danger_material() -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
@@ -777,9 +829,7 @@ func _create_danger_material() -> StandardMaterial3D:
 func _create_highlight_marker(cell: Vector2i) -> void:
 	var marker := MeshInstance3D.new()
 	marker.name = "MoveHighlight_%02d_%02d" % [cell.x, cell.y]
-	var marker_mesh := BoxMesh.new()
-	marker_mesh.size = Vector3(0.86, 0.035, 0.86)
-	marker.mesh = marker_mesh
+	marker.mesh = _create_cell_outline_mesh(0.86)
 	marker.position = cell_to_world(cell) + Vector3(0.0, 0.075, 0.0)
 	marker.material_override = _highlight_material
 	add_child(marker)

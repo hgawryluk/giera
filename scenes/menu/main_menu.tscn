@@ -74,6 +74,13 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Arena"
 
+[node name="ArenaTestButton" type="Button" parent="Center/Panel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(340, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Arena (test)"
+
 [node name="TeamsButton" type="Button" parent="Center/Panel/VBox" unique_id=876560658]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(340, 64)

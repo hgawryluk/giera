@@ -5,6 +5,7 @@ signal exploration_mode_changed(enabled: bool, unit: TacticalUnit, world_positio
 signal tactical_grid_toggle_requested
 signal torch_state_changed(enabled: bool)
 signal mob_spotted(mob: WorldMob)
+signal movement_cancel_requested
 
 @export var board_center: Vector3 = Vector3(79.5, 0.0, 94.5)
 @export var camera_offset: Vector3 = Vector3(145.0, 165.0, 145.0)
@@ -38,7 +39,17 @@ var _first_person_arms: FirstPersonArms
 
 func _ready() -> void:
 	projection = Camera3D.PROJECTION_ORTHOGONAL
-	size = 220.0
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.arena_test_mode:
+		minimum_zoom = 4.5
+		maximum_zoom = 54.0
+		size = 50.0
+		var arena_grid := get_tree().get_first_node_in_group("grid_manager") as GridManager
+		if arena_grid != null:
+			var arena_rect := arena_grid.get_arena_rect()
+			board_center = Vector3(float(arena_rect.position.x) + float(arena_rect.size.x) * 0.5, 0.0, float(arena_rect.position.y) + float(arena_rect.size.y) * 0.5)
+	else:
+		size = 220.0
 	_apply_camera_transform()
 	current = true
 	_turn_manager = get_node_or_null(turn_manager_path) as TurnManager
@@ -62,6 +73,10 @@ func _input(event: InputEvent) -> void:
 		if key_event.keycode == KEY_TAB and key_event.pressed and not key_event.echo:
 			_toggle_camera_mode()
 			get_viewport().set_input_as_handled()
+		elif not _first_person_mode and key_event.keycode == KEY_SPACE and key_event.pressed and not key_event.echo:
+			if _active_unit != null and is_instance_valid(_active_unit) and _active_unit.is_moving():
+				focus_on_unit(_active_unit)
+				get_viewport().set_input_as_handled()
 		elif not _first_person_mode and key_event.keycode == KEY_T and key_event.pressed and not key_event.echo:
 			tactical_grid_toggle_requested.emit()
 			get_viewport().set_input_as_handled()
@@ -86,6 +101,9 @@ func _input(event: InputEvent) -> void:
 		elif mouse_button.button_index == MOUSE_BUTTON_RIGHT:
 			if _first_person_mode:
 				_is_rotating = mouse_button.pressed
+			elif mouse_button.pressed and _active_unit != null and is_instance_valid(_active_unit) and _active_unit.is_moving():
+				movement_cancel_requested.emit()
+				_is_panning = false
 			else:
 				_is_panning = mouse_button.pressed and _is_ground_under_cursor(mouse_button.position)
 			get_viewport().set_input_as_handled()
@@ -291,6 +309,8 @@ func _on_active_unit_changed(unit: TacticalUnit) -> void:
 		_active_unit = unit
 		if _first_person_mode:
 			_apply_first_person_transform()
+		else:
+			focus_on_unit(unit)
 
 func _process_keyboard_pan(delta: float) -> void:
 	var input_vector := Vector2.ZERO
@@ -338,8 +358,23 @@ func _is_ground_under_cursor(screen_position: Vector2) -> bool:
 	return ground_position.x >= -0.5 and ground_position.x <= float(GridManager.GRID_WIDTH) - 0.5 and ground_position.z >= -0.5 and ground_position.z <= float(GridManager.GRID_HEIGHT) - 0.5
 
 func _clamp_board_center() -> void:
-	board_center.x = clampf(board_center.x, 0.0, float(GridManager.GRID_WIDTH - 1))
-	board_center.z = clampf(board_center.z, 0.0, float(GridManager.GRID_HEIGHT - 1))
+	var minimum := Vector2.ZERO
+	var maximum := Vector2(float(GridManager.GRID_WIDTH - 1), float(GridManager.GRID_HEIGHT - 1))
+	var arena_grid := get_tree().get_first_node_in_group("grid_manager") as GridManager
+	if arena_grid != null and arena_grid.get_arena_rect().has_area():
+		var rect := arena_grid.get_arena_rect()
+		var viewport_aspect := float(get_viewport().get_visible_rect().size.x) / maxf(float(get_viewport().get_visible_rect().size.y), 1.0)
+		var safe_margin := maxf(size * 0.52, size * viewport_aspect * 0.36)
+		minimum = Vector2(float(rect.position.x) + safe_margin, float(rect.position.y) + safe_margin)
+		maximum = Vector2(float(rect.end.x) - safe_margin, float(rect.end.y) - safe_margin)
+		if minimum.x > maximum.x:
+			minimum.x = float(rect.position.x) + float(rect.size.x) * 0.5
+			maximum.x = minimum.x
+		if minimum.y > maximum.y:
+			minimum.y = float(rect.position.y) + float(rect.size.y) * 0.5
+			maximum.y = minimum.y
+	board_center.x = clampf(board_center.x, minimum.x, maximum.x)
+	board_center.z = clampf(board_center.z, minimum.y, maximum.y)
 
 func _rotate_camera(mouse_delta: Vector2) -> void:
 	var offset := camera_offset
@@ -400,6 +435,7 @@ func _zoom_at_screen_position(screen_position: Vector2, factor: float) -> void:
 		var before_position: Vector3 = before
 		var after_position: Vector3 = after
 		var shift: Vector3 = before_position - after_position
-		board_center.x = clampf(board_center.x + shift.x, 0.0, float(GridManager.GRID_WIDTH - 1))
-		board_center.z = clampf(board_center.z + shift.z, 0.0, float(GridManager.GRID_HEIGHT - 1))
+		board_center.x += shift.x
+		board_center.z += shift.z
+	_clamp_board_center()
 	_apply_camera_transform()

@@ -52,12 +52,18 @@ func _build_meadow() -> void:
 		for x: int in range(TERRAIN_SIZE):
 			var point := Vector3(float(x), 0.0, float(z))
 			terrain.data.set_height(point, _meadow_height(float(x), float(z)))
+			var local_slope := _terrain_slope(float(x), float(z))
 			var dry_field := _value_noise(Vector2(float(x), float(z)) / 31.0 + Vector2(7.1, 19.4))
 			var dirt_field := _value_noise(Vector2(float(x), float(z)) / 43.0 + Vector2(22.8, 3.6))
 			var path_center := 128.0 + sin(float(z) * 0.037) * 24.0 + sin(float(z) * 0.091) * 7.0
 			var edge_noise := (_value_noise(Vector2(float(x), float(z)) / 4.2) - 0.5) * blend_noise_strength * 3.0
 			var path_blend := 1.0 - smoothstep(2.2 + edge_noise, 5.2 + edge_noise, absf(float(x) - path_center))
-			if path_blend > 0.05:
+			if local_slope > 0.48:
+				var rock_blend := smoothstep(0.48, 1.35, local_slope)
+				terrain.data.set_control_base_id(point, 2)
+				terrain.data.set_control_overlay_id(point, 1)
+				terrain.data.set_control_blend(point, 0.18 * (1.0 - rock_blend))
+			elif path_blend > 0.05:
 				terrain.data.set_control_base_id(point, 1)
 				terrain.data.set_control_overlay_id(point, 2)
 				terrain.data.set_control_blend(point, path_blend)
@@ -81,12 +87,27 @@ func _build_meadow() -> void:
 	terrain.data.update_maps(Terrain3DRegion.TYPE_CONTROL, false, false)
 
 func _meadow_height(x: float, z: float) -> float:
-	return (
-		sin(x * 0.035) * 1.25
-		+ cos(z * 0.029) * 0.85
-		+ sin((x + z) * 0.071) * 0.32
-		+ (_value_noise(Vector2(x, z) / macro_world_size) - 0.5) * 1.8
-	)
+	var point := Vector2(x, z)
+	var rolling_ground := sin(x * 0.029) * 1.4 + cos(z * 0.025) * 1.05
+	var erosion := (_value_noise(point / 20.0) - 0.5) * 3.0
+	var ridge_west := _rocky_ridge(point, Vector2(48.0, 76.0), Vector2(25.0, 57.0), 21.0)
+	var ridge_east := _rocky_ridge(point, Vector2(208.0, 165.0), Vector2(37.0, 68.0), 29.0)
+	var outcrop := _rocky_ridge(point, Vector2(194.0, 43.0), Vector2(20.0, 35.0), 14.0)
+	return rolling_ground + erosion + ridge_west + ridge_east + outcrop
+
+func _rocky_ridge(point: Vector2, center: Vector2, radius: Vector2, height: float) -> float:
+	var delta := (point - center) / radius
+	var falloff := smoothstep(1.0, 0.0, delta.length())
+	var crags := 0.68 + _value_noise(point / 8.0 + center * 0.17) * 0.32
+	var strata := 0.93 + sin((point.x + point.y) * 0.25) * 0.07
+	return height * falloff * falloff * crags * strata
+
+func _terrain_slope(x: float, z: float) -> float:
+	var left := _meadow_height(maxf(0.0, x - 1.0), z)
+	var right := _meadow_height(minf(float(TERRAIN_SIZE - 1), x + 1.0), z)
+	var back := _meadow_height(x, maxf(0.0, z - 1.0))
+	var front := _meadow_height(x, minf(float(TERRAIN_SIZE - 1), z + 1.0))
+	return Vector2(right - left, front - back).length() * 0.5
 
 func get_surface_weights(x: float, z: float) -> Vector3:
 	var point := Vector2(x, z)

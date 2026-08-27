@@ -21,7 +21,17 @@ const CLASSES: Dictionary = {
 	&"ranger": {"name":"Lowca","definition":&"archer","skills":["Precyzyjny strzal","Pulapka","Sokole oko"]},
 	&"mage": {"name":"Mag","definition":&"mage","skills":["Kula ognia","Lodowy pocisk","Teleportacja"]},
 	&"priest": {"name":"Kaplan","definition":&"priest","skills":["Leczenie","Blogoslawienstwo","Ochrona"]},
-	&"rogue": {"name":"Lotr","definition":&"rogue","skills":["Cios w plecy","Unik","Znikniecie"]}
+	&"rogue": {"name":"Lotr","definition":&"rogue","skills":["Cios w plecy","Unik","Znikniecie"]},
+	&"harpy_scout": {"name":"Skrzydlaty zwiadowca","definition":&"falconer","skills":["Sokoli zwiad","Pikowanie","Oznaczenie celu"]},
+	&"undead_butcher": {"name":"Rzeznik-kucharz","definition":&"ogre","skills":["Miazdzenie","Ryk","Nieczula natura"]},
+	&"kobold_trapper": {"name":"Kobold sidlarz","definition":&"bandit","skills":["Pulapka","Rzut nozem","Zasadzka"]},
+	&"dwarf_shieldbearer": {"name":"Krasnoludzki tarczownik","definition":&"warrior","skills":["Tarcza","Prowokacja","Kamienna odpornosc"]},
+	&"grave_apothecary": {"name":"Aptekarz grobowy","definition":&"undead_priest","skills":["Dotyk zarazy","Nekrotyczne leczenie","Klatwa grobu"]},
+	&"briar_witch": {"name":"Wiedzma cierni","definition":&"druid","skills":["Korzenie","Regeneracja","Burza lisci"]},
+	&"stormcaller": {"name":"Wzywajacy burze","definition":&"mage","skills":["Kula ognia","Lodowy pocisk","Teleportacja"]},
+	&"oathkeeper": {"name":"Straznik przysiegi","definition":&"priest","skills":["Ochrona","Blogoslawienstwo","Tarcza"]},
+	&"moon_duelist": {"name":"Pojedynkowicz ksiezycowy","definition":&"rogue","skills":["Cios w plecy","Unik","Znikniecie"]},
+	&"stonebreaker": {"name":"Lamacz kamieni","definition":&"golem","skills":["Kamienny cios","Wstrzas","Forteca"]}
 }
 
 var profiles: Array[CharacterProfile] = []
@@ -38,7 +48,37 @@ func reload_profiles() -> void:
 			var profile := _read_profile(CHARACTER_DIRECTORY + "/" + file_name)
 			if profile != null:
 				profiles.append(profile)
+	_append_premade_profiles()
 	profiles.sort_custom(func(a: CharacterProfile, b: CharacterProfile) -> bool: return a.modified_at > b.modified_at)
+
+func _append_premade_profiles() -> void:
+	var premades: Array[Dictionary] = [
+		{"id":"premade-lyra-windfeather","name":"Lyra Pióro Wiatru","race":&"elf","class":&"harpy_scout","bonuses":{&"zrecznosc":2,&"percepcja":2,&"inteligencja":1}},
+		{"id":"premade-bruno-ironpan","name":"Bruno Żelazna Patelnia","race":&"undead","class":&"undead_butcher","bonuses":{&"sila":2,&"wytrzymalosc":2,&"madrosc":1}},
+		{"id":"premade-skit-chisel","name":"Skit Ostry Kieł","race":&"goblin","class":&"kobold_trapper","bonuses":{&"zrecznosc":2,&"percepcja":2,&"szczesc":1}},
+		{"id":"premade-dagna-wall","name":"Dagna Mur Kamienia","race":&"dwarf","class":&"dwarf_shieldbearer","bonuses":{&"wytrzymalosc":3,&"sila":1,&"madrosc":1}},
+		{"id":"premade-morwen-ash","name":"Morwen Popielna Dłoń","race":&"undead","class":&"grave_apothecary","bonuses":{&"inteligencja":2,&"madrosc":2,&"percepcja":1}},
+		{"id":"premade-elian-thorn","name":"Elian Cierniowy Szept","race":&"elf","class":&"briar_witch","bonuses":{&"inteligencja":2,&"percepcja":2,&"wytrzymalosc":1}},
+		{"id":"premade-vara-storm","name":"Vara Grzmotopołudnie","race":&"gnome","class":&"stormcaller","bonuses":{&"inteligencja":3,&"percepcja":1,&"szczesc":1}},
+		{"id":"premade-aldric-vow","name":"Aldric Nieugięta Przysięga","race":&"human","class":&"oathkeeper","bonuses":{&"wytrzymalosc":2,&"madrosc":2,&"charyzma":1}},
+		{"id":"premade-nox-moon","name":"Nox Księżycowy Krok","race":&"halfling","class":&"moon_duelist","bonuses":{&"zrecznosc":3,&"percepcja":1,&"szczesc":1}},
+		{"id":"premade-borun-crag","name":"Borun Łamacz Grani","race":&"dwarf","class":&"stonebreaker","bonuses":{&"sila":2,&"wytrzymalosc":2,&"zrecznosc":1}}
+	]
+	for data: Dictionary in premades:
+		var uuid := String(data["id"])
+		if find_profile(StringName(uuid)) != null:
+			continue
+		var profile := CharacterProfile.new()
+		profile.character_uuid = uuid
+		profile.character_name = String(data["name"])
+		profile.race_id = data["race"] as StringName
+		profile.class_id = data["class"] as StringName
+		var raw_bonuses: Dictionary = data["bonuses"] as Dictionary
+		for stat_id: Variant in raw_bonuses:
+			profile.bonus_points[StringName(str(stat_id))] = int(raw_bonuses[stat_id])
+		profile.modified_at = 0
+		profiles.append(profile)
+
 
 func save_profile(profile: CharacterProfile) -> bool:
 	if not validate_profile(profile):

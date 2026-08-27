@@ -60,6 +60,16 @@ func setup(camera: Camera3D = null, data_directory: String = "", legacy_strokes:
 	if not legacy_strokes.is_empty():
 		_import_legacy_strokes(legacy_strokes)
 
+func import_height_sampler(sampler: Callable) -> void:
+	if terrain == null or _region == null or not sampler.is_valid():
+		return
+	for z: int in range(MAP_SIZE.y):
+		for x: int in range(MAP_SIZE.x):
+			var sampled_height: float = clampf(float(sampler.call(float(x), float(z))), MIN_HEIGHT, MAX_HEIGHT)
+			terrain.data.set_height(Vector3(float(x), 0.0, float(z)), sampled_height)
+	_finish_height_edit()
+
+
 func apply_brush(center: Vector3, radius: float, strength: float, operation: String) -> void:
 	if terrain == null or _region == null:
 		return

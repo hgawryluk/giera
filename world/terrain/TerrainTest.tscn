@@ -1,26 +1,42 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://world/terrain/terrain_test.gd" id="1_script"]
 [ext_resource type="Script" path="res://world/terrain/ground_clutter_system.gd" id="2_clutter"]
+[ext_resource type="Shader" path="res://world/terrain/late_afternoon_sky.gdshader" id="3_sky"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSky_test"]
-sky_top_color = Color(0.18, 0.34, 0.55, 1)
-sky_horizon_color = Color(0.72, 0.79, 0.82, 1)
-ground_bottom_color = Color(0.08, 0.075, 0.065, 1)
-ground_horizon_color = Color(0.48, 0.5, 0.46, 1)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
+shader = ExtResource("3_sky")
 
 [sub_resource type="Sky" id="Sky_test"]
-sky_material = SubResource("ProceduralSky_test")
+radiance_size = 3
+process_mode = 1
+sky_material = SubResource("ShaderMaterial_sky")
 
 [sub_resource type="Environment" id="Environment_test"]
 background_mode = 2
 sky = SubResource("Sky_test")
-sky_contribution = 0.82
+sky_contribution = 0.9
 ambient_light_source = 3
-ambient_light_color = Color(0.72, 0.78, 0.84, 1)
-ambient_light_energy = 0.58
+ambient_light_color = Color(0.66, 0.71, 0.82, 1)
+ambient_light_energy = 0.48
 reflected_light_source = 2
 tonemap_mode = 2
+tonemap_exposure = 1.12
+fog_enabled = false
+fog_light_color = Color(0.82, 0.56, 0.4, 1)
+fog_light_energy = 0.48
+fog_density = 0.0007
+fog_height = 3.0
+fog_height_density = 0.018
+fog_sky_affect = 0.28
+volumetric_fog_enabled = false
+volumetric_fog_density = 0.0018
+volumetric_fog_albedo = Color(0.86, 0.72, 0.62, 1)
+volumetric_fog_emission = Color(0.12, 0.055, 0.025, 1)
+volumetric_fog_emission_energy = 0.04
+volumetric_fog_length = 220.0
+volumetric_fog_detail_spread = 1.6
+volumetric_fog_sky_affect = 0.05
 
 [node name="TerrainTest" type="Node3D"]
 script = ExtResource("1_script")
@@ -39,12 +55,16 @@ script = ExtResource("2_clutter")
 environment = SubResource("Environment_test")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
-rotation_degrees = Vector3(-48, -32, 0)
-light_color = Color(1, 0.93, 0.82, 1)
-light_energy = 1.05
+rotation_degrees = Vector3(-18, -58, 0)
+light_color = Color(1, 0.67, 0.42, 1)
+light_energy = 1.35
+light_angular_distance = 0.012
+light_volumetric_fog_energy = 1.4
 shadow_enabled = true
+directional_shadow_max_distance = 260.0
+directional_shadow_blend_splits = true
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 128, 82, 206)
 current = true
-far = 700.0
+far = 900.0

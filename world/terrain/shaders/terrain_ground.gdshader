@@ -135,6 +135,14 @@ float solo_horizontal_path_z(float world_x) {
 	return 132.0 + sin(world_x * 0.014 + 0.8) * 34.0 + sin(world_x * 0.037) * 8.0;
 }
 
+float arena_path_center_x(float world_z) {
+	float delta = world_z - 95.0;
+	// One continuous, gently meandering route joins both deployment ends to
+	// the bridge. Every term is zero at the bridge, so the painted path aligns.
+	float bridge_clearance = smoothstep(8.0, 18.0, abs(delta));
+	return 80.0 + bridge_clearance * (sin(delta * 0.041) * 7.2 + sin(delta * 0.093) * 2.4);
+}
+
 void vertex() {
 	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_normal = normalize(MODEL_NORMAL_MATRIX * NORMAL);
@@ -182,6 +190,12 @@ void fragment() {
 	if (is_arena) {
 		dirt_patch = mix(0.52, 0.82, broad_b);
 		dry_mask = mix(0.22, 0.48, broad_a);
+		float arena_path_distance = abs(p.x - arena_path_center_x(p.y));
+		float arena_path_noise = (value_noise(p / 3.8 + vec2(5.4, 12.7)) - 0.5) * 1.35;
+		float arena_path_core = 1.0 - smoothstep(1.45 + arena_path_noise * 0.25, 2.75 + arena_path_noise, arena_path_distance);
+		float arena_path_edge = 1.0 - smoothstep(2.2 + arena_path_noise * 0.35, 5.4 + arena_path_noise, arena_path_distance);
+		surface_paving_weight = max(surface_paving_weight, arena_path_core * 0.86);
+		surface_path_soil_weight = max(surface_path_soil_weight, max(arena_path_edge - arena_path_core * 0.68, 0.0) * 0.72);
 	}
 
 	// The final surface is composed once from normalized weights below. Keeping
@@ -279,6 +293,11 @@ void fragment() {
 	float geological_dark_weight = 0.0;
 	float rock_relief = triplanar_color(rock_height, world_position, normalize(world_normal), texture_world_size).r;
 	float final_rock_weight = max(surface_rock_weight, smoothstep(0.18, 0.72, 1.0 - world_normal.y + (rock_relief - 0.5) * height_blend_strength * 0.08));
+	if (is_arena) {
+		float arena_geology = (value_noise(p / 11.0 + vec2(7.3, 19.1)) - 0.5) * 0.18;
+		float arena_slope_rock = smoothstep(0.08, 0.46, 1.0 - world_normal.y + arena_geology);
+		final_rock_weight = max(final_rock_weight, arena_slope_rock * 0.88);
+	}
 	final_rock_weight *= 1.0 - final_paving_weight;
 	// Extra geological layers are expensive triplanar samples. Evaluate them
 	// only on fragments that can actually show exposed rock.
@@ -326,7 +345,9 @@ void fragment() {
 		ground = pbr_ground * final_base_weight + forest_soil * final_forest_weight + paving * final_paving_weight + visible_rock * final_rock_weight;
 		ground *= 1.0 + macro * macro_strength;
 		float pbr_luminance = dot(ground, vec3(0.299, 0.587, 0.114));
-		ground = mix(vec3(pbr_luminance), ground, palette_saturation) * vec3(0.96, 0.98, 0.93);
+		vec3 palette_corrected = mix(vec3(pbr_luminance), ground, palette_saturation) * vec3(0.96, 0.98, 0.93);
+		// Preserve the authored PBR rock colors exactly on exposed cliffs.
+		ground = mix(palette_corrected, ground, final_rock_weight);
 	}
 
 	vec2 cell = fract(p);

@@ -29,7 +29,7 @@ var _far_field: MultiMeshInstance3D
 
 
 func _ready() -> void:
-	if GameSession.selected_map_id in ["builtin:arena", "builtin:solo_trail"]:
+	if GameSession.selected_map_id == "builtin:solo_trail" or (GameSession.selected_map_id == "builtin:arena" and not GameSession.arena_test_mode):
 		set_process(false)
 		return
 	_grid_manager = get_node_or_null(grid_manager_path) as GridManager
@@ -40,6 +40,12 @@ func _ready() -> void:
 	for lod_index: int in range(LOD_RANGES.size()):
 		_grass_materials.append(_create_grass_material(lod_index))
 		_last_lod_focus.append(Vector2(INF, INF))
+	if GameSession.arena_test_mode:
+		# Arena test uses one dense, immutable field. Nothing follows the cursor
+		# or camera focus, and the whole playable rectangle stays populated.
+		_create_world_far_field()
+		set_process(false)
+		return
 	_create_lod_multimeshes()
 	_create_world_far_field()
 	_update_grass(true)
@@ -65,12 +71,13 @@ func _create_lod_multimeshes() -> void:
 
 func _create_world_far_field() -> void:
 	# Jedna niezmienna warstwa obejmuje glowna plansze i nie jest przebudowywana.
-	var spacing: float = 1.65
+	var spacing: float = 0.62 if GameSession.arena_test_mode else 1.65
 	var transforms: Array[Transform3D] = []
-	var minimum_x: float = 0.0
-	var maximum_x: float = float(GridManager.GRID_WIDTH)
-	var minimum_z: float = 0.0
-	var maximum_z: float = float(GridManager.GRID_HEIGHT)
+	var arena_rect := _grid_manager.get_arena_rect()
+	var minimum_x: float = float(arena_rect.position.x) if GameSession.arena_test_mode else 0.0
+	var maximum_x: float = float(arena_rect.end.x) if GameSession.arena_test_mode else float(GridManager.GRID_WIDTH)
+	var minimum_z: float = float(arena_rect.position.y) if GameSession.arena_test_mode else 0.0
+	var maximum_z: float = float(arena_rect.end.y) if GameSession.arena_test_mode else float(GridManager.GRID_HEIGHT)
 	for grid_z: int in range(floori(minimum_z / spacing), ceili(maximum_z / spacing)):
 		for grid_x: int in range(floori(minimum_x / spacing), ceili(maximum_x / spacing)):
 			var jitter := _deterministic_jitter(grid_x, grid_z, 701)
@@ -194,8 +201,16 @@ func _can_place_grass(position_2d: Vector2) -> bool:
 	var maximum_x := float(GridManager.GRID_WIDTH)
 	var minimum_z := 0.0
 	var maximum_z := float(GridManager.GRID_HEIGHT)
+	if GameSession.arena_test_mode:
+		var arena_rect := _grid_manager.get_arena_rect()
+		minimum_x = float(arena_rect.position.x + 1)
+		maximum_x = float(arena_rect.end.x - 1)
+		minimum_z = float(arena_rect.position.y + 1)
+		maximum_z = float(arena_rect.end.y - 1)
 	if position_2d.x < minimum_x or position_2d.x >= maximum_x or position_2d.y < minimum_z or position_2d.y >= maximum_z:
 		return false
+	if GameSession.arena_test_mode:
+		return not _grid_manager.is_arena_test_water(position_2d.x, position_2d.y)
 	var local_position := position_2d
 	var north_south_x := float(GridManager.GRID_WIDTH) * 0.5 + sin(local_position.y * 0.055) * 12.0
 	var diagonal_z := 30.0 + local_position.x * 0.72 + sin(local_position.x * 0.09) * 6.0
@@ -285,9 +300,9 @@ func _create_grass_material(lod_index: int) -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = """shader_type spatial;
 render_mode cull_disabled, depth_prepass_alpha;
-uniform vec3 grass_dark : source_color = vec3(0.018, 0.065, 0.012);
-uniform vec3 grass_light : source_color = vec3(0.10, 0.25, 0.055);
-uniform vec3 violet : source_color = vec3(0.25, 0.08, 0.31);
+uniform vec3 grass_dark : source_color = vec3(0.055, 0.095, 0.035);
+uniform vec3 grass_light : source_color = vec3(0.29, 0.39, 0.13);
+uniform vec3 dry_olive : source_color = vec3(0.40, 0.34, 0.16);
 uniform float wind_strength = 0.065;
 uniform float wind_speed = 1.25;
 uniform bool card_mode = false;
@@ -310,7 +325,7 @@ void vertex() {
 void fragment() {
 	float random_tint = fract(sin(MODEL_MATRIX[3].x * 12.9898 + MODEL_MATRIX[3].z * 78.233) * 43758.5453);
 	vec3 green = mix(grass_dark, grass_light, 0.30 + UV.y * 0.55);
-	ALBEDO = mix(green, violet, 0.20 + random_tint * 0.34) * brightness_boost;
+	ALBEDO = mix(green, dry_olive, 0.10 + random_tint * 0.22) * brightness_boost;
 	EMISSION = ALBEDO * ambient_lift;
 	ROUGHNESS = 0.94;
 	if (card_mode) {

@@ -24,12 +24,18 @@ var _spawning_encounter: bool = false
 var _encounter_mode: bool = false
 var _encounter_participants: Array[TacticalUnit] = []
 var _ability_system: AbilitySystem
+var _fog_of_war: FogOfWarSystem
 
 func _ready() -> void:
 	_ability_system = AbilitySystem.new()
 	_ability_system.name = "AbilitySystem"
 	add_child(_ability_system)
 	_ability_system.setup(grid_manager)
+	if game_session.arena_test_mode:
+		_fog_of_war = FogOfWarSystem.new()
+		_fog_of_war.name = "FogOfWar"
+		add_child(_fog_of_war)
+		_fog_of_war.setup(grid_manager)
 	player_controller.unit_selected.connect(_on_unit_selected)
 	player_controller.grid_cell_clicked.connect(_on_grid_cell_clicked)
 	player_controller.world_mob_clicked.connect(_on_world_mob_clicked)
@@ -42,6 +48,7 @@ func _ready() -> void:
 	tactical_camera.tactical_grid_toggle_requested.connect(_on_tactical_grid_toggle_requested)
 	tactical_camera.torch_state_changed.connect(_on_torch_state_changed)
 	tactical_camera.mob_spotted.connect(_on_mob_spotted)
+	tactical_camera.movement_cancel_requested.connect(_on_movement_cancel_requested)
 	turn_manager.round_started.connect(_on_round_started)
 	turn_manager.turn_started.connect(_on_turn_started)
 	turn_manager.turn_ended.connect(_on_turn_ended)
@@ -67,6 +74,7 @@ func _start_battle() -> void:
 	var units := grid_manager.get_units()
 	for unit: TacticalUnit in units:
 		unit.stats_changed.connect(_on_unit_stats_changed.bind(unit))
+		unit.movement_step_reached.connect(_on_unit_movement_step)
 	turn_manager.start_battle(units)
 	if game_session.auto_start_first_person and not units.is_empty():
 		await get_tree().process_frame
@@ -81,6 +89,8 @@ func _on_initiative_card_focus(unit: TacticalUnit) -> void:
 
 func _on_unit_selected(unit: TacticalUnit) -> void:
 	if not _input_enabled or unit == null:
+		return
+	if _fog_of_war != null and unit.team_id != turn_manager.active_unit.team_id and not _fog_of_war.is_cell_visible(unit.grid_position):
 		return
 	var repeated_target: bool = _pending_unit_target == unit and unit != turn_manager.active_unit
 	_clear_pending_move()
@@ -174,9 +184,15 @@ func _execute_move(cell: Vector2i) -> void:
 		return
 	_clear_pending_targets()
 	grid_manager.clear_highlights()
-	await active.move_along_path(path, GridManager.CELL_SIZE, func(path_cell: Vector2i) -> float:
+	var traversed_steps: int = await active.move_along_path(path, GridManager.CELL_SIZE, func(path_cell: Vector2i) -> float:
 		return grid_manager.terrain_height(float(path_cell.x), float(path_cell.y))
 	)
+	if not is_instance_valid(active) or active.is_dead():
+		return
+	grid_manager.relocate_occupant_from_world(active, active.global_position)
+	active.refund_action_points(cost - traversed_steps)
+	if traversed_steps < cost:
+		battle_ui.set_phase_message("Ruch przerwany — pozostalo PA: %d" % active.current_action_points)
 	if not is_instance_valid(active) or active.is_dead():
 		return
 	selected_unit = active
@@ -185,7 +201,14 @@ func _execute_move(cell: Vector2i) -> void:
 	_refresh_movement_highlights()
 	battle_ui.refresh_details()
 	battle_ui.set_phase_message("Ruch zakonczony — pozostalo PA: %d" % active.current_action_points)
+	if _fog_of_war != null:
+		_fog_of_war.update_for_team(active.team_id)
 	_check_world_mob_encounter(active)
+
+func _on_movement_cancel_requested() -> void:
+	var active := turn_manager.active_unit
+	if game_session.arena_test_mode and active != null and is_instance_valid(active) and active.is_moving():
+		active.request_stop_movement()
 
 func _can_control_active_unit() -> bool:
 	var active := turn_manager.active_unit
@@ -216,6 +239,8 @@ func _on_round_started(round_value: int) -> void:
 	battle_ui.set_round(round_value)
 
 func _on_turn_started(unit: TacticalUnit) -> void:
+	if _fog_of_war != null:
+		_fog_of_war.update_for_team(unit.team_id)
 	if _encounter_mode and not _encounter_participants.has(unit):
 		turn_manager.end_current_turn()
 		return
@@ -283,7 +308,13 @@ func _end_encounter() -> void:
 	battle_ui.set_initiative_order(turn_manager.get_initiative_preview())
 	battle_ui.set_phase_message("Walka zakonczona — powrot do trybu strategicznego")
 
+func _on_unit_movement_step(unit: TacticalUnit, _cell: Vector2i) -> void:
+	if _fog_of_war != null and turn_manager.active_unit == unit:
+		_fog_of_war.update_for_team(unit.team_id)
+
 func _on_unit_stats_changed(_unit: TacticalUnit) -> void:
+	if _fog_of_war != null and turn_manager.active_unit != null:
+		_fog_of_war.update_for_team(turn_manager.active_unit.team_id)
 	battle_ui.refresh_details()
 	battle_ui.refresh_initiative()
 
@@ -400,14 +431,14 @@ func _on_tactical_grid_toggle_requested() -> void:
 func _schedule_enemy_turn_end(enemy: TacticalUnit) -> void:
 	_enemy_turn_token += 1
 	var token := _enemy_turn_token
-	await get_tree().create_timer(0.4).timeout
+	await get_tree().create_timer(0.10).timeout
 	if token == _enemy_turn_token and turn_manager.active_unit == enemy:
 		turn_manager.end_current_turn()
 
 func _execute_enemy_turn(unit: TacticalUnit) -> void:
 	_enemy_turn_token += 1
 	var token := _enemy_turn_token
-	await get_tree().create_timer(0.6).timeout
+	await get_tree().create_timer(0.12).timeout
 	if token != _enemy_turn_token or not is_instance_valid(unit) or unit.is_dead():
 		return
 
@@ -425,7 +456,7 @@ func _execute_enemy_turn(unit: TacticalUnit) -> void:
 	if unit.current_action_points > 0 and is_instance_valid(unit) and not unit.is_dead() and is_instance_valid(target) and not target.is_dead():
 		if not _ai_use_best_ability(unit, target) and _is_adjacent(unit.grid_position, target.grid_position):
 			_ai_attack(unit, target)
-			await get_tree().create_timer(0.5).timeout
+			await get_tree().create_timer(0.10).timeout
 
 	if is_instance_valid(unit) and not unit.is_dead() and token == _enemy_turn_token:
 		turn_manager.end_current_turn()
