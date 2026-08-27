@@ -2,7 +2,7 @@ class_name MapObjectMultiMeshRenderer
 extends Node3D
 
 const OBJECT_CHUNK_SIZE := 24.0
-const DEFAULT_OBSTACLES: Array[String] = ["purple_tree_1", "purple_tree_2", "purple_tree_3", "large_tree"]
+const DEFAULT_OBSTACLES: Array[String] = ["purple_tree_1", "purple_tree_2", "purple_tree_3", "large_tree", "tree_real_1", "tree_real_2"]
 const TYPE_SCALE_MULTIPLIERS: Dictionary[String, float] = {
 	"purple_tree_1": 5.5,
 	"purple_tree_2": 5.5,
@@ -11,6 +11,30 @@ const TYPE_SCALE_MULTIPLIERS: Dictionary[String, float] = {
 	"bush": 1.3,
 	"grass_1": 0.65,
 	"grass_2": 0.65,
+	"tree_real_1": 1.0,
+	"tree_real_2": 1.0,
+	"bush_real_1": 1.0,
+	"bush_real_2": 1.0,
+	"bush_real_3": 1.0,
+	"bush_real_4": 1.0,
+	"bush_real_5": 1.0,
+	"bush_real_6": 1.0,
+	"bush_real_7": 1.0,
+	"bush_real_8": 1.0,
+	"bush_real_9": 1.0,
+	"bush_heather": 1.0,
+	"bush_cliff": 1.0,
+	"stylised_rocks": 1.0,
+	"arena_bridge": 0.50,
+	"arena_rock": 0.45,
+	"arena_soil": 1.0,
+}
+const MESH_FILTERS: Dictionary[String, String] = {
+	"bush_real_1": "Medium_bush_2", "bush_real_2": "Medium_bush_1",
+	"bush_real_3": "Small_bush_1", "bush_real_4": "tall_bush_3",
+	"bush_real_5": "tall_bush_1", "bush_real_6": "Medium_bush_3",
+	"bush_real_7": "Small_bush_2", "bush_real_8": "tall_bush_2",
+	"bush_real_9": "tall_bush_4",
 }
 
 var _assets: Dictionary[String, String] = {}
@@ -21,6 +45,7 @@ var _instance_positions: Array[Vector3] = []
 var _part_cache: Dictionary[String, Array] = {}
 var _grass_proxy: ArrayMesh
 var _bush_proxy: SphereMesh
+var _soil_proxy: PlaneMesh
 
 func configure(assets: Dictionary[String, String], position_resolver: Callable, create_collisions: bool = false, obstacle_types: Array[String] = DEFAULT_OBSTACLES) -> void:
 	_assets = assets.duplicate()
@@ -80,7 +105,7 @@ func _build_group(key: String, entries: Array) -> void:
 		instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if _obstacle_types.has(kind) else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		# Trees must remain visible from the elevated isometric camera. A zero end
 		# range disables distance culling while retaining regular frustum culling.
-		instance.visibility_range_end = 0.0 if _obstacle_types.has(kind) else 75.0
+		instance.visibility_range_end = 0.0
 		instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 		add_child(instance)
 	if _create_collisions and _obstacle_types.has(kind):
@@ -98,26 +123,32 @@ func _get_parts(kind: String) -> Array:
 		if _bush_proxy == null:
 			_bush_proxy = _create_bush_proxy()
 		parts.append({"mesh": _bush_proxy, "transform": Transform3D.IDENTITY})
+	elif kind == "arena_soil":
+		if _soil_proxy == null:
+			_soil_proxy = _create_soil_proxy()
+		parts.append({"mesh": _soil_proxy, "transform": Transform3D.IDENTITY})
 	else:
-		var packed := load(_assets[kind]) as PackedScene
-		if packed != null:
-			var source := packed.instantiate() as Node3D
+		var resource := load(_assets[kind])
+		if resource is Mesh:
+			parts.append({"mesh": resource as Mesh, "transform": Transform3D.IDENTITY})
+		elif resource is PackedScene:
+			var source := (resource as PackedScene).instantiate() as Node3D
 			if source != null:
-				_collect_parts(source, Transform3D.IDENTITY, parts)
+				_collect_parts(source, Transform3D.IDENTITY, parts, str(MESH_FILTERS.get(kind, "")))
 				source.free()
 	_part_cache[kind] = parts
 	return parts
 
-func _collect_parts(node: Node, parent_transform: Transform3D, output: Array) -> void:
+func _collect_parts(node: Node, parent_transform: Transform3D, output: Array, mesh_filter: String = "") -> void:
 	var local_transform := parent_transform
 	if node is Node3D:
 		local_transform = parent_transform * (node as Node3D).transform
-	if node is MeshInstance3D:
+	if node is MeshInstance3D and (mesh_filter.is_empty() or node.name == mesh_filter):
 		var mesh_instance := node as MeshInstance3D
 		if mesh_instance.mesh != null:
 			output.append({"mesh": mesh_instance.mesh, "transform": local_transform})
 	for child: Node in node.get_children():
-		_collect_parts(child, local_transform, output)
+		_collect_parts(child, local_transform, output, mesh_filter)
 
 func _resolved_base_position(data: Dictionary) -> Vector3:
 	var result := Vector3(float(data.get("x", 0.0)), 0.0, float(data.get("z", 0.0)))
@@ -175,6 +206,22 @@ func _create_grass_proxy() -> ArrayMesh:
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	result.surface_set_material(0, material)
 	return result
+
+func _create_soil_proxy() -> PlaneMesh:
+	var result := PlaneMesh.new()
+	result.size = Vector2(2.0, 2.0)
+	result.subdivide_width = 3
+	result.subdivide_depth = 3
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = load("res://assets/environment/terrain/glhf/forest_ground_06/forest_ground_06_diff_4k.jpg") as Texture2D
+	material.normal_enabled = true
+	material.normal_texture = load("res://assets/environment/terrain/glhf/forest_ground_06/forest_ground_06_nor_gl_4k.jpg") as Texture2D
+	material.albedo_color = Color(0.72, 0.62, 0.46)
+	material.roughness = 0.96
+	material.uv1_scale = Vector3(2.4, 2.4, 2.4)
+	result.material = material
+	return result
+
 
 func _create_bush_proxy() -> SphereMesh:
 	var result := SphereMesh.new()

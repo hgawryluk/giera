@@ -84,14 +84,14 @@ text = "Zakoncz ture"
 theme = ExtResource("2_theme")
 anchor_left = 1.0
 anchor_right = 1.0
-anchor_top = 1.0
+anchor_top = 0.0
 anchor_bottom = 1.0
-offset_left = -306.0
-offset_top = -258.0
+offset_left = -370.0
+offset_top = 106.0
 offset_right = -12.0
 offset_bottom = -12.0
 grow_horizontal = 0
-grow_vertical = 0
+grow_vertical = 2
 
 [node name="Margin" type="MarginContainer" parent="DetailsPanel"]
 theme_override_constants/margin_left = 16
@@ -102,9 +102,13 @@ theme_override_constants/margin_bottom = 12
 [node name="VBox" type="VBoxContainer" parent="DetailsPanel/Margin"]
 theme_override_constants/separation = 6
 
+[node name="PortraitHolder" type="CenterContainer" parent="DetailsPanel/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(250, 82)
+
 [node name="DetailsLabel" type="Label" parent="DetailsPanel/Margin/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(250, 110)
+custom_minimum_size = Vector2(250, 96)
 theme_override_font_sizes/font_size = 15
 text = "Brak zaznaczonej jednostki"
 

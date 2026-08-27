@@ -18,10 +18,14 @@ const PLAYER_COLORS: Array[Color] = [
 ]
 
 @onready var round_label: Label = %RoundLabel
+@onready var initiative_bar: PanelContainer = $InitiativeBar
+@onready var status_panel: PanelContainer = $StatusPanel
+@onready var details_panel: PanelContainer = $DetailsPanel
 @onready var active_label: Label = %ActiveLabel
 @onready var phase_label: Label = %PhaseLabel
 @onready var initiative_cards: HBoxContainer = %InitiativeCards
 @onready var details_label: Label = %DetailsLabel
+@onready var portrait_holder: CenterContainer = %PortraitHolder
 @onready var action_point_dots: HBoxContainer = %ActionPointDots
 @onready var end_turn_button: Button = %EndTurnButton
 @onready var skill_bar: PanelContainer = %SkillBar
@@ -39,6 +43,7 @@ var _enemy_panel: PanelContainer
 var _enemy_name_label: Label
 var _enemy_hp_bar: ProgressBar
 var _enemy_hp_label: Label
+var _crosshair: Panel
 
 func _ready() -> void:
 	end_turn_button.pressed.connect(_request_end_turn)
@@ -47,6 +52,24 @@ func _ready() -> void:
 	details_label.text = "Brak zaznaczonej jednostki"
 	_update_action_point_dots(null)
 	_build_enemy_panel()
+	_build_crosshair()
+
+
+func _build_crosshair() -> void:
+	_crosshair = Panel.new()
+	_crosshair.name = "FirstPersonCrosshair"
+	_crosshair.custom_minimum_size = Vector2(6.0, 6.0)
+	_crosshair.set_anchors_preset(Control.PRESET_CENTER)
+	_crosshair.position = Vector2(-3.0, -3.0)
+	_crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var dot_style := StyleBoxFlat.new()
+	dot_style.bg_color = Color(1.0, 1.0, 1.0, 0.96)
+	dot_style.set_corner_radius_all(3)
+	dot_style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
+	dot_style.shadow_size = 1
+	_crosshair.add_theme_stylebox_override("panel", dot_style)
+	_crosshair.visible = false
+	add_child(_crosshair)
 
 func _build_enemy_panel() -> void:
 	var details_vbox := details_label.get_parent()
@@ -148,8 +171,13 @@ func set_active_unit(unit: TacticalUnit, can_end_turn: bool = false, phase_text:
 
 func set_exploration_mode(enabled: bool) -> void:
 	_exploration_mode = enabled
+	initiative_bar.visible = not enabled
+	status_panel.visible = not enabled
+	details_panel.visible = not enabled
 	end_turn_button.disabled = enabled or not _can_end_active_turn or _active_unit == null or _active_unit.has_finished_turn
 	skill_bar.visible = not enabled and _active_unit != null and not _active_unit.abilities.is_empty()
+	if _crosshair != null:
+		_crosshair.visible = enabled
 
 func _rebuild_skill_bar() -> void:
 	for child: Node in skill_buttons.get_children():
@@ -195,7 +223,8 @@ func _skill_icon(atlas_index: int) -> AtlasTexture:
 	icon.atlas = texture
 	if texture == null:
 		return icon
-	var cell_size := Vector2(texture.get_width(), texture.get_height()) / float(AbilityCatalog.ICON_GRID_SIZE)
+	var icon_size := texture.get_width() / float(AbilityCatalog.ICON_GRID_SIZE)
+	var cell_size := Vector2(icon_size, icon_size)
 	var column := atlas_index % AbilityCatalog.ICON_GRID_SIZE
 	var row := floori(float(atlas_index) / float(AbilityCatalog.ICON_GRID_SIZE))
 	icon.region = Rect2(Vector2(float(column), float(row)) * cell_size, cell_size)
@@ -246,11 +275,7 @@ func _create_initiative_card(unit: TacticalUnit) -> Control:
 	row.add_theme_constant_override("separation", 8)
 	panel.add_child(row)
 
-	var portrait := ColorRect.new()
-	portrait.custom_minimum_size = Vector2(52.0, 58.0)
-	var color_index: int = clampi(unit.owner_player_id - 1, 0, PLAYER_COLORS.size() - 1)
-	portrait.color = PLAYER_COLORS[color_index]
-	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var portrait := _create_unit_portrait(unit, Vector2(52.0, 58.0))
 	row.add_child(portrait)
 
 	var text_box := VBoxContainer.new()
@@ -298,9 +323,11 @@ func refresh_details() -> void:
 	var unit := _displayed_unit if is_instance_valid(_displayed_unit) else _active_unit
 	if unit == null or not is_instance_valid(unit):
 		details_label.text = "Brak zaznaczonej jednostki"
+		_set_details_portrait(null)
 		_update_action_point_dots(null)
 		_update_enemy_panel(null)
 		return
+	_set_details_portrait(unit)
 	var team_name := "Gracz 1" if unit.team_id == 0 else "Gracz 2 / Przeciwnik"
 	var turn_status := "Aktywna tura" if unit == _active_unit and not unit.has_finished_turn else "Tura zakonczona" if unit.has_finished_turn else "Oczekuje"
 	var effect_labels: Array[String] = []
@@ -308,13 +335,48 @@ func refresh_details() -> void:
 		var turns := int(unit.statuses[status_id].get("duration", 0))
 		effect_labels.append("%s (%d)" % [TacticalUnit.status_label(status_id), turns])
 	var effects := ", ".join(effect_labels) if not effect_labels.is_empty() else "brak"
-	details_label.text = "%s\nDruzyna: %s\nHP: %d / %d\nInicjatywa: %d\nTura: %s\nEfekty: %s" % [
+	var stat_lines: Array[String] = []
+	const STAT_LABELS: Dictionary = {
+		&"sila": "Sila", &"zrecznosc": "Zrecznosc", &"wytrzymalosc": "Wytrzymalosc",
+		&"inteligencja": "Inteligencja", &"madrosc": "Madrosc", &"percepcja": "Percepcja",
+		&"charyzma": "Charyzma", &"szczesc": "Szczesc"
+	}
+	for stat_id: StringName in CharacterProfile.STAT_NAMES:
+		stat_lines.append("%s: %d" % [STAT_LABELS.get(stat_id, String(stat_id)), int(unit.attributes.get(stat_id, 4))])
+	details_label.text = "%s\nDruzyna: %s\nHP: %d / %d\nPA: %d / %d\nInicjatywa: %d\nWzrok: %d pól\nTura: %s\n\nSTATYSTYKI\n%s\n\nSTATUSY\n%s" % [
 		unit.display_name, team_name,
 		unit.current_health, unit.max_health,
-		unit.initiative, turn_status, effects
+		unit.current_action_points, unit.max_action_points,
+		unit.initiative, unit.get_sight_range(), turn_status, "\n".join(stat_lines), effects
 	]
 	_update_action_point_dots(unit)
 	_update_enemy_panel(unit)
+
+func _create_unit_portrait(unit: TacticalUnit, portrait_size: Vector2) -> Control:
+	var definition := _get_unit_definition(unit)
+	if definition != null:
+		var portrait := CharacterModelPortrait.new()
+		portrait.setup(definition, portrait_size)
+		return portrait
+	var fallback := ColorRect.new()
+	fallback.custom_minimum_size = portrait_size
+	var color_index: int = clampi(unit.owner_player_id - 1, 0, PLAYER_COLORS.size() - 1)
+	fallback.color = PLAYER_COLORS[color_index]
+	fallback.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return fallback
+
+func _get_unit_definition(unit: TacticalUnit) -> CharacterDefinition:
+	if unit == null or not is_instance_valid(unit):
+		return null
+	var catalog := get_node_or_null("/root/TeamSaveManager") as TeamSaveService
+	return catalog.get_character(unit.character_id) if catalog != null else null
+
+func _set_details_portrait(unit: TacticalUnit) -> void:
+	for child: Node in portrait_holder.get_children():
+		child.queue_free()
+	portrait_holder.visible = unit != null and is_instance_valid(unit)
+	if portrait_holder.visible:
+		portrait_holder.add_child(_create_unit_portrait(unit, Vector2(112.0, 82.0)))
 
 func _update_action_point_dots(unit: TacticalUnit) -> void:
 	for child: Node in action_point_dots.get_children():
@@ -363,4 +425,6 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		var focus := get_viewport().gui_get_focus_owner()
 		if focus is LineEdit or focus is TextEdit:
 			return
-		_request_end_turn()
+		var session := get_node_or_null("/root/GameSession") as GameSessionState
+		if session == null or not session.arena_test_mode:
+			_request_end_turn()

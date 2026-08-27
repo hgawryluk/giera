@@ -2,15 +2,101 @@ class_name BattleAtmosphere
 extends WorldEnvironment
 
 const MOON_DIRECTION := Vector3(-0.42, 0.48, -0.77)
+const SOLO_CLOUDS: CompositorEffect = preload("res://addons/SunshineClouds2/SunshineCloudsGDTestResource.tres")
+const CLOUD_DRIVER_SCRIPT: Script = preload("res://addons/SunshineClouds2/SunshineCloudsDriver.gd")
 
 @onready var sun: DirectionalLight3D = get_parent().get_node_or_null("Sun") as DirectionalLight3D
 
 func _ready() -> void:
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.selected_map_id == "builtin:solo_trail":
+		_configure_sunny_environment()
+		_configure_medium_clouds()
+		return
+	if session != null and session.selected_map_id == "builtin:arena" and session.arena_test_mode:
+		_configure_late_evening_environment()
+		_configure_medium_clouds()
+		return
 	_configure_moonlit_environment()
 	_configure_moon_light()
-	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.arena_test_mode:
+		_create_visible_moon()
+	session = get_node_or_null("/root/GameSession") as GameSessionState
 	if session != null and session.selected_map_id != "builtin:arena":
 		_darken_play_map_lighting()
+
+func _configure_sunny_environment() -> void:
+	var env := environment.duplicate(true) as Environment if environment != null else Environment.new()
+	env.background_mode = Environment.BG_SKY
+	env.background_energy_multiplier = 0.86
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	env.ambient_light_sky_contribution = 0.72
+	env.ambient_light_energy = 0.68
+	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
+	env.tonemap_mode = Environment.TONE_MAPPER_AGX
+	env.tonemap_exposure = 0.96
+	env.tonemap_agx_contrast = 1.08
+	env.ssao_enabled = true
+	env.ssao_radius = 2.0
+	env.ssao_intensity = 1.35
+	env.ssil_enabled = false
+	env.fog_enabled = true
+	env.fog_light_color = Color(0.72, 0.82, 0.92)
+	env.fog_light_energy = 0.65
+	env.fog_density = 0.00032
+	env.fog_aerial_perspective = 0.42
+	var sky_material := ProceduralSkyMaterial.new()
+	sky_material.sky_top_color = Color(0.12, 0.38, 0.78)
+	sky_material.sky_horizon_color = Color(0.68, 0.82, 0.96)
+	sky_material.ground_bottom_color = Color(0.16, 0.13, 0.09)
+	sky_material.ground_horizon_color = Color(0.48, 0.54, 0.42)
+	sky_material.sun_angle_max = 24.0
+	var sky := Sky.new()
+	sky.sky_material = sky_material
+	env.sky = sky
+	environment = env
+	if sun != null:
+		sun.rotation_degrees = Vector3(-34.0, -38.0, 0.0)
+		sun.light_color = Color(1.0, 0.86, 0.68)
+		sun.light_energy = 1.18
+		sun.light_indirect_energy = 0.72
+		sun.shadow_enabled = true
+		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+		sun.directional_shadow_max_distance = 240.0
+
+
+func _configure_medium_clouds() -> void:
+	var clouds := SOLO_CLOUDS.duplicate(true) as CompositorEffect
+	clouds.set("clouds_coverage", 0.72)
+	clouds.set("clouds_density", 0.55)
+	clouds.set("clouds_sharpness", 0.66)
+	clouds.set("clouds_detail_power", 0.82)
+	clouds.set("cloud_ambient_color", Color(0.72, 0.77, 0.82, 1.0))
+	clouds.set("cloud_ambient_tint", Color(0.16, 0.20, 0.24, 1.0))
+	clouds.set("atmosphere_color", Color(0.55, 0.70, 0.86, 1.0))
+	clouds.set("ambient_occlusion_color", Color(0.20, 0.23, 0.28, 0.55))
+	clouds.set("lighting_density", 0.65)
+	clouds.set("resolution_scale", 1)
+	clouds.set("max_step_count", 96.0)
+	clouds.set("accumulation_decay", 0.72)
+	var driver := Node.new()
+	driver.name = "SunshineCloudsDriver"
+	driver.set_script(CLOUD_DRIVER_SCRIPT)
+	var sunlight: Array[DirectionalLight3D] = []
+	var shadow_steps: Array[int] = []
+	if sun != null:
+		sunlight.append(sun)
+		shadow_steps.append(24)
+	# The plugin driver must be inside the tree before clouds_resource is set:
+	# its setter locates WorldEnvironment and installs the compositor effect.
+	add_child(driver)
+	driver.set("clouds_resource", clouds)
+	driver.set("ambience_sample_environment", environment)
+	driver.set("tracked_directional_lights", sunlight)
+	driver.set("tracked_directional_light_shadow_steps", shadow_steps)
+	driver.set("wind_direction", Vector3(0.7, 0.0, 0.25))
+	driver.set("update_continuously", true)
+	driver.call_deferred("retrieve_texture_data")
 
 func _darken_play_map_lighting() -> void:
 	if environment != null:
@@ -18,6 +104,36 @@ func _darken_play_map_lighting() -> void:
 		environment.background_energy_multiplier *= 0.9
 	if sun != null:
 		sun.light_energy *= 0.9
+
+func _create_visible_moon() -> void:
+	var camera := get_parent().get_node_or_null("TacticalCamera") as Camera3D
+	if camera == null:
+		return
+	var moon := MeshInstance3D.new()
+	moon.name = "GlowingMoon"
+	var sphere := SphereMesh.new()
+	sphere.radius = 4.8
+	sphere.height = 9.6
+	sphere.radial_segments = 32
+	sphere.rings = 16
+	moon.mesh = sphere
+	moon.position = Vector3(-27.0, 19.0, -92.0)
+	var moon_material := StandardMaterial3D.new()
+	moon_material.albedo_color = Color(0.78, 0.86, 1.0)
+	moon_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	moon_material.emission_enabled = true
+	moon_material.emission = Color(0.58, 0.72, 1.0)
+	moon_material.emission_energy_multiplier = 4.8
+	moon_material.no_depth_test = true
+	moon.material_override = moon_material
+	camera.add_child(moon)
+	var halo := OmniLight3D.new()
+	halo.name = "MoonHalo"
+	halo.light_color = Color(0.42, 0.58, 1.0)
+	halo.light_energy = 1.6
+	halo.omni_range = 20.0
+	halo.shadow_enabled = false
+	moon.add_child(halo)
 
 func _configure_arena_environment() -> void:
 	var env := environment.duplicate(true) as Environment if environment != null else Environment.new()
@@ -51,6 +167,51 @@ func _configure_arena_environment() -> void:
 		sun.shadow_blur = 0.8
 		sun.shadow_bias = 0.05
 		sun.shadow_normal_bias = 1.0
+
+func _configure_late_evening_environment() -> void:
+	var evening := environment.duplicate(true) as Environment if environment != null else Environment.new()
+	evening.background_mode = Environment.BG_SKY
+	evening.background_energy_multiplier = 1.05
+	evening.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	evening.ambient_light_sky_contribution = 0.76
+	evening.ambient_light_energy = 0.92
+	evening.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
+	evening.tonemap_mode = Environment.TONE_MAPPER_AGX
+	evening.tonemap_exposure = 1.24
+	evening.tonemap_agx_contrast = 1.16
+	evening.ssao_enabled = true
+	evening.ssao_radius = 2.1
+	evening.ssao_intensity = 1.45
+	evening.fog_enabled = true
+	evening.fog_light_color = Color(0.55, 0.62, 0.76)
+	evening.fog_light_energy = 0.42
+	evening.fog_density = 0.00028
+	evening.fog_aerial_perspective = 0.48
+	evening.fog_sun_scatter = 0.34
+	evening.volumetric_fog_enabled = false
+	var sky_material := ProceduralSkyMaterial.new()
+	sky_material.sky_top_color = Color(0.16, 0.34, 0.62)
+	sky_material.sky_horizon_color = Color(0.96, 0.62, 0.36)
+	sky_material.ground_bottom_color = Color(0.10, 0.075, 0.065)
+	sky_material.ground_horizon_color = Color(0.38, 0.25, 0.20)
+	sky_material.sun_angle_max = 18.0
+	var sky := Sky.new()
+	sky.sky_material = sky_material
+	evening.sky = sky
+	environment = evening
+	if sun != null:
+		sun.rotation_degrees = Vector3(-18.0, -52.0, 0.0)
+		sun.light_color = Color(1.0, 0.55, 0.30)
+		sun.light_energy = 1.75
+		sun.light_indirect_energy = 0.78
+		sun.light_volumetric_fog_energy = 0.35
+		sun.light_angular_distance = 0.65
+		sun.shadow_enabled = true
+		sun.shadow_blur = 1.15
+		sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+		sun.directional_shadow_blend_splits = true
+		sun.directional_shadow_max_distance = 240.0
+
 
 func _configure_moonlit_environment() -> void:
 	var battle_environment := environment.duplicate(true) as Environment if environment != null else Environment.new()

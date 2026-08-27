@@ -4,8 +4,25 @@ extends Node3D
 const GRID_WIDTH: int = 160
 const GRID_HEIGHT: int = 190
 const CELL_SIZE: float = 1.0
+const SOLO_TRAIL_SIZE: Vector2i = Vector2i(256, 256)
 const UNIT_SCENE: PackedScene = preload("res://scenes/units/unit.tscn")
-const GRASS_TEXTURE: Texture2D = preload("res://assets/textures/terrain/realistic_grass.png")
+const TERRAIN_GROUND_MATERIAL: ShaderMaterial = preload("res://world/terrain/materials/terrain_ground_material.tres")
+const GROUND_CLUTTER_SCRIPT := preload("res://world/terrain/ground_clutter_system.gd")
+const ARENA_TEST_LANDSCAPE_SCRIPT := preload("res://scripts/maps/arena_test_landscape.gd")
+# Deterministic Solo Trail refinement controls. The procedural surface is
+# rebuilt from these values, so reverting this file restores the previous map.
+const REFINEMENT_HILL_CENTER := Vector2(208.0, 54.0)
+const REFINEMENT_HILL_RADIUS: float = 66.0
+const REFINEMENT_RIVER_AREA := Rect2(0.0, 78.0, 256.0, 58.0)
+const REFINEMENT_DEFORMATION_STRENGTH: float = 1.0
+const REFINEMENT_LARGE_NOISE_SCALE: float = 0.018
+const REFINEMENT_MEDIUM_NOISE_SCALE: float = 0.057
+const REFINEMENT_FINE_NOISE_SCALE: float = 0.19
+const REFINEMENT_SEED: float = 814.0426
+const REFINEMENT_MAX_SLOPE: float = 0.78
+const REFINEMENT_FADE_INTENSITY: float = 1.35
+const HIGHLAND_LEDGE_STRENGTH: float = 0.11
+const HIGHLAND_EROSION_STRENGTH: float = 0.16
 const DIRECTIONS: Array[Vector2i] = [
 	Vector2i.LEFT,
 	Vector2i.RIGHT,
@@ -23,6 +40,7 @@ const DIRECTIONS: Array[Vector2i] = [
 var _arena_rect: Rect2i  # When has_area(), restricts the playable grid to this rectangle
 var _occupancy: Dictionary[Vector2i, TacticalUnit] = {}
 var _blocked_cells: Dictionary[Vector2i, bool] = {}
+var _vision_blocked_cells: Dictionary[Vector2i, bool] = {}
 var _highlight_markers: Dictionary[Vector2i, MeshInstance3D] = {}
 var _highlighted_cells: Dictionary[Vector2i, int] = {}
 var _highlight_material: StandardMaterial3D
@@ -37,18 +55,33 @@ var _water_surface: WaterMapSurface
 var _use_procedural_features: bool = true
 var _terrain_material: ShaderMaterial
 var _grid_visible: bool = false
+var _arena_test_landscape_enabled: bool = false
 
 func _ready() -> void:
+	add_to_group("grid_manager")
 	await _load_selected_terrain()
 	_initialize_terrain_features()
 	_build_grid()
+	if _arena_test_landscape_enabled:
+		var landscape := ARENA_TEST_LANDSCAPE_SCRIPT.new() as ArenaTestLandscape
+		landscape.name = "ArenaTestLandscape"
+		add_child(landscape)
+		landscape.setup(self)
 	if _arena_rect.has_area() and _terrain_material != null:
 		_terrain_material.set_shader_parameter("show_trails", false)
 		_terrain_material.set_shader_parameter("is_arena", true)
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.selected_map_id == "builtin:solo_trail" and _terrain_material != null:
+		_terrain_material.set_shader_parameter("plain_green", false)
+		_terrain_material.set_shader_parameter("solo_trail_landscape", true)
 
 func _load_selected_terrain() -> void:
 	var session := get_node_or_null("/root/GameSession") as GameSessionState
 	if session == null or session.selected_map_id == "builtin:forest":
+		return
+	if session.selected_map_id == "builtin:solo_trail":
+		_use_procedural_features = false
+		player_positions = [Vector2i(128, 128), Vector2i(132, 128)]
 		return
 	if session.selected_map_id == "builtin:arena":
 		const ARENA_RECTS: Array[Rect2i] = [
@@ -59,17 +92,22 @@ func _load_selected_terrain() -> void:
 		]
 		var si := clampi(session.arena_size_index, 0, ARENA_RECTS.size() - 1)
 		_arena_rect = ARENA_RECTS[si]
+		if session.arena_test_mode:
+			_arena_rect = Rect2i(25, 6, 110, 178)
+			_arena_test_landscape_enabled = true
 		var ax := _arena_rect.position.x
 		var ay := _arena_rect.position.y
 		var aw := _arena_rect.size.x
 		var ah := _arena_rect.size.y
+		var north_spawn_y := ay + ah / 4 if session.arena_test_mode else ay + 5
+		var south_spawn_y := ay + ah * 3 / 4 if session.arena_test_mode else ay + ah - 6
 		player_positions = [
-			Vector2i(ax + aw / 4,     ay + 5),
-			Vector2i(ax + aw * 3 / 4, ay + 5),
+			Vector2i(ax + aw / 4, north_spawn_y),
+			Vector2i(ax + aw * 3 / 4, north_spawn_y),
 		]
 		enemy_positions = [
-			Vector2i(ax + aw / 4,     ay + ah - 6),
-			Vector2i(ax + aw * 3 / 4, ay + ah - 6),
+			Vector2i(ax + aw / 4, south_spawn_y),
+			Vector2i(ax + aw * 3 / 4, south_spawn_y),
 		]
 		_use_procedural_features = false
 		return
@@ -117,6 +155,13 @@ func _parse_spawn_list(raw_values: Variant, fallback: Array[Vector2i]) -> Array[
 func is_cell_blocked(cell: Vector2i) -> bool:
 	return _blocked_cells.has(cell)
 
+func block_vision_cell(cell: Vector2i) -> void:
+	if is_inside_grid(cell):
+		_vision_blocked_cells[cell] = true
+
+func blocks_vision(cell: Vector2i) -> bool:
+	return _vision_blocked_cells.has(cell)
+
 func set_grid_visible(should_be_visible: bool) -> void:
 	_grid_visible = should_be_visible
 	if _terrain_material != null:
@@ -160,6 +205,13 @@ func _build_grid() -> void:
 	floor_body.add_child(floor_shape)
 	add_child(floor_body)
 
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session == null or session.selected_map_id != "builtin:solo_trail":
+		var ground_clutter := GROUND_CLUTTER_SCRIPT.new() as GroundClutterSystem
+		ground_clutter.name = "GroundClutter"
+		add_child(ground_clutter)
+		ground_clutter.setup_battle(self, _arena_rect.has_area())
+
 func spawn_enemy_at(character_type: StringName, cell: Vector2i) -> TacticalUnit:
 	var catalog := get_node("/root/TeamSaveManager") as TeamSaveService
 	if catalog == null:
@@ -176,6 +228,12 @@ func spawn_default_units() -> void:
 	_spawn_from_definition(catalog.get_character(&"archer"), 1, 0, player_positions[1])
 	_spawn_from_definition(catalog.get_character(&"warrior"), 2, 1, enemy_positions[0])
 	_spawn_from_definition(catalog.get_character(&"ogre"), 2, 1, enemy_positions[1])
+
+func spawn_solo_unit(character_id: StringName) -> TacticalUnit:
+	var catalog := get_node("/root/TeamSaveManager") as TeamSaveService
+	_spawn_character(character_id, catalog, 1, 0, player_positions[0])
+	var units := get_units()
+	return units[0] if not units.is_empty() else null
 
 func spawn_configured_teams(
 	team_one: Array[StringName],
@@ -196,8 +254,8 @@ func spawn_arena_teams(session: GameSessionState, catalog: TeamSaveService) -> v
 	var ah := _arena_rect.size.y
 	var q1x := ax + aw / 4
 	var q3x := ax + aw * 3 / 4
-	var ny  := ay + 5
-	var sy  := ay + ah - 6
+	var ny := ay + ah / 4 if session.arena_test_mode else ay + 5
+	var sy := ay + ah * 3 / 4 if session.arena_test_mode else ay + ah - 6
 	var anchors_table: Array = []
 	if session.player_count <= 2:
 		anchors_table = [
@@ -253,6 +311,10 @@ func _spawn_from_definition(
 	var unit := packed_scene.instantiate() as TacticalUnit
 	unit.name = "%s_P%d_%d" % [definition.display_name, owner_player_id, get_units().size()]
 	unit.apply_character_definition(definition, owner_player_id, team, cell)
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.arena_test_mode:
+		unit.max_action_points = maxi(1, roundi(float(unit.max_action_points) * 1.4))
+		unit.current_action_points = unit.max_action_points
 	var spawn_cell := _find_nearest_free_cell(cell, unit)
 	unit.grid_position = spawn_cell
 	if profile != null:
@@ -284,6 +346,14 @@ func show_reachable_cells(unit: TacticalUnit) -> void:
 	_highlighted_cells = get_reachable_cells(unit.grid_position, unit.current_action_points)
 	for cell: Vector2i in _highlighted_cells:
 		_create_highlight_marker(cell)
+	# Obstacles bordering the reachable area get a restrained red outline.
+	var marked_obstacles: Dictionary[Vector2i, bool] = {}
+	for cell: Vector2i in _highlighted_cells:
+		for direction: Vector2i in DIRECTIONS:
+			var obstacle := cell + direction
+			if is_inside_grid(obstacle) and is_cell_blocked(obstacle) and not marked_obstacles.has(obstacle):
+				_create_danger_marker(obstacle)
+				marked_obstacles[obstacle] = true
 
 func clear_highlights() -> void:
 	for marker: MeshInstance3D in _highlight_markers.values():
@@ -451,8 +521,12 @@ func is_inside_grid(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.x < GRID_WIDTH and cell.y >= 0 and cell.y < GRID_HEIGHT
 
 func terrain_height(world_x: float, world_z: float) -> float:
+	if _arena_test_landscape_enabled:
+		return ArenaTestLandscape.sample_height(_arena_rect, world_x, world_z)
 	if _terrain_surface != null:
 		return _terrain_surface.get_height(world_x, world_z)
+	if _is_solo_trail():
+		return _solo_trail_height(world_x, world_z)
 	var result: float = 0.018 * sin(world_x * 0.41 + world_z * 0.19)
 	result += 0.012 * cos(world_x * 0.23 - world_z * 0.37)
 	for feature: Vector4 in _terrain_features:
@@ -463,6 +537,164 @@ func terrain_height(world_x: float, world_z: float) -> float:
 		influence = influence * influence * (3.0 - 2.0 * influence)
 		result += feature.w * influence
 	return result
+
+func is_arena_test_water(world_x: float, world_z: float) -> bool:
+	return _arena_test_landscape_enabled and ArenaTestLandscape.is_water(_arena_rect, world_x, world_z)
+
+func get_exploration_world_size() -> Vector2:
+	return Vector2(SOLO_TRAIL_SIZE) if _is_solo_trail() else Vector2(GRID_WIDTH, GRID_HEIGHT)
+
+func _is_solo_trail() -> bool:
+	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	return session != null and session.selected_map_id == "builtin:solo_trail"
+
+func _solo_trail_height(x: float, z: float) -> float:
+	var p := Vector2(x, z)
+	var rolling := sin(x * 0.052) * 1.7 + cos(z * 0.041) * 1.4
+	rolling += sin((x + z) * 0.021) * 2.1 + sin(x * 0.17 - z * 0.13) * 0.38
+	var height: float = 3.2 + rolling
+	# Global ridges are independent of tile edges, so streamed neighbours share
+	# exactly the same height samples along every seam.
+	var global_ridge := smoothstep(0.57, 0.82, _terrain_noise(p, 0.0085, 137.0))
+	height += global_ridge * global_ridge * 18.0
+	height += _irregular_peak(p, Vector2(30.0, 38.0), 39.0, 40.0, 0.4)
+	height += _irregular_peak(p, REFINEMENT_HILL_CENTER, 34.0, REFINEMENT_HILL_RADIUS, 2.1)
+	height += _irregular_peak(p, Vector2(230.0, 205.0), 43.0, 46.0, 4.2)
+	height += _irregular_peak(p, Vector2(35.0, 220.0), 31.0, 47.0, 5.4)
+	# Flatten both connected roads after hills, but before rivers. The path over
+	# the northern hill is therefore walkable, while submerged crossings remain low.
+	var path_flatten := 1.0 - smoothstep(3.2, 9.5, solo_trail_path_distance(x, z))
+	var path_height := 3.1 + (_terrain_noise(p, 0.010, 211.0) - 0.5) * 1.0
+	height = lerpf(height, path_height, path_flatten * 0.94)
+	# A broad meadow keeps the player spawn readable and walkable.
+	var clearing_weight := 1.0 - smoothstep(22.0, 46.0, p.distance_to(Vector2(130.0, 150.0)))
+	height = lerpf(height, 3.0 + sin(x * 0.11) * 0.22 + cos(z * 0.09) * 0.18, clearing_weight)
+	# The river cuts through the valley from west to east.
+	var river_center := _solo_river_center(x)
+	var river_side := z - river_center
+	var river_distance := absf(river_side)
+	var river_curvature := _solo_river_center(x + 2.0) - 2.0 * river_center + _solo_river_center(x - 2.0)
+	var river_outer_side := -signf(river_curvature) if absf(river_curvature) > 0.001 else 0.0
+	var is_outer_bank := signf(river_side) == river_outer_side
+	var bank_noise := _terrain_noise(Vector2(x, z), REFINEMENT_MEDIUM_NOISE_SCALE, 19.0)
+	var river_core_width := 7.0 + (bank_noise - 0.5) * 0.65
+	# Outer bends cut narrower, steeper scarps. Inner bends spread a wider and
+	# gentler depositional shelf, avoiding mirrored banks.
+	var river_bank_width := (13.0 if is_outer_bank else 18.5) + (bank_noise - 0.5) * 2.4
+	var river_weight := 1.0 - smoothstep(river_core_width, river_bank_width, river_distance)
+	var bed_variation := (_terrain_noise(Vector2(x, z), REFINEMENT_LARGE_NOISE_SCALE, 43.0) - 0.5) * 0.24
+	var river_floor := minf(-3.95, -4.55 + bed_variation + pow(river_distance / maxf(river_core_width, 0.1), 1.48) * 0.42)
+	height = lerpf(height, river_floor, river_weight)
+	# A flooded canyon branches northward from the main river.
+	var ravine_x := _solo_ravine_center(z)
+	var ravine_extent := 1.0
+	var ravine_side := x - ravine_x
+	var ravine_distance := absf(ravine_side)
+	var ravine_curvature := _solo_ravine_center(z + 2.0) - 2.0 * ravine_x + _solo_ravine_center(z - 2.0)
+	var ravine_outer_side := -signf(ravine_curvature) if absf(ravine_curvature) > 0.001 else 0.0
+	var ravine_outer := signf(ravine_side) == ravine_outer_side
+	var ravine_noise := _terrain_noise(Vector2(x, z), REFINEMENT_MEDIUM_NOISE_SCALE, 71.0)
+	var ravine_core_width := 5.0 + (ravine_noise - 0.5) * 0.5
+	var ravine_bank_width := (10.8 if ravine_outer else 15.4) + (ravine_noise - 0.5) * 1.8
+	var ravine_weight := (1.0 - smoothstep(ravine_core_width, ravine_bank_width, ravine_distance)) * ravine_extent
+	var canyon_floor := minf(-4.0, -4.62 + (_terrain_noise(Vector2(x, z), REFINEMENT_LARGE_NOISE_SCALE, 89.0) - 0.5) * 0.20 + pow(ravine_distance / maxf(ravine_core_width, 0.1), 1.42) * 0.46)
+	height = lerpf(height, canyon_floor, ravine_weight)
+	return height
+
+
+func _solo_river_center(x: float) -> float:
+	return 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
+
+
+func _solo_ravine_center(z: float) -> float:
+	return 72.0 + sin(z * 0.052) * 5.0
+
+
+func solo_trail_path_center_x(z: float) -> float:
+	if z < 20.0:
+		return 218.0 + sin((z - 20.0) * 0.016) * 28.0
+	if z > 246.0:
+		return 35.0 + sin((z - 246.0) * 0.016) * 28.0
+	var t := clampf((246.0 - z) / 226.0, 0.0, 1.0)
+	var inverse := 1.0 - t
+	return inverse * inverse * inverse * 35.0 + 3.0 * inverse * inverse * t * 45.0 + 3.0 * inverse * t * t * 225.0 + t * t * t * 218.0
+
+
+func solo_trail_horizontal_path_z(x: float) -> float:
+	return 132.0 + sin(x * 0.014 + 0.8) * 34.0 + sin(x * 0.037) * 8.0
+
+
+func solo_trail_path_distance(x: float, z: float) -> float:
+	return minf(absf(x - solo_trail_path_center_x(z)), absf(z - solo_trail_horizontal_path_z(x)))
+
+
+func solo_trail_is_water(x: float, z: float) -> bool:
+	return absf(z - _solo_river_center(x)) <= 7.2 or absf(x - _solo_ravine_center(z)) <= 5.2
+
+
+func _terrain_noise(point: Vector2, scale_value: float, seed_offset: float) -> float:
+	var q := point * scale_value
+	var seed_phase := REFINEMENT_SEED + seed_offset
+	var value := sin(q.x * 1.17 + q.y * 0.43 + seed_phase) * 0.50
+	value += cos(q.y * 1.31 - q.x * 0.37 + seed_phase * 0.73) * 0.31
+	value += sin((q.x + q.y) * 0.71 - seed_phase * 0.41) * 0.19
+	return value * 0.5 + 0.5
+
+func _height_peak(point: Vector2, center: Vector2, amplitude: float, radius: float) -> float:
+	var normalized_distance := point.distance_to(center) / radius
+	if normalized_distance >= 1.0:
+		return 0.0
+	var profile := 1.0 - normalized_distance * normalized_distance
+	return amplitude * profile * profile
+
+
+func _irregular_peak(point: Vector2, center: Vector2, amplitude: float, radius: float, phase: float) -> float:
+	var offset := point - center
+	# Low-frequency domain warping makes each massif lean and branch instead of
+	# remaining a radial mound. It fades completely at the foot of the hill.
+	var warp := Vector2(
+		_terrain_noise(point, 0.0105, phase * 53.0) - 0.5,
+		_terrain_noise(point, 0.0125, phase * 67.0) - 0.5
+	) * radius * 0.24
+	offset += warp
+	var angle := atan2(offset.y, offset.x)
+	var radial_warp := 1.0 + sin(angle * 3.0 + phase) * 0.16 + sin(angle * 5.0 - phase * 0.7) * 0.09
+	var skewed := Vector2(offset.x * (0.88 + 0.08 * sin(phase)), offset.y * (1.12 - 0.06 * cos(phase)))
+	var normalized_distance := skewed.length() / (radius * radial_warp)
+	if normalized_distance >= 1.0:
+		return 0.0
+	var profile := 1.0 - normalized_distance * normalized_distance
+	var mask := pow(1.0 - smoothstep(0.0, 1.0, normalized_distance), REFINEMENT_FADE_INTENSITY)
+	var large := (_terrain_noise(point, REFINEMENT_LARGE_NOISE_SCALE, phase * 17.0) - 0.5) * 0.34
+	var medium_source := _terrain_noise(point, REFINEMENT_MEDIUM_NOISE_SCALE, phase * 29.0)
+	var ridges := (1.0 - absf(medium_source * 2.0 - 1.0) - 0.5) * 0.22
+	var fine := (_terrain_noise(point, REFINEMENT_FINE_NOISE_SCALE, phase * 41.0) - 0.5) * 0.045
+	var deformation := (large + ridges + fine) * mask * REFINEMENT_DEFORMATION_STRENGTH
+	var shoulder := sin(point.x * 0.071 + phase) * cos(point.y * 0.063 - phase) * 0.055 * mask
+	# Short, broken rock shelves: the angular gate prevents horizontal rings,
+	# while the radial gate lets shelves disappear back into the slope.
+	var shelf_phase := normalized_distance * 9.0 + medium_source * 1.7 + phase
+	var shelf_band := smoothstep(0.72, 0.91, sin(shelf_phase) * 0.5 + 0.5)
+	var shelf_arc := smoothstep(0.45, 0.78, _terrain_noise(point, 0.024, phase * 83.0))
+	var shelf_mask := shelf_band * shelf_arc * smoothstep(0.22, 0.48, normalized_distance) * (1.0 - smoothstep(0.78, 0.96, normalized_distance))
+	var erosion_gully := pow(maxf(0.0, sin(angle * 2.0 + phase + medium_source * 1.8)), 4.0)
+	erosion_gully *= smoothstep(0.25, 0.62, normalized_distance) * (1.0 - smoothstep(0.76, 0.98, normalized_distance))
+	var structural := shelf_mask * HIGHLAND_LEDGE_STRENGTH - erosion_gully * HIGHLAND_EROSION_STRENGTH
+	# Broad offset shoulders break the last remaining single-summit silhouette.
+	# They use low frequency fields, so the form reads from afar without noisy ground.
+	var summit_breakup := lerpf(0.76, 1.18, _terrain_noise(point, 0.014, phase * 97.0))
+	var ridge_bias := 1.0 + 0.13 * sin(angle * 2.0 - phase) * smoothstep(0.18, 0.70, normalized_distance)
+	var local := skewed / radius
+	var ridge_direction := Vector2(cos(phase * 0.83), sin(phase * 0.83))
+	var ridge_along := local.dot(ridge_direction)
+	var ridge_across := local.dot(Vector2(-ridge_direction.y, ridge_direction.x))
+	# A shallow saddle divides the summit into unequal shoulders. The cut is
+	# strongest near the crown and vanishes before reaching the foothills.
+	var saddle := exp(-ridge_across * ridge_across / 0.018) * exp(-ridge_along * ridge_along / 0.34)
+	var asymmetric_crown := 1.0 - saddle * 0.24
+	asymmetric_crown += exp(-local.distance_squared_to(ridge_direction * 0.31) / 0.055) * 0.18
+	asymmetric_crown += exp(-local.distance_squared_to(-ridge_direction * 0.22) / 0.085) * 0.09
+	return amplitude * profile * profile * summit_breakup * ridge_bias * asymmetric_crown * maxf(0.50, 1.0 + deformation + shoulder + structural)
 
 func _initialize_terrain_features() -> void:
 	_terrain_features.clear()
@@ -492,8 +724,9 @@ func _create_terrain_mesh() -> ArrayMesh:
 	var vertices := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var uvs := PackedVector2Array()
-	for z: int in range(GRID_HEIGHT):
-		for x: int in range(GRID_WIDTH):
+	var terrain_size := SOLO_TRAIL_SIZE if _is_solo_trail() else Vector2i(GRID_WIDTH, GRID_HEIGHT)
+	for z: int in range(terrain_size.y):
+		for x: int in range(terrain_size.x):
 			var x0: float = float(x) - 0.5
 			var x1: float = float(x) + 0.5
 			var z0: float = float(z) - 0.5
@@ -527,89 +760,8 @@ func _append_terrain_vertex(
 	uvs.append(Vector2((x + 0.5) / float(GRID_WIDTH), (z + 0.5) / float(GRID_HEIGHT)))
 
 func _create_terrain_material() -> ShaderMaterial:
-	var shader := Shader.new()
-	shader.code = """
-shader_type spatial;
-render_mode diffuse_burley;
-uniform sampler2D grass_texture : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform vec2 grid_size = vec2(50.0, 60.0);
-uniform bool grid_visible = false;
-uniform bool show_trails = true;
-uniform bool is_arena = false;
-
-float terrain_hash(vec2 point) {
-	return fract(sin(dot(point, vec2(127.1, 311.7))) * 43758.5453);
-}
-
-float terrain_noise(vec2 point) {
-	vec2 cell_id = floor(point);
-	vec2 local = fract(point);
-	local = local * local * (3.0 - 2.0 * local);
-	return mix(
-		mix(terrain_hash(cell_id), terrain_hash(cell_id + vec2(1.0, 0.0)), local.x),
-		mix(terrain_hash(cell_id + vec2(0.0, 1.0)), terrain_hash(cell_id + vec2(1.0, 1.0)), local.x),
-		local.y
-	);
-}
-
-void fragment() {
-	vec2 scaled_uv = UV * grid_size;
-	vec2 cell = fract(scaled_uv);
-	vec2 edge = min(cell, vec2(1.0) - cell);
-	float grid_line = 1.0 - smoothstep(0.02, 0.055, min(edge.x, edge.y));
-
-	vec3 ground_color;
-	float roughness;
-
-	if (is_arena) {
-		// Arena floor: packed sand/dirt with stone variation
-		float coarse = terrain_noise(scaled_uv * 0.018 + vec2(3.1, 7.4));
-		float fine   = terrain_noise(scaled_uv * 0.14  + vec2(1.2, 9.8));
-		float detail = terrain_noise(scaled_uv * 0.55  + vec2(6.3, 2.1));
-		vec3 sand_dark  = vec3(0.38, 0.29, 0.18);
-		vec3 sand_mid   = vec3(0.54, 0.42, 0.26);
-		vec3 sand_light = vec3(0.68, 0.55, 0.36);
-		ground_color = mix(sand_dark, sand_mid, coarse * 0.7 + fine * 0.3);
-		ground_color = mix(ground_color, sand_light, detail * 0.28);
-		roughness = 0.92;
-	} else {
-		float checker = mod(floor(scaled_uv.x) + floor(scaled_uv.y), 2.0);
-		vec3 grass = texture(grass_texture, UV * grid_size / 4.0).rgb;
-		vec3 natural_grass = grass * vec3(0.52, 0.82, 0.44) * mix(0.94, 1.08, checker);
-		float broad_noise = terrain_noise(scaled_uv * 0.032);
-		broad_noise += terrain_noise(scaled_uv * 0.071 + vec2(13.7, 4.2)) * 0.42;
-		float sand_mask = smoothstep(1.02, 1.24, broad_noise);
-		float sand_detail = terrain_noise(scaled_uv * 0.82 + vec2(2.1, 8.6));
-		vec3 sand_dark = vec3(0.42, 0.30, 0.16);
-		vec3 sand_light = vec3(0.72, 0.55, 0.32);
-		vec3 sand = mix(sand_dark, sand_light, 0.34 + sand_detail * 0.46);
-		ground_color = mix(natural_grass, sand, sand_mask * 0.92);
-		float north_south_x = grid_size.x * 0.5 + sin(scaled_uv.y * 0.055) * 12.0;
-		float diagonal_z = 30.0 + scaled_uv.x * 0.72 + sin(scaled_uv.x * 0.09) * 6.0;
-		float east_west_z = 132.0 + sin(scaled_uv.x * 0.07) * 10.0;
-		float north_south_trail = 1.0 - smoothstep(1.65, 2.45, abs(scaled_uv.x - north_south_x));
-		float diagonal_trail = 1.0 - smoothstep(1.5, 2.25, abs(scaled_uv.y - diagonal_z));
-		float east_west_trail = 1.0 - smoothstep(1.5, 2.25, abs(scaled_uv.y - east_west_z));
-		float trail_mask = max(north_south_trail, max(diagonal_trail, east_west_trail));
-		float trail_detail = terrain_noise(scaled_uv * 0.48 + vec2(6.2, 19.7));
-		vec3 trail_dark = vec3(0.46, 0.30, 0.08);
-		vec3 trail_yellow = vec3(0.88, 0.68, 0.22);
-		vec3 trail_color = mix(trail_dark, trail_yellow, 0.48 + trail_detail * 0.38);
-		if (show_trails) {
-			ground_color = mix(ground_color, trail_color, trail_mask * 0.94);
-		}
-		roughness = mix(0.88, 0.76, sand_mask);
-	}
-
-	float visible_grid = grid_visible ? grid_line : 0.0;
-	ALBEDO = mix(ground_color, vec3(0.04, 0.07, 0.04), visible_grid * 0.82);
-	ROUGHNESS = roughness;
-}
-"""
-	var material := ShaderMaterial.new()
-	material.shader = shader
-	material.set_shader_parameter("grass_texture", GRASS_TEXTURE)
-	material.set_shader_parameter("grid_size", Vector2(GRID_WIDTH, GRID_HEIGHT))
+	var material := TERRAIN_GROUND_MATERIAL.duplicate() as ShaderMaterial
+	material.set_shader_parameter("grid_size", get_exploration_world_size())
 	material.set_shader_parameter("grid_visible", _grid_visible)
 	return material
 
@@ -712,13 +864,28 @@ func _create_ability_target_material() -> StandardMaterial3D:
 func _create_danger_marker(cell: Vector2i) -> void:
 	var marker := MeshInstance3D.new()
 	marker.name = "DangerHighlight_%02d_%02d" % [cell.x, cell.y]
-	var marker_mesh := BoxMesh.new()
-	marker_mesh.size = Vector3(0.86, 0.035, 0.86)
-	marker.mesh = marker_mesh
+	marker.mesh = _create_cell_outline_mesh(0.86)
 	marker.position = cell_to_world(cell) + Vector3(0.0, 0.12, 0.0)
 	marker.material_override = _danger_material
 	add_child(marker)
 	_danger_markers[cell] = marker
+
+func _create_cell_outline_mesh(size_value: float) -> ImmediateMesh:
+	var mesh := ImmediateMesh.new()
+	var half_size := size_value * 0.5
+	var corners: Array[Vector3] = [
+		Vector3(-half_size, 0.0, -half_size),
+		Vector3(half_size, 0.0, -half_size),
+		Vector3(half_size, 0.0, half_size),
+		Vector3(-half_size, 0.0, half_size)
+	]
+	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	for index: int in range(4):
+		mesh.surface_add_vertex(corners[index])
+		mesh.surface_add_vertex(corners[(index + 1) % 4])
+	mesh.surface_end()
+	return mesh
+
 
 func _create_danger_material() -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
@@ -732,9 +899,7 @@ func _create_danger_material() -> StandardMaterial3D:
 func _create_highlight_marker(cell: Vector2i) -> void:
 	var marker := MeshInstance3D.new()
 	marker.name = "MoveHighlight_%02d_%02d" % [cell.x, cell.y]
-	var marker_mesh := BoxMesh.new()
-	marker_mesh.size = Vector3(0.86, 0.035, 0.86)
-	marker.mesh = marker_mesh
+	marker.mesh = _create_cell_outline_mesh(0.86)
 	marker.position = cell_to_world(cell) + Vector3(0.0, 0.075, 0.0)
 	marker.material_override = _highlight_material
 	add_child(marker)

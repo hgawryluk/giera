@@ -22,6 +22,7 @@ TeamSaveManager="*res://scripts/data/team_save_manager.gd"
 CharacterProfileManager="*res://scripts/data/character_profile_manager.gd"
 MapCatalog="*res://scripts/maps/map_catalog.gd"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+SimpleGrass="*res://addons/simplegrasstextured/singleton.tscn"
 
 [display]
 
@@ -33,7 +34,11 @@ window/stretch/mode="canvas_items"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/character_importer/plugin.cfg", "res://addons/godot_ai/plugin.cfg", "res://addons/meshy/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
+enabled=PackedStringArray("res://addons/character_importer/plugin.cfg", "res://addons/godot_ai/plugin.cfg", "res://addons/meshy/plugin.cfg", "res://addons/terrain_3d/plugin.cfg", "res://addons/simplegrasstextured/plugin.cfg", "res://addons/SunshineClouds2/plugin.cfg")
+
+[filesystem]
+
+import/blender/enabled=false
 
 [physics]
 
@@ -42,3 +47,46 @@ enabled=PackedStringArray("res://addons/character_importer/plugin.cfg", "res://a
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+
+[shader_globals]
+
+sgt_legacy_renderer={
+"type": "int",
+"value": 0.0
+}
+sgt_player_position={
+"type": "vec3",
+"value": Vector3(1000000, 1000000, 1000000)
+}
+sgt_player_mov={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
+sgt_normal_displacement={
+"type": "sampler2D",
+"value": "res://addons/simplegrasstextured/images/normal.png"
+}
+sgt_motion_texture={
+"type": "sampler2D",
+"value": "res://addons/simplegrasstextured/images/motion.png"
+}
+sgt_wind_direction={
+"type": "vec3",
+"value": Vector3(1, 0, 0)
+}
+sgt_wind_movement={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
+sgt_wind_strength={
+"type": "float",
+"value": 0.12
+}
+sgt_wind_turbulence={
+"type": "float",
+"value": 0.7
+}
+sgt_wind_pattern={
+"type": "sampler2D",
+"value": "res://addons/simplegrasstextured/images/wind_pattern.png"
+}

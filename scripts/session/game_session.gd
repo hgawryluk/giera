@@ -16,7 +16,9 @@ var starting_compositions: Dictionary[int, Array] = {}
 var match_configured: bool = false
 var local_nickname: String = "Gracz"
 var selected_map_id: String = "builtin:forest"
+var auto_start_first_person: bool = false
 var arena_size_index: int = 1  # 0=Kwadrat 1=Normalna 2=Duza 3=BardozoDuza
+var arena_test_mode: bool = false
 
 func configure_mode(mode: GameMode) -> void:
 	game_mode = mode
@@ -48,8 +50,18 @@ func configure_hotseat(
 		2: team_two.character_ids.duplicate()
 	}
 	match_configured = true
+	auto_start_first_person = false
+
+func configure_solo_exploration(character_id: StringName) -> void:
+	configure_mode(GameMode.SOLO_VS_AI)
+	player_names = {1: "Gracz"}
+	selected_team_uuids.clear()
+	starting_compositions = {1: [character_id]}
+	match_configured = true
+	auto_start_first_person = true
 
 func configure_arena(count: int, names: Array, teams: Array) -> void:
+	arena_test_mode = false
 	game_mode = GameMode.HOTSEAT
 	player_count = count
 	team_controllers.clear()
@@ -65,10 +77,27 @@ func configure_arena(count: int, names: Array, teams: Array) -> void:
 		starting_compositions[pid] = team.character_ids.duplicate()
 	match_configured = true
 
+func configure_arena_test() -> void:
+	configure_mode(GameMode.HOTSEAT)
+	player_count = 2
+	team_controllers = {0: ControllerType.LOCAL_HOTSEAT, 1: ControllerType.LOCAL_HOTSEAT}
+	player_names = {1: "Gracz 1", 2: "Gracz 2"}
+	selected_team_uuids.clear()
+	var team_one: Array[StringName] = [&"ogre", &"falconer", &"undead_priest", &"warrior"]
+	var team_two: Array[StringName] = [&"archer", &"mage", &"priest", &"rogue"]
+	starting_compositions = {1: team_one, 2: team_two}
+	selected_map_id = "builtin:arena"
+	arena_size_index = 3
+	arena_test_mode = true
+	match_configured = true
+	auto_start_first_person = false
+
 func clear_match_configuration() -> void:
 	match_configured = false
 	selected_team_uuids.clear()
 	starting_compositions.clear()
+	auto_start_first_person = false
+	arena_test_mode = false
 
 func has_match_configuration() -> bool:
 	return match_configured and starting_compositions.has(1) and starting_compositions.has(2)

@@ -33,24 +33,24 @@ offset_right=-30.0
 offset_bottom=-30.0
 theme_override_constants/separation=22
 [node name="Sidebar" type="PanelContainer" parent="Root"]
-custom_minimum_size=Vector2(350,0)
+custom_minimum_size=Vector2(420,0)
 layout_mode=2
 [node name="VBox" type="VBoxContainer" parent="Root/Sidebar"]
 layout_mode=2
 theme_override_constants/separation=14
 [node name="Title" type="Label" parent="Root/Sidebar/VBox"]
 layout_mode=2
-text="EDYTOR MAP"
+text="EDYTOR ŚWIATA · TERRAIN3D"
 theme_override_font_sizes/font_size=28
 horizontal_alignment=1
 [node name="Hint" type="Label" parent="Root/Sidebar/VBox"]
 layout_mode=2
-text="Kliknij na mapie, aby umiescic obiekt.\nUstaw po dwa pola startowe dla obu druzyn."
+text="Pusta mapa startowa. Rzeźbij i maluj natywnymi narzędziami Terrain3D, a potem dodaj obiekty."
 autowrap_mode=2
 [node name="NameEdit" type="LineEdit" parent="Root/Sidebar/VBox"]
 unique_name_in_owner=true
 layout_mode=2
-placeholder_text="Nazwa mapy"
+placeholder_text="Nazwa nowej mapy"
 [node name="ToolOption" type="OptionButton" parent="Root/Sidebar/VBox"]
 unique_name_in_owner=true
 layout_mode=2
@@ -65,15 +65,15 @@ size_flags_vertical=3
 [node name="SaveButton" type="Button" parent="Root/Sidebar/VBox"]
 unique_name_in_owner=true
 layout_mode=2
-text="Zapisz mape"
+text="Zapisz mapę"
 [node name="ClearButton" type="Button" parent="Root/Sidebar/VBox"]
 unique_name_in_owner=true
 layout_mode=2
-text="Wyczysc"
+text="Nowa pusta mapa"
 [node name="BackButton" type="Button" parent="Root/Sidebar/VBox"]
 unique_name_in_owner=true
 layout_mode=2
-text="Powrot"
+text="Powrót"
 [node name="MapPanel" type="PanelContainer" parent="Root"]
 layout_mode=2
 size_flags_horizontal=3

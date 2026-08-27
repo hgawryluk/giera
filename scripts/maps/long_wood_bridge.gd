@@ -1,0 +1,180 @@
+class_name LongWoodBridge
+extends Node3D
+
+const BRIDGE_SCENE: PackedScene = preload("res://assets/environment/bridges/long_wood_bridge/source/Long Wood Bridge.fbx")
+const WOOD_ALBEDO: Texture2D = preload("res://assets/environment/bridges/long_wood_bridge/textures/BridgeWood.jpg")
+const WOOD_NORMAL: Texture2D = preload("res://assets/environment/bridges/long_wood_bridge/textures/BridgeWood_Normal.jpg")
+const WATER_LEVEL: float = -1.7
+const MIN_BRIDGE_LENGTH: float = 16.0
+const MAX_BRIDGE_LENGTH: float = 50.0
+const TARGET_WIDTH: float = 5.2
+const DECK_COLLISION_THICKNESS: float = 0.42
+const DECK_SURFACE_Y: float = 0.08
+# Measured from upward-facing deck vertices in the imported FBX. The AABB
+# bottom is the bridge support, not the surface the player walks on.
+const SOURCE_DECK_ENDPOINT_Y: float = 8.19
+const SOURCE_DECK_ARCH_HEIGHT: float = 0.88
+const COLLISION_SEGMENTS: int = 12
+
+var _grid_manager: GridManager
+
+
+func setup(grid_manager: GridManager) -> void:
+	_grid_manager = grid_manager
+	_build_bridge()
+
+
+func _build_bridge() -> void:
+	var model := BRIDGE_SCENE.instantiate() as Node3D
+	model.name = "LongWoodBridgeModel"
+	add_child(model)
+	var bounds := _combined_mesh_bounds(model)
+	if bounds.size.length_squared() < 0.001:
+		push_warning("Long wood bridge has no renderable mesh bounds.")
+		return
+	_apply_wood_material(model)
+	var crossing_z := _find_path_river_crossing()
+	var crossing_x := _grid_manager.solo_trail_path_center_x(crossing_z)
+	var before := Vector2(_grid_manager.solo_trail_path_center_x(crossing_z - 2.0), crossing_z - 2.0)
+	var after := Vector2(_grid_manager.solo_trail_path_center_x(crossing_z + 2.0), crossing_z + 2.0)
+	var direction := (after - before).normalized()
+	var crossing := Vector2(crossing_x, crossing_z)
+	var endpoint_a := _find_dry_path_bank(crossing, -direction)
+	var endpoint_b := _find_dry_path_bank(crossing, direction)
+	var target_length := clampf(endpoint_a.distance_to(endpoint_b) + 2.0, MIN_BRIDGE_LENGTH, MAX_BRIDGE_LENGTH)
+	# Keep the visual and physical bridge centred between the actual dry banks,
+	# not merely over the mathematical centre line of the river.
+	var bridge_center := (endpoint_a + endpoint_b) * 0.5
+	endpoint_a = bridge_center - direction * target_length * 0.5
+	endpoint_b = bridge_center + direction * target_length * 0.5
+	# Each end follows the real path height. Using the higher end for the whole
+	# bridge left the lower end floating several metres above its approach.
+	# `position.y` is the baseline under a local deck surface at
+	# DECK_SURFACE_Y. Compensate for that offset so the visible walking boards,
+	# rather than the supports, meet the path with only a 2 cm anti-z-fight lip.
+	var height_a := _grid_manager.terrain_height(endpoint_a.x, endpoint_a.y) - DECK_SURFACE_Y + 0.02
+	var height_b := _grid_manager.terrain_height(endpoint_b.x, endpoint_b.y) - DECK_SURFACE_Y + 0.02
+	var long_axis_is_x := bounds.size.x >= bounds.size.z
+	var source_length := maxf(bounds.size.x if long_axis_is_x else bounds.size.z, 0.01)
+	var source_width := maxf(bounds.size.z if long_axis_is_x else bounds.size.x, 0.01)
+	var uniform_height_scale := target_length / source_length
+	var model_scale := Vector3.ONE * uniform_height_scale
+	if long_axis_is_x:
+		model_scale.z = TARGET_WIDTH / source_width
+	else:
+		model_scale.x = TARGET_WIDTH / source_width
+	model.scale = model_scale
+
+	rotation.y = atan2(-direction.y, direction.x) if long_axis_is_x else atan2(direction.x, direction.y)
+	var rise := height_b - height_a
+	var pitch := atan2(rise, target_length)
+	if long_axis_is_x:
+		rotation.z = pitch
+	else:
+		rotation.x = -pitch
+	position = Vector3(bridge_center.x, (height_a + height_b) * 0.5, bridge_center.y)
+	# Center the imported geometry horizontally and put its upper walking
+	# surface at the same height as the physical bridge deck.
+	var scaled_center := (bounds.position + bounds.size * 0.5) * model_scale
+	var scaled_deck_endpoint := SOURCE_DECK_ENDPOINT_Y * model_scale.y
+	model.position = Vector3(-scaled_center.x, -scaled_deck_endpoint + DECK_SURFACE_Y, -scaled_center.z)
+	_build_collision(long_axis_is_x, target_length, SOURCE_DECK_ARCH_HEIGHT * model_scale.y)
+
+
+func _find_dry_path_bank(crossing: Vector2, direction: Vector2) -> Vector2:
+	var last := crossing
+	var dry_run := 0
+	for step: int in range(1, 81):
+		var distance := float(step) * 0.5
+		var sample_z := crossing.y + direction.y * distance
+		# Re-snap every sample to the centre of the painted road. This matters
+		# on a bend: a straight ray otherwise lands beside the path at one end.
+		var sample := Vector2(_grid_manager.solo_trail_path_center_x(sample_z), sample_z)
+		last = sample
+		# The visual/eroded bank extends beyond the narrow mathematical water
+		# mask. Require an actually dry, walkable elevation at both approaches.
+		if not _grid_manager.solo_trail_is_water(sample.x, sample.y) \
+		and _grid_manager.terrain_height(sample.x, sample.y) >= WATER_LEVEL + 0.12 \
+		and _path_grade(sample) <= 0.22:
+			dry_run += 1
+			if dry_run >= 8:
+				return sample
+		else:
+			dry_run = 0
+	return last
+
+
+func _find_path_river_crossing() -> float:
+	var best_z := 101.0
+	var best_error := INF
+	for step: int in range(241):
+		var z := 70.0 + float(step) * 0.25
+		var x := _grid_manager.solo_trail_path_center_x(z)
+		var river_z := 101.0 + sin(x * 0.045) * 11.0 + sin(x * 0.013 + 1.7) * 5.0
+		var error := absf(z - river_z)
+		if error < best_error:
+			best_error = error
+			best_z = z
+	return best_z
+
+
+func _path_grade(sample: Vector2) -> float:
+	var before_z := sample.y - 1.0
+	var after_z := sample.y + 1.0
+	var before_x := _grid_manager.solo_trail_path_center_x(before_z)
+	var after_x := _grid_manager.solo_trail_path_center_x(after_z)
+	return absf(_grid_manager.terrain_height(after_x, after_z) - _grid_manager.terrain_height(before_x, before_z)) * 0.5
+
+
+func _build_collision(long_axis_is_x: bool, target_length: float, arch_height: float) -> void:
+	var body := StaticBody3D.new()
+	body.name = "BridgeCollision"
+	var segment_length := target_length / float(COLLISION_SEGMENTS)
+	for segment_index: int in range(COLLISION_SEGMENTS):
+		var t0 := float(segment_index) / float(COLLISION_SEGMENTS)
+		var t1 := float(segment_index + 1) / float(COLLISION_SEGMENTS)
+		var y0 := DECK_SURFACE_Y + sin(t0 * PI) * arch_height
+		var y1 := DECK_SURFACE_Y + sin(t1 * PI) * arch_height
+		var shape_node := CollisionShape3D.new()
+		shape_node.name = "WalkableDeck_%02d" % segment_index
+		var shape := BoxShape3D.new()
+		shape.size = Vector3(segment_length if long_axis_is_x else TARGET_WIDTH, DECK_COLLISION_THICKNESS, TARGET_WIDTH if long_axis_is_x else segment_length)
+		shape_node.shape = shape
+		var along := -target_length * 0.5 + (float(segment_index) + 0.5) * segment_length
+		shape_node.position = Vector3(along if long_axis_is_x else 0.0, (y0 + y1) * 0.5 - DECK_COLLISION_THICKNESS * 0.5, 0.0 if long_axis_is_x else along)
+		var local_grade := atan2(y1 - y0, segment_length)
+		if long_axis_is_x:
+			shape_node.rotation.z = local_grade
+		else:
+			shape_node.rotation.x = -local_grade
+		body.add_child(shape_node)
+	add_child(body)
+
+
+func _combined_mesh_bounds(root: Node3D) -> AABB:
+	var result := AABB()
+	var initialized := false
+	for child: Node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh_node := child as MeshInstance3D
+		if mesh_node.mesh == null:
+			continue
+		var local_transform := root.global_transform.affine_inverse() * mesh_node.global_transform
+		var transformed := local_transform * mesh_node.mesh.get_aabb()
+		result = transformed if not initialized else result.merge(transformed)
+		initialized = true
+	return result
+
+
+func _apply_wood_material(root: Node3D) -> void:
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = WOOD_ALBEDO
+	material.albedo_color = Color(1.08, 1.03, 0.96, 1.0)
+	material.normal_enabled = true
+	material.normal_texture = WOOD_NORMAL
+	# The supplied map is specular, not roughness. Feeding it into the
+	# roughness slot inverted the intended response and made shaded timbers
+	# appear almost black. A stable wood roughness works better here.
+	material.roughness = 0.72
+	material.metallic = 0.0
+	for child: Node in root.find_children("*", "MeshInstance3D", true, false):
+		(child as MeshInstance3D).material_override = material

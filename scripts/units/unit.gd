@@ -5,6 +5,7 @@ signal stats_changed
 signal health_changed(current_health: int, max_health: int)
 signal action_points_changed(current_action_points: int, max_action_points: int)
 signal died(unit: TacticalUnit)
+signal movement_step_reached(unit: TacticalUnit, cell: Vector2i)
 
 enum Faction { PLAYER, ENEMY }
 
@@ -21,7 +22,8 @@ const DEFAULT_ABILITIES: Dictionary = {
 	&"dragon": ["Smoczy oddech", "Lot", "Ogon"],
 	&"undead_priest": ["Dotyk zarazy", "Nekrotyczne leczenie", "Klatwa grobu"],
 	&"falconer": ["Sokoli zwiad", "Pikowanie", "Oznaczenie celu"],
-	&"bandit": ["Brudny cios", "Rzut nozem", "Zasadzka"]
+	&"bandit": ["Brudny cios", "Rzut nozem", "Zasadzka"],
+	&"hipogryfin": ["Szpon hipogryfa", "Nurkowanie", "Podmuch skrzydel"]
 }
 
 @export var faction: Faction = Faction.PLAYER
@@ -61,9 +63,12 @@ var _definition_visual_scene: PackedScene
 var _definition_visual_offset: Vector3 = Vector3.ZERO
 var _definition_visual_rotation: Vector3 = Vector3.ZERO
 var _is_moving: bool = false
+var _stop_movement_requested: bool = false
+var _exploration_animation_state: StringName = &"idle"
 var _visual_root: Node3D
 var _animation_controller := CharacterAnimationController.new()
-const MOVE_STEP_DURATION := 0.45
+const CHARACTER_MOVEMENT_SPEED_MULTIPLIER: float = 14.0
+const MOVE_STEP_DURATION: float = 0.75 / CHARACTER_MOVEMENT_SPEED_MULTIPLIER
 const TURN_DURATION := 0.075
 
 func _ready() -> void:
@@ -93,7 +98,7 @@ func configure(
 	grid_position = new_grid_position
 	max_health = maxi(1, health)
 	current_health = max_health
-	max_action_points = maxi(0, action_points)
+	max_action_points = (maxi(0, action_points) + 1) * 2
 	current_action_points = max_action_points
 	initiative = new_initiative
 	is_alive = true
@@ -120,7 +125,7 @@ func apply_character_definition(
 	grid_position = new_grid_position
 	max_health = definition.max_health
 	current_health = max_health
-	max_action_points = definition.max_action_points
+	max_action_points = (definition.max_action_points + 1) * 2
 	current_action_points = max_action_points
 	initiative = definition.initiative
 	footprint_size = Vector2i(maxi(1, definition.footprint_size.x), maxi(1, definition.footprint_size.y))
@@ -129,6 +134,9 @@ func apply_character_definition(
 	_definition_visual_scene = definition.visual_scene
 	_definition_visual_offset = definition.visual_offset
 	_definition_visual_rotation = definition.visual_rotation_degrees
+	attributes.clear()
+	for stat_id: StringName in CharacterProfile.STAT_NAMES:
+		attributes[stat_id] = 4
 	is_alive = true
 	position = _anchor_world_position(grid_position)
 	if is_node_ready():
@@ -141,8 +149,77 @@ func is_player_controlled() -> bool:
 func is_moving() -> bool:
 	return _is_moving
 
+func set_exploration_movement(moving: bool, running: bool = false) -> void:
+	var next_state: StringName = &"run" if moving and running else (&"walk" if moving else &"idle")
+	if _exploration_animation_state == next_state:
+		return
+	_exploration_animation_state = next_state
+	match next_state:
+		&"run":
+			_animation_controller.play_run()
+		&"walk":
+			_animation_controller.play_walk(0.72)
+		_:
+			_animation_controller.play_idle()
+
 func is_dead() -> bool:
 	return not is_alive or current_health <= 0
+
+func get_first_person_eye_height() -> float:
+	var visual_top: float = _get_visual_top()
+	if visual_top > 0.1:
+		return clampf(visual_top * 0.87, 1.2, 6.0)
+	return 2.35 if footprint_size != Vector2i.ONE else 1.55
+
+func get_first_person_body_radius() -> float:
+	return 0.62 if footprint_size != Vector2i.ONE else 0.32
+
+func get_first_person_skin_color() -> Color:
+	if character_id == &"ogre":
+		return Color(0.38, 0.48, 0.19)
+	if _definition_color.a > 0.0:
+		return _definition_color.lerp(Color(0.56, 0.34, 0.22), 0.48)
+	return Color(0.50, 0.29, 0.18)
+
+
+func create_first_person_visual() -> Node3D:
+	var source := _definition_visual_scene
+	if source == null:
+		return null
+	var model := source.instantiate() as Node3D
+	if model == null:
+		return null
+	model.scale = Vector3.ONE * _definition_scale
+	model.rotation_degrees = _definition_visual_rotation
+	return model
+
+func set_first_person_body_hidden(hidden: bool) -> void:
+	if _visual_root != null and _visual_root != self:
+		_visual_root.visible = not hidden
+
+func _get_visual_top() -> float:
+	var maximum_y: float = -INF
+	for node: Node in find_children("*", "MeshInstance3D", true, false):
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh == null or mesh_instance.name in ["SelectionMarker", "ActiveTurnMarker"]:
+			continue
+		var bounds := mesh_instance.get_aabb()
+		for x_side: float in [0.0, 1.0]:
+			for y_side: float in [0.0, 1.0]:
+				for z_side: float in [0.0, 1.0]:
+					var mesh_corner := bounds.position + bounds.size * Vector3(x_side, y_side, z_side)
+					var unit_corner := to_local(mesh_instance.to_global(mesh_corner))
+					maximum_y = maxf(maximum_y, unit_corner.y)
+	return maximum_y
+
+func get_sight_range() -> int:
+	# Non-base statistic: perception matters most, with intelligence and
+	# dexterity helping to notice and interpret distant movement.
+	var perception: int = int(attributes.get(&"percepcja", 4))
+	var intelligence: int = int(attributes.get(&"inteligencja", 4))
+	var dexterity: int = int(attributes.get(&"zrecznosc", 4))
+	return clampi(54 + roundi((float(perception) * 2.0 + float(intelligence) + float(dexterity)) / 2.0), 60, 80)
+
 
 func reset_action_points() -> void:
 	current_action_points = max_action_points
@@ -250,24 +327,44 @@ func set_active(active: bool) -> void:
 		_active_marker.visible = active
 	stats_changed.emit()
 
-func move_along_path(path: Array[Vector2i], cell_size: float, height_provider: Callable = Callable()) -> void:
+func move_along_path(path: Array[Vector2i], cell_size: float, height_provider: Callable = Callable()) -> int:
 	if path.is_empty() or _is_moving:
-		return
+		return 0
 	_is_moving = true
-	_animation_controller.play_walk(0.47)
+	_stop_movement_requested = false
+	var traversed_steps: int = 0
+	_animation_controller.play_run()
 	for cell: Vector2i in path:
 		var target_height: float = float(height_provider.call(cell)) if height_provider.is_valid() else 0.0
 		var footprint_offset := Vector3(float(footprint_size.x - 1), 0.0, float(footprint_size.y - 1)) * cell_size * 0.5
 		var target := Vector3(float(cell.x) * cell_size, target_height + 0.05, float(cell.y) * cell_size) + footprint_offset
 		_face_world_position(target, true)
 		var tween := create_tween()
-		tween.set_trans(Tween.TRANS_SINE)
+		tween.set_trans(Tween.TRANS_LINEAR)
 		tween.set_ease(Tween.EASE_IN_OUT)
 		tween.tween_property(self, "position", target, MOVE_STEP_DURATION)
 		await tween.finished
 		grid_position = cell
+		movement_step_reached.emit(self, cell)
+		traversed_steps += 1
+		if _stop_movement_requested:
+			break
 	_is_moving = false
+	_stop_movement_requested = false
 	_animation_controller.play_idle()
+	return traversed_steps
+
+func request_stop_movement() -> void:
+	if _is_moving:
+		_stop_movement_requested = true
+
+func refund_action_points(amount: int) -> void:
+	if amount <= 0:
+		return
+	current_action_points = mini(max_action_points, current_action_points + amount)
+	action_points_changed.emit(current_action_points, max_action_points)
+	stats_changed.emit()
+	_update_overhead_ui()
 
 func occupied_cells(anchor: Vector2i = grid_position) -> Array[Vector2i]:
 	var cells: Array[Vector2i] = []

@@ -4,6 +4,7 @@ extends Control
 func _ready() -> void:
 	%PlayButton.pressed.connect(_play)
 	%ArenaButton.pressed.connect(_arena)
+	%ArenaTestButton.pressed.connect(_arena_test)
 	%TeamsButton.pressed.connect(_teams)
 	%CharactersButton.pressed.connect(_characters)
 	%MapEditorButton.pressed.connect(_map_editor)
@@ -12,10 +13,15 @@ func _ready() -> void:
 	%QuitButton.pressed.connect(_quit)
 
 func _play() -> void:
-	get_tree().change_scene_to_file("res://scenes/menu/hotseat_setup.tscn")
+	get_tree().change_scene_to_file("res://scenes/menu/play_map_select.tscn")
 
 func _arena() -> void:
 	get_tree().change_scene_to_file("res://scenes/menu/arena_setup.tscn")
+
+func _arena_test() -> void:
+	var game_session := get_node("/root/GameSession") as GameSessionState
+	game_session.configure_arena_test()
+	get_tree().change_scene_to_file("res://scenes/battle/battle.tscn")
 
 func _teams() -> void:
 	get_tree().change_scene_to_file("res://scenes/menu/team_builder.tscn")

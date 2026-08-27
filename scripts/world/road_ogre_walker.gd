@@ -15,12 +15,14 @@ var _direction := 1.0
 var _rng := RandomNumberGenerator.new()
 var _animation_controller := CharacterAnimationController.new()
 var _model: Node3D
+var _expanded_world := false
 
 
-func setup(grid_manager: GridManager) -> void:
+func setup(grid_manager: GridManager, expanded_world: bool = false) -> void:
 	_grid_manager = grid_manager
+	_expanded_world = expanded_world
 	_rng.seed = 8_741_903
-	var start_z := 92.0
+	var start_z := 176.0 if _expanded_world else 92.0
 	position = _road_position(start_z)
 	_build_visual()
 	call_deferred("_roam")
@@ -35,20 +37,20 @@ func _build_visual() -> void:
 	if _model == null:
 		return
 	_model.name = "GloomtuskModel"
-	_model.scale = Vector3.ONE * definition.visual_scale
+	_model.scale = Vector3.ONE * definition.visual_scale * (3.25 if _expanded_world else 1.0)
 	_model.rotation_degrees = definition.visual_rotation_degrees
 	add_child(_model)
 	_animation_controller.setup(_model, definition)
 
-	var body := StaticBody3D.new()
+	var body := AnimatableBody3D.new()
 	body.name = "OgreBody"
 	body.collision_layer = 1
 	var collision := CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()
-	capsule.radius = 1.25
-	capsule.height = 3.8
+	capsule.radius = 3.4 if _expanded_world else 1.25
+	capsule.height = 11.5 if _expanded_world else 3.8
 	collision.shape = capsule
-	collision.position.y = 1.85
+	collision.position.y = 5.6 if _expanded_world else 1.85
 	body.add_child(collision)
 	add_child(body)
 
@@ -57,7 +59,9 @@ func _roam() -> void:
 	while is_inside_tree() and _grid_manager != null and is_instance_valid(_grid_manager):
 		_animation_controller.play_walk(0.47)
 		var leg_distance := _rng.randf_range(MIN_LEG_DISTANCE, MAX_LEG_DISTANCE)
-		var destination_z := clampf(position.z + leg_distance * _direction, MIN_ROAD_Z, MAX_ROAD_Z)
+		var minimum_z := -490.0 if _expanded_world else MIN_ROAD_Z
+		var maximum_z := 746.0 if _expanded_world else MAX_ROAD_Z
+		var destination_z := clampf(position.z + leg_distance * _direction, minimum_z, maximum_z)
 		await _walk_to_z(destination_z)
 		if not is_inside_tree():
 			return
@@ -65,7 +69,7 @@ func _roam() -> void:
 		await get_tree().create_timer(_rng.randf_range(MIN_PAUSE, MAX_PAUSE)).timeout
 		if not is_inside_tree():
 			return
-		var at_road_end := is_equal_approx(destination_z, MIN_ROAD_Z) or is_equal_approx(destination_z, MAX_ROAD_Z)
+		var at_road_end := is_equal_approx(destination_z, minimum_z) or is_equal_approx(destination_z, maximum_z)
 		if at_road_end or _rng.randf() < TURN_BACK_CHANCE:
 			_direction *= -1.0
 
@@ -76,7 +80,8 @@ func _walk_to_z(destination_z: float) -> void:
 		if delta <= 0.0:
 			await get_tree().process_frame
 			continue
-		var next_z := move_toward(position.z, destination_z, WALK_SPEED * delta)
+		var speed := 1.35 if _expanded_world else WALK_SPEED
+		var next_z := move_toward(position.z, destination_z, speed * delta)
 		var target := _road_position(next_z)
 		_face_target(target)
 		position = target
@@ -84,7 +89,7 @@ func _walk_to_z(destination_z: float) -> void:
 
 
 func _road_position(local_z: float) -> Vector3:
-	var local_x := 80.0 + sin(local_z * 0.055) * 12.0
+	var local_x := _grid_manager.solo_trail_path_center_x(local_z) if _expanded_world else 80.0 + sin(local_z * 0.055) * 12.0
 	return Vector3(local_x, _grid_manager.terrain_height(local_x, local_z) + 0.05, local_z)
 
 

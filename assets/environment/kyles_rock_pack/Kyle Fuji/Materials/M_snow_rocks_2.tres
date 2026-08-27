@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://bxhf5mrdnf7ju"]
+
+[ext_resource type="Texture2D" uid="uid://dl8sx5hu04uke" path="res://Kyle's Rock Pack/Kyle Fuji/Textures/T_snowy_atlas_diffuse_roughness_2.png" id="1_erw2b"]
+[ext_resource type="Texture2D" uid="uid://dixwfkk3lkys1" path="res://Kyle's Rock Pack/Kyle Fuji/Textures/T_snowy_atlas_normal_2.png" id="2_vr6gh"]
+
+[resource]
+albedo_texture = ExtResource("1_erw2b")
+roughness_texture = ExtResource("1_erw2b")
+roughness_texture_channel = 3
+normal_enabled = true
+normal_texture = ExtResource("2_vr6gh")

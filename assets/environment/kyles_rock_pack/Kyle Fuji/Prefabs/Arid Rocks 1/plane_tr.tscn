@@ -1,0 +1,50 @@
+[gd_scene load_steps=6 format=3 uid="uid://pwf4es33yjxu"]
+
+[ext_resource type="Material" uid="uid://cmpbi4two3sgs" path="res://Kyle's Rock Pack/Kyle Fuji/Materials/M_arid_rocks_1.tres" id="1_v84ar"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_afphh"]
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_rm08f"]
+_surfaces = [{
+"aabb": AABB(-1, 0, -1, 2, 1e-05, 2),
+"format": 34896613377,
+"index_count": 6,
+"index_data": PackedByteArray(0, 0, 1, 0, 2, 0, 0, 0, 3, 0, 1, 0),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 4,
+"vertex_data": PackedByteArray(0, 0, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_40a4o"]
+resource_name = "plane_tr_Plane_003"
+_surfaces = [{
+"aabb": AABB(-1, 0, -1, 2, 1e-05, 2),
+"attribute_data": PackedByteArray(255, 127, 255, 127, 255, 255, 0, 0, 255, 255, 255, 127, 255, 127, 0, 0),
+"format": 34896613399,
+"index_count": 6,
+"index_data": PackedByteArray(0, 0, 1, 0, 2, 0, 0, 0, 3, 0, 1, 0),
+"material": SubResource("StandardMaterial3D_afphh"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 4,
+"vertex_data": PackedByteArray(0, 0, 0, 0, 255, 255, 255, 191, 255, 255, 0, 0, 0, 0, 255, 191, 255, 255, 0, 0, 255, 255, 255, 191, 0, 0, 0, 0, 0, 0, 255, 191, 255, 255, 255, 127, 255, 255, 255, 127, 255, 255, 255, 127, 255, 255, 255, 127)
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_rm08f")
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_v84ar"]
+data = PackedVector3Array(-1, 0, 1, 1, 0, -1, 1, 0, 1, -1, 0, 1, -1, 0, -1, 1, 0, -1)
+
+[node name="plane_tr" type="Node3D"]
+
+[node name="plane_TR" type="MeshInstance3D" parent="."]
+mesh = SubResource("ArrayMesh_40a4o")
+skeleton = NodePath("")
+surface_material_override/0 = ExtResource("1_v84ar")
+
+[node name="plane_TR_col" type="StaticBody3D" parent="plane_TR"]
+
+[node name="plane_TR_col_shape" type="CollisionShape3D" parent="plane_TR/plane_TR_col"]
+shape = SubResource("ConcavePolygonShape3D_v84ar")

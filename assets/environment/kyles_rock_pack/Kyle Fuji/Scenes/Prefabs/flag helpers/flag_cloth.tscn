@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://dsuep54iqmwqv"]
+
+[ext_resource type="PackedScene" uid="uid://j1hw1m4qj2at" path="res://Kyle's Rock Pack/Kyle Fuji/Scenes/Models/flag.glb" id="1_s1rd0"]
+[ext_resource type="Material" uid="uid://3j8q2ljffqjp" path="res://Kyle's Rock Pack/Kyle Fuji/Scenes/Materials/M_flag.tres" id="2_s1rd0"]
+
+[node name="flag" instance=ExtResource("1_s1rd0")]
+
+[node name="flag" parent="." index="0"]
+transform = Transform3D(0.36920106, 0.00010158674, 0.00026268276, 0.00026271862, -0.00012781133, -0.36920106, -0.00010149403, 0.36920115, -0.00012788495, 0, 1.5941696, 0)
+material_override = ExtResource("2_s1rd0")

@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://d0l38f4125c54"]
+
+[ext_resource type="PackedScene" uid="uid://dsuep54iqmwqv" path="res://Kyle's Rock Pack/Kyle Fuji/Scenes/Prefabs/flag helpers/flag_cloth.tscn" id="1_s1rd0"]
+[ext_resource type="PackedScene" uid="uid://cfo28kg1g1tln" path="res://Kyle's Rock Pack/Kyle Fuji/Scenes/Prefabs/flag helpers/flag_pole.tscn" id="2_0bfkk"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_s1rd0"]
+size = Vector3(1.0652161, 2.0059204, 0.19836426)
+
+[node name="flag" type="Node3D" groups=["flag_group"]]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+
+[node name="flag" parent="." groups=["flag_group"] instance=ExtResource("1_s1rd0")]
+
+[node name="flag_pole" parent="." groups=["flag_group"] instance=ExtResource("2_0bfkk")]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." groups=["flag_group"]]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" groups=["flag_group"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.43354797, 0.99716187, 0.0067749023)
+shape = SubResource("BoxShape3D_s1rd0")

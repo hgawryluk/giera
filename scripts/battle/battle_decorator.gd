@@ -13,6 +13,8 @@ const GRASS_CLUMP_SCENES: Array[PackedScene] = [
 	preload("res://assets/models/environment/grass_clump_02.glb")
 ]
 const BUSH_GRASS_SCENE: PackedScene = preload("res://assets/models/environment/bush_grass_02.glb")
+const FOREST_BUSH_SCENE: PackedScene = preload("res://assets/environment/bush_packs/bush_01/source/Bush.fbx")
+const FOREST_TREE_SCENE: PackedScene = preload("res://assets/environment/tree_packs/tree/Tree/Tree.fbx")
 const LARGE_TREE_SCENE: PackedScene = preload("res://assets/models/environment/large_tree.glb")
 
 const TREE_CELLS: Array[Vector2i] = [
@@ -23,6 +25,12 @@ const TREE_CELLS: Array[Vector2i] = [
 const ROCK_CELLS: Array[Vector2i] = [
 	Vector2i(8, 18), Vector2i(17, 9), Vector2i(31, 21), Vector2i(42, 31),
 	Vector2i(11, 45), Vector2i(26, 49), Vector2i(38, 52), Vector2i(47, 12)
+]
+const ARENA_TREE_RATIOS: Array[Vector2] = [
+	Vector2(0.20, 0.32), Vector2(0.80, 0.28),
+	Vector2(0.50, 0.22), Vector2(0.47, 0.68),
+	Vector2(0.32, 0.50), Vector2(0.68, 0.55),
+	Vector2(0.12, 0.60), Vector2(0.88, 0.45)
 ]
 
 var _trunk_material: StandardMaterial3D
@@ -35,8 +43,12 @@ var _rock_material: StandardMaterial3D
 func _ready() -> void:
 	_create_materials()
 	var session := get_node_or_null("/root/GameSession") as GameSessionState
+	if session != null and session.selected_map_id == "builtin:solo_trail":
+		return
 	if session != null and session.selected_map_id == "builtin:arena":
 		_create_arena_decoration()
+		if session.arena_test_mode:
+			_create_arena_model_bushes()
 		return
 	_create_forest()
 	_create_landmark_trees()
@@ -187,34 +199,123 @@ func _create_arena_decoration() -> void:
 		var h := grid_manager.terrain_height(tp.x, tp.y)
 		_add_arena_torch(arena_root, torch_pole, flame_mat, Vector3(tp.x, h, tp.y))
 
-	# ── Interior obstacle trees ───────────────────────────────────────────
-	const OBSTACLE_TREE_RATIOS: Array[Vector2] = [
-		Vector2(0.20, 0.32), Vector2(0.80, 0.28),
-		Vector2(0.50, 0.22), Vector2(0.47, 0.68),
-		Vector2(0.32, 0.50), Vector2(0.68, 0.55),
-		Vector2(0.12, 0.60), Vector2(0.88, 0.45),
-	]
-	var tree_transforms: Array[Array] = [[], [], []]
-	for ratio: Vector2 in OBSTACLE_TREE_RATIOS:
+	# ── Interior obstacle trees: imported forest model from Downloads ─────
+	for tree_index: int in range(ARENA_TREE_RATIOS.size()):
+		var ratio: Vector2 = ARENA_TREE_RATIOS[tree_index]
 		var base_pos := Vector2(ax + ratio.x * aw, ay + ratio.y * ah)
-		var jitter := Vector2(rng.randf_range(-0.7, 0.7), rng.randf_range(-0.7, 0.7))
-		var p := base_pos + jitter
+		var p := base_pos + Vector2(rng.randf_range(-0.7, 0.7), rng.randf_range(-0.7, 0.7))
+		if grid_manager.is_arena_test_water(p.x, p.y):
+			continue
 		var cell := Vector2i(roundi(p.x), roundi(p.y))
 		grid_manager.block_cell(cell)
-		var variant_index: int = rng.randi_range(0, PURPLE_TREE_SCENES.size() - 1)
-		var scale_value: float = rng.randf_range(1.8, 2.5) * rng.randf_range(1.8, 2.4)
-		var world_pos := Vector3(p.x, grid_manager.terrain_height(p.x, p.y), p.y)
-		var tilt := Vector3(deg_to_rad(rng.randf_range(-3.0, 3.0)), rng.randf_range(0.0, TAU), deg_to_rad(rng.randf_range(-3.0, 3.0)))
-		tree_transforms[variant_index].append(Transform3D(Basis.from_euler(tilt).scaled(Vector3.ONE * scale_value), world_pos + Vector3.UP * scale_value))
-		var col := CollisionShape3D.new()
-		var shape := CylinderShape3D.new()
-		shape.radius = minf(0.16 * scale_value, 1.2)
-		shape.height = 1.5 * scale_value
-		col.shape = shape
-		col.position = world_pos + Vector3.UP * (0.75 * scale_value)
-		collision_body.add_child(col)
-	for v: int in range(PURPLE_TREE_SCENES.size()):
-		_create_tree_multimesh(v, tree_transforms[v])
+		_add_arena_forest_tree(arena_root, collision_body, p, rng, tree_index)
+
+
+func _add_arena_forest_tree(
+	parent: Node3D,
+	collision_parent: StaticBody3D,
+	position_2d: Vector2,
+	rng: RandomNumberGenerator,
+	tree_index: int
+) -> void:
+	var model := FOREST_TREE_SCENE.instantiate() as Node3D
+	if model == null:
+		return
+	model.name = "ForestTree_%02d" % tree_index
+	parent.add_child(model)
+	_tint_model_materials(model, Color(0.84, 0.91, 0.74, 1.0))
+	var bounds := _model_bounds(model)
+	var target_height := rng.randf_range(8.5, 12.5)
+	var scale_value := target_height / maxf(bounds.size.y, 0.01)
+	model.scale = Vector3.ONE * scale_value
+	model.rotation.y = rng.randf_range(0.0, TAU)
+	model.position = Vector3(position_2d.x, grid_manager.terrain_height(position_2d.x, position_2d.y) - bounds.position.y * scale_value, position_2d.y)
+	model.add_to_group("fog_cullable_environment")
+	model.set_meta("fog_cell", Vector2i(roundi(position_2d.x), roundi(position_2d.y)))
+	var collision := CollisionShape3D.new()
+	collision.name = "ForestTreeHitbox_%02d" % tree_index
+	var shape := CylinderShape3D.new()
+	shape.radius = clampf(bounds.size.x * scale_value * 0.10, 0.38, 0.78)
+	shape.height = target_height * 0.48
+	collision.shape = shape
+	collision.position = Vector3(position_2d.x, grid_manager.terrain_height(position_2d.x, position_2d.y) + shape.height * 0.5, position_2d.y)
+	collision_parent.add_child(collision)
+
+
+func _model_bounds(root: Node3D) -> AABB:
+	var result := AABB()
+	var initialized := false
+	var inverse_root := root.global_transform.affine_inverse()
+	for child: Node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh_node := child as MeshInstance3D
+		if mesh_node.mesh == null:
+			continue
+		var relative_transform := inverse_root * mesh_node.global_transform
+		var transformed_bounds := relative_transform * mesh_node.mesh.get_aabb()
+		result = transformed_bounds if not initialized else result.merge(transformed_bounds)
+		initialized = true
+	return result
+
+
+func _create_arena_model_bushes() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 71_306_419
+	var arena_rect := grid_manager.get_arena_rect()
+	var root := Node3D.new()
+	root.name = "ArenaForestModelBushes"
+	add_child(root)
+	var cluster_centers: Array[Vector2] = []
+	# Most shrubs form a natural understory around the forest trees.
+	for ratio: Vector2 in ARENA_TREE_RATIOS:
+		cluster_centers.append(Vector2(arena_rect.position) + Vector2(arena_rect.size) * ratio)
+	# Only three detached 3 x 4 metre thickets break up the open meadow.
+	for ratio: Vector2 in [Vector2(0.18, 0.76), Vector2(0.74, 0.78), Vector2(0.84, 0.63)]:
+		cluster_centers.append(Vector2(arena_rect.position) + Vector2(arena_rect.size) * ratio)
+	var bush_index := 0
+	for center_index: int in range(cluster_centers.size()):
+		var count := 18 if center_index < ARENA_TREE_RATIOS.size() else 12
+		for local_index: int in range(count):
+			var spread := Vector2(rng.randf_range(-3.0, 3.0), rng.randf_range(-4.0, 4.0))
+			if center_index < ARENA_TREE_RATIOS.size():
+				var angle := rng.randf_range(0.0, TAU)
+				var radius := rng.randf_range(1.4, 5.2)
+				spread = Vector2(cos(angle), sin(angle)) * radius
+			var position_2d := cluster_centers[center_index] + spread
+			if not Rect2(arena_rect).grow(-2.0).has_point(position_2d):
+				continue
+			if grid_manager.is_arena_test_water(position_2d.x, position_2d.y):
+				continue
+			if _is_in_spawn_clearing(position_2d, 11.0) or _is_on_trail_surface(position_2d):
+				continue
+			var model := FOREST_BUSH_SCENE.instantiate() as Node3D
+			if model == null:
+				continue
+			model.name = "ForestBush_%03d" % bush_index
+			root.add_child(model)
+			_tint_model_materials(model, Color(0.48, 0.58, 0.36, 1.0))
+			var bounds := _model_bounds(model)
+			var target_height := rng.randf_range(1.75, 2.35)
+			var scale_value := target_height / maxf(bounds.size.y, 0.01)
+			model.scale = Vector3.ONE * scale_value
+			model.rotation.y = rng.randf_range(0.0, TAU)
+			model.position = Vector3(position_2d.x, grid_manager.terrain_height(position_2d.x, position_2d.y) - bounds.position.y * scale_value, position_2d.y)
+			model.add_to_group("fog_cullable_environment")
+			model.set_meta("fog_cell", Vector2i(roundi(position_2d.x), roundi(position_2d.y)))
+			bush_index += 1
+
+
+func _tint_model_materials(root: Node3D, tint: Color) -> void:
+	for child: Node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh_node := child as MeshInstance3D
+		if mesh_node.mesh == null:
+			continue
+		for surface_index: int in range(mesh_node.mesh.get_surface_count()):
+			var source := mesh_node.get_active_material(surface_index)
+			if source is StandardMaterial3D:
+				var material := (source as StandardMaterial3D).duplicate() as StandardMaterial3D
+				material.albedo_color *= tint
+				material.roughness = maxf(material.roughness, 0.78)
+				mesh_node.set_surface_override_material(surface_index, material)
 
 
 func _add_wall_box(
@@ -548,11 +649,16 @@ func _create_bush_scatter() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 71_306_419
 	var transforms: Array[Transform3D] = []
-	for index: int in range(760):
-		var position_2d := Vector2(
-			rng.randf_range(2.0, float(GridManager.GRID_WIDTH) - 3.0),
-			rng.randf_range(3.0, float(GridManager.GRID_HEIGHT) - 4.0)
-		)
+	var arena_rect := grid_manager.get_arena_rect()
+	var bush_count := 1500 if GameSession.arena_test_mode else 760
+	for index: int in range(bush_count):
+		var min_x := float(arena_rect.position.x + 2) if GameSession.arena_test_mode else 2.0
+		var max_x := float(arena_rect.end.x - 2) if GameSession.arena_test_mode else float(GridManager.GRID_WIDTH) - 3.0
+		var min_z := float(arena_rect.position.y + 2) if GameSession.arena_test_mode else 3.0
+		var max_z := float(arena_rect.end.y - 2) if GameSession.arena_test_mode else float(GridManager.GRID_HEIGHT) - 4.0
+		var position_2d := Vector2(rng.randf_range(min_x, max_x), rng.randf_range(min_z, max_z))
+		if GameSession.arena_test_mode and grid_manager.is_arena_test_water(position_2d.x, position_2d.y):
+			continue
 		if _is_in_spawn_clearing(position_2d, 11.0) or _is_on_trail_surface(position_2d):
 			continue
 		var scale_value: float = rng.randf_range(1.05, 1.85)
@@ -606,7 +712,7 @@ func _create_bush_shader_material(source_material: Material) -> ShaderMaterial:
 uniform sampler2D source_texture : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform bool has_source_texture = false;
 uniform vec3 green_tint : source_color = vec3(0.10, 0.28, 0.075);
-uniform vec3 violet_tint : source_color = vec3(0.34, 0.12, 0.40);
+uniform vec3 violet_tint : source_color = vec3(0.30, 0.34, 0.12);
 
 void fragment() {
 	vec3 source = has_source_texture ? texture(source_texture, UV).rgb : vec3(0.72);

@@ -26,9 +26,9 @@ func _ready() -> void:
 
 func _populate_maps() -> void:
 	map_option.clear()
-	for data: Dictionary in get_node("/root/MapCatalog").list_maps():
-		map_option.add_item(str(data.name))
-		map_option.set_item_metadata(map_option.item_count - 1, str(data.id))
+	map_option.add_item("Nocny Las")
+	map_option.set_item_metadata(0, "builtin:forest")
+	map_option.disabled = true
 
 func _populate_teams() -> void:
 	save_manager.reload_teams()
