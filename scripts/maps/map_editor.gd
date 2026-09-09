@@ -3,6 +3,8 @@ extends Control
 const GRID_SIZE := Vector2i(160, 190)
 const ARENA_TEST_RECT := Rect2i(25, 6, 110, 178)
 const ARENA_TEST_LANDSCAPE := preload("res://scripts/maps/arena_test_landscape.gd")
+const GRASS_LAYER_SCRIPT := preload("res://scripts/maps/map_grass_layer.gd")
+const UNDO_LIMIT := 5
 const ASSETS: Dictionary[String, String] = {
 	"purple_tree_1": "res://assets/models/environment/purple_tree_01.glb",
 	"purple_tree_2": "res://assets/models/environment/purple_tree_02.glb",
@@ -11,7 +13,7 @@ const ASSETS: Dictionary[String, String] = {
 	"bush": "res://assets/models/environment/bush_grass_02.glb",
 	"grass_1": "res://assets/models/environment/grass_clump_01.glb",
 	"grass_2": "res://assets/models/environment/grass_clump_02.glb",
-	"tree_real_1": "res://assets/environment/tree_packs/tree/Tree/Tree.obj",
+	"tree_real_1": "res://assets/environment/tree_packs/tree/Tree/Tree.fbx",
 	"tree_real_2": "res://assets/environment/tree_packs/tree_02/Tree 02/Tree.obj",
 	"bush_real_1": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
 	"bush_real_2": "res://assets/environment/bush_packs/real_bush/source/all Embed.fbx",
@@ -28,9 +30,19 @@ const ASSETS: Dictionary[String, String] = {
 	"arena_bridge": "res://assets/environment/bridges/long_wood_bridge/source/Long Wood Bridge.fbx",
 	"arena_rock": "res://assets/environment/kyles_rock_pack/Kyle Fuji/Models/rock_4_br.glb",
 	"arena_soil": "",
+	"premium_tree_1": "res://assets/environment/premium_imports/forest_trees/Forest_Tree_Starter_Kit/Model/DA_Forest_Tree_5194_Tris.FBX",
+	"premium_tree_2": "res://assets/environment/premium_imports/forest_trees/Forest_Tree_Starter_Kit/Model/DA_Forest_Tree_11364_Tris.FBX",
+	"premium_shrub": "res://assets/environment/premium_imports/lycium_shrub/04 Lycium Shawii Shrubs.FBX",
+	"moss_rock_08": "res://assets/environment/premium_imports/moss_rock_08/moss rock 08 sketchfab/low.obj",
+	"moss_rock_09": "res://assets/environment/premium_imports/moss_rock_09/moss rock 09 sketchfab/moss rock 09.obj",
+	"moss_rock_10": "res://assets/environment/premium_imports/moss_rock_10/moss rock 10 sketchfab/moss rock 10.obj",
+	"moss_rock_11": "res://assets/environment/premium_imports/moss_rock_11/moss rock 11 sketchfab/moss rock 11.obj",
+	"moss_rock_12": "res://assets/environment/premium_imports/moss_rock_12/moss rock 12 sketchfab/moss rock 12.obj",
+	"moss_rock_13": "res://assets/environment/premium_imports/moss_rock_13/moss rock 13 sketchfab/moss rock 13.obj",
+	"moss_rock_14": "res://assets/environment/premium_imports/moss_rock_14/moss rock 14 sketchfab/moss rock 14.obj",
 }
 const TOOL_GROUPS: Array[Dictionary] = [
-	{"title": "RZEŹBIENIE TERRAIN3D", "open": true, "tools": [
+	{"title": "RZEŹBIENIE TERRAIN3D", "open": false, "tools": [
 		["terrain_raise", "Podnieś"], ["terrain_lower", "Obniż"],
 		["terrain_smooth", "Wygładź"], ["terrain_flatten", "Wyrównaj"],
 		["terrain_noise", "Naturalny szum"], ["terrain_erode", "Erozja"],
@@ -39,7 +51,7 @@ const TOOL_GROUPS: Array[Dictionary] = [
 	{"title": "WODA", "open": false, "tools": [
 		["water_add", "Dodaj wodę"], ["water_remove", "Usuń wodę"],
 	]},
-	{"title": "OBIEKTY ŚRODOWISKOWE", "open": true, "thumbnails": true, "tools": [
+	{"title": "OBIEKTY ŚRODOWISKOWE", "open": false, "thumbnails": true, "tools": [
 		["purple_tree_1", "Drzewo I"], ["purple_tree_2", "Drzewo II"],
 		["purple_tree_3", "Drzewo III"], ["large_tree", "Wielkie drzewo"],
 		["tree_real_1", "Drzewo realistyczne I"], ["tree_real_2", "Drzewo realistyczne II"],
@@ -50,12 +62,19 @@ const TOOL_GROUPS: Array[Dictionary] = [
 		["bush_real_7", "Krzew leśny VII"], ["bush_real_8", "Krzew leśny VIII"],
 		["bush_real_9", "Krzew leśny IX"], ["bush_heather", "Krzew niski"],
 		["bush_cliff", "Krzew skalny"], ["stylised_rocks", "Zestaw skał"],
+		["simple_grass", "SimpleGrass — malowanie"],
 		["arena_rock", "Skała areny"], ["arena_bridge", "Most areny"],
+		["premium_tree_1", "Drzewo premium I"], ["premium_tree_2", "Drzewo premium II"],
+		["premium_shrub", "Krzew Lycium premium"],
+		["moss_rock_08", "Omszały kamień 08"], ["moss_rock_09", "Omszały kamień 09"],
+		["moss_rock_10", "Omszały kamień 10"], ["moss_rock_11", "Omszały kamień 11"],
+		["moss_rock_12", "Omszały kamień 12"], ["moss_rock_13", "Omszały kamień 13"],
+		["moss_rock_14", "Omszały kamień 14"],
 	]},
 	{"title": "POSTACIE", "open": false, "tools": [
 		["player_spawn", "Start gracza"], ["enemy_spawn", "Start wroga"],
 	]},
-	{"title": "EDYCJA", "open": true, "tools": [
+	{"title": "EDYCJA", "open": false, "tools": [
 		["select", "Zaznacz obiekt"], ["erase", "Usuń obiekt"],
 	]},
 ]
@@ -63,7 +82,18 @@ const TOOL_GROUPS: Array[Dictionary] = [
 var objects: Array[Dictionary] = []
 var player_spawns: Array[Dictionary] = []
 var enemy_spawns: Array[Dictionary] = []
-var active_tool: String = "terrain_raise"
+var grass_entries: Array[Dictionary] = []
+var selected_object_indices: Array[int] = []
+var _undo_stack: Array[Dictionary] = []
+var _stroke_snapshot_taken := false
+var _selection_dragging := false
+var _selection_start := Vector2.ZERO
+var _selection_end := Vector2.ZERO
+var grass_width := 1.0
+var grass_height := 1.0
+var grass_color := Color(0.42, 0.72, 0.22)
+var _grass_preview: TextureRect
+var active_tool: String = "paint_0"
 var brush_radius: float = 6.0
 var brush_strength: float = 0.65
 var object_density: float = 0.18
@@ -96,21 +126,29 @@ var _water_surface: WaterMapSurface
 var _objects_root: Node3D
 var _markers_root: Node3D
 var _camera: Camera3D
+var _sun: DirectionalLight3D
+var _environment: Environment
 var _cursor: MeshInstance3D
 var _brush_radius_slider: HSlider
 var _brush_strength_slider: HSlider
 var _density_slider: HSlider
+var _grass_width_slider: HSlider
+var _grass_height_slider: HSlider
 var _brush_label: Label
+var _grass_layer: Node3D
+var _selection_box: ColorRect
+var _bottom_panel: PanelContainer
 
 func _ready() -> void:
 	_build_sidebar_controls()
 	_build_3d_view()
+	_build_bottom_toolbar()
 	await _terrain_surface.setup(_camera)
 	_water_surface.setup(_terrain_surface)
 	_connect_ui()
 	_rebuild_objects()
 	_update_markers()
-	_load_arena_test_preset()
+	_update_status("Biała plansza gotowa — wybierz materiał i maluj po terenie")
 
 func _build_sidebar_controls() -> void:
 	%ToolOption.visible = false
@@ -199,6 +237,132 @@ func _build_sidebar_controls() -> void:
 	tools_panel.add_child(_density_slider)
 	_update_brush_label()
 
+func _build_bottom_toolbar() -> void:
+	var panel := PanelContainer.new()
+	panel.name = "BottomEditPanel"
+	_bottom_panel = panel
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	panel.offset_left = 472.0
+	panel.offset_right = -48.0
+	panel.offset_top = -202.0
+	panel.offset_bottom = -48.0
+	panel.z_index = 100
+	panel.top_level = true
+	add_child(panel)
+	panel.move_to_front()
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 6)
+	panel.add_child(rows)
+	var edit_row := HBoxContainer.new()
+	edit_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	edit_row.add_theme_constant_override("separation", 10)
+	rows.add_child(edit_row)
+	var transform_grid := _transform_buttons[0].get_parent()
+	for control: Control in [_transform_label, transform_grid]:
+		control.reparent(edit_row)
+	_transform_label.custom_minimum_size.x = 220.0
+	var select_all := Button.new()
+	select_all.text = "Zaznacz wszystko"
+	select_all.custom_minimum_size.x = 150.0
+	select_all.pressed.connect(_select_all_objects)
+	edit_row.add_child(select_all)
+	var sliders_row := HBoxContainer.new()
+	sliders_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	sliders_row.add_theme_constant_override("separation", 12)
+	rows.add_child(sliders_row)
+	_brush_label.reparent(sliders_row)
+	_brush_label.custom_minimum_size.x = 190.0
+	_wrap_existing_slider(sliders_row, _brush_radius_slider, "Promień")
+	_wrap_existing_slider(sliders_row, _brush_strength_slider, "Siła")
+	_wrap_existing_slider(sliders_row, _density_slider, "Gęstość")
+	_grass_width_slider = _make_bottom_slider(sliders_row, "Szerokość", 0.25, 3.0, grass_width)
+	_grass_height_slider = _make_bottom_slider(sliders_row, "Wysokość", 0.25, 4.0, grass_height)
+	_build_grass_color_control(sliders_row)
+	_selection_box = ColorRect.new()
+	_selection_box.color = Color(0.15, 0.72, 1.0, 0.20)
+	_selection_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_selection_box.visible = false
+	_selection_box.z_index = 19
+	canvas.add_child(_selection_box)
+
+
+func _build_grass_color_control(parent: Container) -> void:
+	var column := VBoxContainer.new()
+	column.custom_minimum_size.x = 150.0
+	var label := Label.new()
+	label.text = "Kolor RGB trawy"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(label)
+	var preview_row := HBoxContainer.new()
+	preview_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	column.add_child(preview_row)
+	_grass_preview = TextureRect.new()
+	_grass_preview.texture = load("res://addons/simplegrasstextured/textures/grassbushcc008.png") as Texture2D
+	_grass_preview.custom_minimum_size = Vector2(52.0, 42.0)
+	_grass_preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_grass_preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_grass_preview.modulate = grass_color
+	_grass_preview.tooltip_text = "Podgląd wyglądu trawy z wybranym kolorem"
+	preview_row.add_child(_grass_preview)
+	var picker := ColorPickerButton.new()
+	picker.color = grass_color
+	picker.custom_minimum_size = Vector2(70.0, 34.0)
+	picker.tooltip_text = "Ustaw kolor RGB trawy"
+	picker.color_changed.connect(_on_grass_color_changed)
+	preview_row.add_child(picker)
+	parent.add_child(column)
+
+
+func _on_grass_color_changed(color: Color) -> void:
+	grass_color = Color(color.r, color.g, color.b, 1.0)
+	if _grass_preview != null:
+		_grass_preview.modulate = grass_color
+	if _grass_layer != null:
+		_grass_layer.call("set_grass_color", grass_color)
+
+
+func _wrap_existing_slider(parent: Container, slider: HSlider, title: String) -> void:
+	var column := VBoxContainer.new()
+	column.custom_minimum_size.x = 112.0
+	var label := Label.new()
+	label.text = title
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(label)
+	slider.reparent(column)
+	slider.custom_minimum_size = Vector2(112.0, 24.0)
+	var value_label := Label.new()
+	value_label.text = "%.2f" % slider.value
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(value_label)
+	slider.value_changed.connect(func(new_value: float) -> void: value_label.text = "%.2f" % new_value)
+	parent.add_child(column)
+
+
+func _make_bottom_slider(parent: Container, title: String, minimum: float, maximum: float, value: float) -> HSlider:
+	var column := VBoxContainer.new()
+	column.custom_minimum_size.x = 112.0
+	var label := Label.new()
+	label.text = title
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(label)
+	var slider := HSlider.new()
+	slider.mouse_filter = Control.MOUSE_FILTER_STOP
+	slider.min_value = minimum
+	slider.max_value = maximum
+	slider.step = 0.05
+	slider.value = value
+	slider.custom_minimum_size = Vector2(112.0, 24.0)
+	column.add_child(slider)
+	var value_label := Label.new()
+	value_label.text = "%.2f" % value
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(value_label)
+	slider.value_changed.connect(func(new_value: float) -> void: value_label.text = "%.2f" % new_value)
+	parent.add_child(column)
+	return slider
+
+
 func _toggle_section(button: Button, content: Control, title: String) -> void:
 	content.visible = not content.visible
 	button.text = ("▼ " if content.visible else "▶ ") + title
@@ -222,7 +386,7 @@ func _add_material_section(parent: VBoxContainer) -> void:
 	section.add_theme_constant_override("separation", 4)
 	parent.add_child(section)
 	var title := Button.new()
-	title.text = "▼ MATERIAŁY TERRAIN3D"
+	title.text = "▶ MATERIAŁY TERRAIN3D"
 	title.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	title.tooltip_text = "Natywne warstwy Terrain3D: albedo, normal, roughness i płynny blend"
 	section.add_child(title)
@@ -231,12 +395,14 @@ func _add_material_section(parent: VBoxContainer) -> void:
 	grid.add_theme_constant_override("h_separation", 4)
 	grid.add_theme_constant_override("v_separation", 4)
 	section.add_child(grid)
+	grid.visible = false
 	title.pressed.connect(_toggle_section.bind(title, grid, "MATERIAŁY TERRAIN3D"))
 	for texture_id: int in range(TerrainMapSurface.PAINT_TEXTURES.size()):
 		var definition: Dictionary = TerrainMapSurface.PAINT_TEXTURES[texture_id]
 		var button := _create_tool_button("paint_%d" % texture_id, str(definition["name"]), false)
 		button.custom_minimum_size = Vector2(140.0, 62.0)
-		button.icon = load(str(definition["path"])) as Texture2D
+		if definition.has("path"):
+			button.icon = load(str(definition["path"])) as Texture2D
 		button.expand_icon = true
 		button.add_theme_constant_override("icon_max_width", 48)
 		button.tooltip_text = "%s\nNatywna warstwa Terrain3D" % str(definition["name"])
@@ -300,6 +466,74 @@ func _select_tool(tool_id: String, label: String) -> void:
 	active_tool = tool_id
 	_update_status("Narzedzie: " + label)
 
+func _push_undo_state() -> void:
+	_undo_stack.append({
+		"objects": objects.duplicate(true),
+		"grass": grass_entries.duplicate(true),
+		"player_spawns": player_spawns.duplicate(true),
+		"enemy_spawns": enemy_spawns.duplicate(true),
+		"water": _water_surface.serialize_cells(),
+		"terrain": _terrain_surface.capture_state(),
+	})
+	while _undo_stack.size() > UNDO_LIMIT:
+		_undo_stack.pop_front()
+
+
+func _undo_last_action() -> void:
+	if _undo_stack.is_empty():
+		_update_status("Brak wcześniejszych akcji do cofnięcia")
+		return
+	var state: Dictionary = _undo_stack.pop_back()
+	objects.assign(state["objects"])
+	grass_entries.assign(state["grass"])
+	player_spawns.assign(state["player_spawns"])
+	enemy_spawns.assign(state["enemy_spawns"])
+	_terrain_surface.restore_state(state["terrain"])
+	_water_surface.load_cells(state["water"])
+	selected_object_indices.clear()
+	_selected_object_index = -1
+	_rebuild_objects()
+	_rebuild_grass()
+	_update_markers()
+	_update_selection_ui()
+	_update_status("Cofnięto akcję — pozostało %d kroków" % _undo_stack.size())
+
+
+func _select_all_objects() -> void:
+	selected_object_indices.clear()
+	for index: int in range(objects.size()):
+		selected_object_indices.append(index)
+	_selected_object_index = selected_object_indices[0] if not selected_object_indices.is_empty() else -1
+	_update_selection_ui()
+
+
+func _select_objects_in_screen_rect(rect: Rect2) -> void:
+	selected_object_indices.clear()
+	for index: int in range(objects.size()):
+		var screen_point := _camera.unproject_position(_object_renderer.get_instance_position(index))
+		if rect.has_point(screen_point):
+			selected_object_indices.append(index)
+	_selected_object_index = selected_object_indices[0] if not selected_object_indices.is_empty() else -1
+	_update_selection_ui()
+
+
+func _delete_selected_objects() -> void:
+	if selected_object_indices.is_empty() and _selected_object_index >= 0:
+		selected_object_indices.append(_selected_object_index)
+	if selected_object_indices.is_empty():
+		return
+	_push_undo_state()
+	selected_object_indices.sort()
+	selected_object_indices.reverse()
+	for index: int in selected_object_indices:
+		if index >= 0 and index < objects.size():
+			objects.remove_at(index)
+	selected_object_indices.clear()
+	_selected_object_index = -1
+	_rebuild_objects()
+	_update_selection_ui()
+
+
 func _select_nearest(world_position: Vector3) -> void:
 	var best_index := -1
 	var best_distance := 3.0
@@ -310,6 +544,9 @@ func _select_nearest(world_position: Vector3) -> void:
 			best_distance = distance
 			best_index = index
 	_selected_object_index = best_index
+	selected_object_indices.clear()
+	if best_index >= 0:
+		selected_object_indices.append(best_index)
 	_update_selection_ui()
 
 func _transform_selected(rotation_delta: float, height_delta: float, flip: bool) -> void:
@@ -337,7 +574,10 @@ func _update_selection_ui() -> void:
 			_selection_ring.visible = false
 		return
 	var data: Dictionary = objects[_selected_object_index]
-	_transform_label.text = "TRANSFORMACJA — %s | kat %.0f° | wysokosc %+.2f" % [str(data.get("type", "obiekt")), float(data.get("rotation", 0.0)), float(data.get("height_offset", 0.0))]
+	if selected_object_indices.size() > 1:
+		_transform_label.text = "ZAZNACZONO: %d obiektów | DEL usuwa" % selected_object_indices.size()
+	else:
+		_transform_label.text = "TRANSFORMACJA — %s | kąt %.0f° | wysokość %+.2f" % [str(data.get("type", "obiekt")), float(data.get("rotation", 0.0)), float(data.get("height_offset", 0.0))]
 	if _selection_ring != null and _object_renderer != null:
 		_selection_ring.visible = true
 		_selection_ring.position = _object_renderer.get_instance_position(_selected_object_index) + Vector3.UP * 0.08
@@ -354,7 +594,9 @@ func _build_3d_view() -> void:
 	_viewport.own_world_3d = true
 	_viewport.handle_input_locally = false
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	_viewport.msaa_3d = Viewport.MSAA_4X
+	_viewport.msaa_3d = Viewport.MSAA_2X
+	_viewport.scaling_3d_scale = 0.78
+	_viewport.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
 	_viewport_container.add_child(_viewport)
 	_world = Node3D.new()
 	_viewport.add_child(_world)
@@ -364,6 +606,10 @@ func _build_3d_view() -> void:
 	_object_renderer.name = "ObjectMultiMeshes"
 	_objects_root.add_child(_object_renderer)
 	_object_renderer.configure(ASSETS, _resolve_editor_object_position, false)
+	_grass_layer = GRASS_LAYER_SCRIPT.new() as Node3D
+	_grass_layer.name = "SimpleGrassLayer"
+	_objects_root.add_child(_grass_layer)
+	_grass_layer.call_deferred("set_grass_color", grass_color)
 	_markers_root = Node3D.new()
 	_world.add_child(_markers_root)
 	_camera = Camera3D.new()
@@ -378,18 +624,32 @@ func _build_3d_view() -> void:
 	_water_surface = WaterMapSurface.new()
 	_world.add_child(_water_surface)
 	var sun := DirectionalLight3D.new()
+	_sun = sun
 	sun.rotation_degrees = Vector3(-55.0, -32.0, 0.0)
 	sun.shadow_enabled = true
-	sun.light_energy = 1.15
+	sun.light_color = Color(1.0, 0.955, 0.86)
+	sun.light_energy = 1.35
+	sun.shadow_opacity = 0.82
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	sun.directional_shadow_max_distance = 260.0
+	sun.directional_shadow_blend_splits = true
 	_world.add_child(sun)
 	var world_environment := WorldEnvironment.new()
 	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color(0.055, 0.075, 0.095)
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.58, 0.66, 0.78)
-	environment.ambient_light_energy = 0.55
+	_environment = environment
+	environment.background_mode = Environment.BG_SKY
+	environment.sky = _create_day_sky()
+	environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	environment.ambient_light_sky_contribution = 0.72
+	environment.ambient_light_energy = 0.78
+	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	environment.tonemap_exposure = 1.08
+	environment.ssao_enabled = true
+	environment.ssao_radius = 2.4
+	environment.ssao_intensity = 2.1
+	environment.ssao_power = 1.35
+	environment.ssil_enabled = false
 	world_environment.environment = environment
 	_world.add_child(world_environment)
 	_cursor = MeshInstance3D.new()
@@ -420,6 +680,53 @@ func _build_3d_view() -> void:
 	_selection_ring.visible = false
 	_markers_root.add_child(_selection_ring)
 
+func _create_day_sky() -> Sky:
+	var sky_shader := Shader.new()
+	sky_shader.code = """
+shader_type sky;
+float hash21(vec2 p) {
+	p = fract(p * vec2(123.34, 456.21));
+	p += dot(p, p + 45.32);
+	return fract(p.x * p.y);
+}
+float noise2d(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash21(i), hash21(i + vec2(1.0, 0.0)), f.x), mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0)), f.x), f.y);
+}
+float fbm(vec2 p) {
+	float value = 0.0;
+	float amplitude = 0.55;
+	for (int i = 0; i < 5; i++) {
+		value += noise2d(p) * amplitude;
+		p = p * 2.03 + vec2(7.1, 3.7);
+		amplitude *= 0.48;
+	}
+	return value;
+}
+void sky() {
+	float horizon = clamp(EYEDIR.y * 0.5 + 0.5, 0.0, 1.0);
+	vec3 color = mix(vec3(0.72, 0.87, 1.0), vec3(0.16, 0.48, 0.88), smoothstep(0.42, 0.98, horizon));
+	if (EYEDIR.y > 0.015) {
+		vec2 cloud_uv = EYEDIR.xz / max(EYEDIR.y + 0.24, 0.08);
+		float cloud_noise = fbm(cloud_uv * 0.72 + vec2(TIME * 0.006, 0.0));
+		float clouds = smoothstep(0.53, 0.72, cloud_noise) * smoothstep(0.02, 0.30, EYEDIR.y);
+		vec3 cloud_color = mix(vec3(0.72, 0.78, 0.84), vec3(1.0), clamp(EYEDIR.y * 2.2, 0.0, 1.0));
+		color = mix(color, cloud_color, clouds * 0.88);
+	}
+	COLOR = color;
+}
+"""
+	var sky_material := ShaderMaterial.new()
+	sky_material.shader = sky_shader
+	var sky := Sky.new()
+	sky.sky_material = sky_material
+	sky.process_mode = Sky.PROCESS_MODE_INCREMENTAL
+	sky.radiance_size = Sky.RADIANCE_SIZE_256
+	return sky
+
+
 func _connect_ui() -> void:
 	_viewport_container.gui_input.connect(_on_viewport_input)
 	%SaveButton.pressed.connect(_save)
@@ -437,9 +744,22 @@ func _connect_ui() -> void:
 		object_density = value
 		_update_brush_label()
 	)
+	_grass_width_slider.value_changed.connect(func(value: float) -> void:
+		grass_width = value
+		_rebuild_grass()
+		_update_brush_label()
+	)
+	_grass_height_slider.value_changed.connect(func(value: float) -> void:
+		grass_height = value
+		_rebuild_grass()
+		_update_brush_label()
+	)
 
 func _process(delta: float) -> void:
 	if not _fpp_enabled:
+		if _viewport_container != null and _viewport_container.get_rect().has_point(_viewport_container.get_local_mouse_position()):
+			_last_mouse_position = _viewport_container.get_local_mouse_position()
+			_update_cursor(_last_mouse_position)
 		return
 	var input_vector := Vector2(
 		float(Input.is_key_pressed(KEY_D)) - float(Input.is_key_pressed(KEY_A)),
@@ -457,7 +777,13 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		var key := event as InputEventKey
-		if key.pressed and not key.echo and key.keycode == KEY_TAB:
+		if key.pressed and not key.echo and key.ctrl_pressed and key.keycode == KEY_Z:
+			_undo_last_action()
+			get_viewport().set_input_as_handled()
+		elif key.pressed and not key.echo and key.keycode == KEY_DELETE:
+			_delete_selected_objects()
+			get_viewport().set_input_as_handled()
+		elif key.pressed and not key.echo and key.keycode == KEY_TAB:
 			if key.shift_pressed:
 				_place_ghost_at_cursor()
 			else:
@@ -501,6 +827,12 @@ func _toggle_fpp() -> void:
 		_camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 		_camera.position = _ghost_position
 		_camera.rotation = Vector3(_fpp_pitch, _ghost_yaw, 0.0)
+		_camera.far = 260.0
+		_viewport.scaling_3d_scale = 0.68
+		if _environment != null:
+			_environment.ssao_enabled = false
+		if _sun != null:
+			_sun.directional_shadow_max_distance = 140.0
 		_cursor.visible = false
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		_update_status("FPP — WASD/mysz, Space/Ctrl: gora/dol, Shift: szybciej, Tab: powrot")
@@ -511,10 +843,17 @@ func _toggle_fpp() -> void:
 		_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 		_camera.transform = _editor_camera_transform
 		_camera.size = _editor_camera_size
+		_viewport.scaling_3d_scale = 0.78
+		if _environment != null:
+			_environment.ssao_enabled = true
+		if _sun != null:
+			_sun.directional_shadow_max_distance = 260.0
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		_update_status("Widok edycji — Shift+Tab ustawia ducha, Tab: FPP")
 
 func _on_viewport_input(event: InputEvent) -> void:
+	if _bottom_panel != null and _bottom_panel.get_global_rect().has_point(get_viewport().get_mouse_position()):
+		return
 	if _fpp_enabled:
 		return
 	if event is InputEventMouseMotion:
@@ -523,7 +862,12 @@ func _on_viewport_input(event: InputEvent) -> void:
 			_pan_camera(motion.position - _last_mouse_position)
 		else:
 			_update_cursor(motion.position)
-			if _painting_objects:
+			if _selection_dragging:
+				_selection_end = motion.position
+				var rect := Rect2(_selection_start, _selection_end - _selection_start).abs()
+				_selection_box.position = rect.position
+				_selection_box.size = rect.size
+			elif _painting_objects:
 				_try_apply_at_screen(motion.position)
 		_last_mouse_position = motion.position
 	elif event is InputEventMouseButton:
@@ -536,12 +880,31 @@ func _on_viewport_input(event: InputEvent) -> void:
 		elif button.pressed and button.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_camera.size = minf(210.0, _camera.size * 1.12)
 		elif button.button_index == MOUSE_BUTTON_LEFT:
-			_painting_objects = button.pressed
-			if button.pressed:
-				_last_object_stamp = Vector3(INF, INF, INF)
-				_try_apply_at_screen(button.position)
-			elif _object_rebuild_pending:
-				_flush_object_rebuild()
+			if active_tool == "select":
+				_selection_dragging = button.pressed
+				if button.pressed:
+					_selection_start = button.position
+					_selection_end = button.position
+					_selection_box.position = button.position
+					_selection_box.size = Vector2.ZERO
+					_selection_box.visible = true
+				else:
+					_selection_box.visible = false
+					var selection_rect := Rect2(_selection_start, _selection_end - _selection_start).abs()
+					if selection_rect.size.length() < 8.0:
+						var hit: Variant = _screen_to_map(button.position)
+						if hit != null:
+							_select_nearest(hit as Vector3)
+					else:
+						_select_objects_in_screen_rect(selection_rect)
+			else:
+				_painting_objects = button.pressed
+				if button.pressed:
+					_stroke_snapshot_taken = false
+					_last_object_stamp = Vector3(INF, INF, INF)
+					_try_apply_at_screen(button.position)
+				elif _object_rebuild_pending:
+					_flush_object_rebuild()
 
 func _try_apply_at_screen(screen_position: Vector2) -> void:
 	var now_msec := Time.get_ticks_msec()
@@ -554,6 +917,9 @@ func _try_apply_at_screen(screen_position: Vector2) -> void:
 	var minimum_spacing := maxf(0.65, brush_radius * 0.22)
 	if ASSETS.has(active_tool) and not is_inf(_last_object_stamp.x) and _last_object_stamp.distance_to(world_position) < minimum_spacing:
 		return
+	if not _stroke_snapshot_taken:
+		_push_undo_state()
+		_stroke_snapshot_taken = true
 	_last_action_msec = now_msec
 	_last_object_stamp = world_position
 	_apply_tool(world_position)
@@ -594,6 +960,8 @@ func _apply_tool(world_position: Vector3) -> void:
 		_terrain_surface.paint_texture(world_position, brush_radius, brush_strength, int(active_tool.trim_prefix("paint_")))
 	elif active_tool == "water_add" or active_tool == "water_remove":
 		_water_surface.apply_brush(world_position, brush_radius, active_tool == "water_remove")
+	elif active_tool == "simple_grass":
+		_paint_simple_grass(world_position)
 	elif active_tool == "select":
 		_select_nearest(world_position)
 	elif active_tool == "erase":
@@ -607,6 +975,19 @@ func _apply_tool(world_position: Vector3) -> void:
 	else:
 		_scatter_objects(world_position)
 	_update_status("Obiekty: %d | Woda: %d pol" % [objects.size(), _water_surface.get_cell_count()])
+
+func _paint_simple_grass(center: Vector3) -> void:
+	var requested := clampi(roundi(PI * brush_radius * brush_radius * object_density * 5.0), 1, 600)
+	for index: int in range(requested):
+		var angle := randf() * TAU
+		var distance := sqrt(randf()) * brush_radius
+		var x := center.x + cos(angle) * distance
+		var z := center.z + sin(angle) * distance
+		if x < 0.0 or z < 0.0 or x >= float(GRID_SIZE.x) or z >= float(GRID_SIZE.y):
+			continue
+		grass_entries.append({"x": x, "z": z, "rotation": randf_range(0.0, 360.0), "scale": randf_range(0.78, 1.22)})
+	_rebuild_grass()
+
 
 func _scatter_objects(center: Vector3) -> void:
 	if not ASSETS.has(active_tool):
@@ -685,6 +1066,13 @@ func _rebuild_objects() -> void:
 	if _object_renderer == null:
 		return
 	_object_renderer.rebuild(objects)
+	_rebuild_grass()
+
+
+func _rebuild_grass() -> void:
+	if _grass_layer == null:
+		return
+	_grass_layer.call("rebuild", grass_entries, Callable(self, "terrain_height"), grass_width, grass_height)
 
 func _resolve_editor_object_position(data: Dictionary) -> Vector3:
 	var x := float(data.get("x", 0.0))
@@ -825,6 +1213,8 @@ func _arena_editor_object(kind: String, point: Vector2, rng: RandomNumberGenerat
 
 func _clear_map() -> void:
 	objects.clear()
+	grass_entries.clear()
+	_undo_stack.clear()
 	player_spawns.clear()
 	enemy_spawns.clear()
 	_selected_object_index = -1
@@ -847,6 +1237,10 @@ func _save() -> void:
 		"version": 4,
 		"name": map_name,
 		"objects": objects,
+		"grass": grass_entries,
+		"grass_width": grass_width,
+		"grass_height": grass_height,
+		"grass_color": grass_color.to_html(false),
 		"player_spawns": player_spawns,
 		"enemy_spawns": enemy_spawns,
 		"terrain_directory": terrain_directory,
@@ -855,7 +1249,7 @@ func _save() -> void:
 	_update_status("Zapisano: " + path)
 
 func _update_brush_label() -> void:
-	_brush_label.text = "PĘDZEL — promień %.1f / siła %.2f / gęstość %.2f" % [brush_radius, brush_strength, object_density]
+	_brush_label.text = "PĘDZEL %.1f m | siła %.2f | gęstość %.2f\nTRAWA szer. %.2f | wys. %.2f" % [brush_radius, brush_strength, object_density, grass_width, grass_height]
 
 func _update_status(message: String) -> void:
 	%StatusLabel.text = message + "\nLPM: maluj | PPM/MMB: przesuń | Shift+Tab: ustaw ducha | Tab: FPP"

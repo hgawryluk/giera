@@ -2,6 +2,15 @@ class_name MapObjectMultiMeshRenderer
 extends Node3D
 
 const OBJECT_CHUNK_SIZE := 24.0
+const PREMIUM_PBR: Dictionary[String, Dictionary] = {
+	"moss_rock_08": {"albedo": "res://assets/environment/premium_imports/moss_rock_08/moss rock 08 sketchfab/moss rock 08 color (4096).jpg", "normal": "res://assets/environment/premium_imports/moss_rock_08/moss rock 08 sketchfab/moss rock 08 normal (4096).png", "roughness": "res://assets/environment/premium_imports/moss_rock_08/moss rock 08 sketchfab/moss rock 08 roughness (4096).png"},
+	"moss_rock_09": {"albedo": "res://assets/environment/premium_imports/moss_rock_09/moss rock 09 sketchfab/moss rock 09 Color (4096).jpg", "normal": "res://assets/environment/premium_imports/moss_rock_09/moss rock 09 sketchfab/moss rock 09_normal (4096).png", "roughness": "res://assets/environment/premium_imports/moss_rock_09/moss rock 09 sketchfab/moss rock 09_roughness (4096).jpg"},
+	"moss_rock_10": {"albedo": "res://assets/environment/premium_imports/moss_rock_10/moss rock 10 sketchfab/moss rock 10 (4096).jpg", "normal": "res://assets/environment/premium_imports/moss_rock_10/moss rock 10 sketchfab/moss rock 10_normal (4096).png", "roughness": "res://assets/environment/premium_imports/moss_rock_10/moss rock 10 sketchfab/moss rock 10_roughness (4096).png"},
+	"moss_rock_11": {"albedo": "res://assets/environment/premium_imports/moss_rock_11/moss rock 11 sketchfab/moss rock 11 (4096).jpg", "normal": "res://assets/environment/premium_imports/moss_rock_11/moss rock 11 sketchfab/moss rock 11_normal (4096).png", "roughness": "res://assets/environment/premium_imports/moss_rock_11/moss rock 11 sketchfab/moss rock 11_roughness (4096).png"},
+	"moss_rock_12": {"albedo": "res://assets/environment/premium_imports/moss_rock_12/moss rock 12 sketchfab/moss rock 12 (4096).jpg", "normal": "res://assets/environment/premium_imports/moss_rock_12/moss rock 12 sketchfab/moss rock 12_normal (4096).png", "roughness": "res://assets/environment/premium_imports/moss_rock_12/moss rock 12 sketchfab/moss rock 12_roughness (4096).jpg"},
+	"moss_rock_13": {"albedo": "res://assets/environment/premium_imports/moss_rock_13/moss rock 13 sketchfab/moss rock 13 (4096).jpg", "normal": "res://assets/environment/premium_imports/moss_rock_13/moss rock 13 sketchfab/moss rock 13_normal (4096).png", "roughness": "res://assets/environment/premium_imports/moss_rock_13/moss rock 13 sketchfab/moss rock 13_roughness (4096).png"},
+	"moss_rock_14": {"albedo": "res://assets/environment/premium_imports/moss_rock_14/moss rock 14 sketchfab/moss rock 14 (4096).jpg", "normal": "res://assets/environment/premium_imports/moss_rock_14/moss rock 14 sketchfab/moss rock 14_normal (4096).png", "roughness": "res://assets/environment/premium_imports/moss_rock_14/moss rock 14 sketchfab/moss rock 14_roughness (4096).png"},
+}
 const DEFAULT_OBSTACLES: Array[String] = ["purple_tree_1", "purple_tree_2", "purple_tree_3", "large_tree", "tree_real_1", "tree_real_2"]
 const TYPE_SCALE_MULTIPLIERS: Dictionary[String, float] = {
 	"purple_tree_1": 5.5,
@@ -11,8 +20,8 @@ const TYPE_SCALE_MULTIPLIERS: Dictionary[String, float] = {
 	"bush": 1.3,
 	"grass_1": 0.65,
 	"grass_2": 0.65,
-	"tree_real_1": 1.0,
-	"tree_real_2": 1.0,
+	"tree_real_1": 140.0,
+	"tree_real_2": 140.0,
 	"bush_real_1": 1.0,
 	"bush_real_2": 1.0,
 	"bush_real_3": 1.0,
@@ -35,6 +44,8 @@ const MESH_FILTERS: Dictionary[String, String] = {
 	"bush_real_5": "tall_bush_1", "bush_real_6": "Medium_bush_3",
 	"bush_real_7": "Small_bush_2", "bush_real_8": "tall_bush_2",
 	"bush_real_9": "tall_bush_4",
+	"premium_tree_1": "Forest_Tree_Bark_LOD0",
+	"premium_tree_2": "Forest_Tree_Bark_LOD0",
 }
 
 var _assets: Dictionary[String, String] = {}
@@ -63,7 +74,9 @@ func rebuild(objects: Array[Dictionary]) -> void:
 	for index: int in range(objects.size()):
 		var data: Dictionary = objects[index]
 		var kind := str(data.get("type", ""))
-		if not _assets.has(kind):
+		# Soil is painted directly into Terrain3D. Legacy marker objects used to
+		# create floating brown planes and must never enter the object renderer.
+		if kind == "arena_soil" or not _assets.has(kind):
 			continue
 		var chunk := Vector2i(floori(float(data.get("x", 0.0)) / OBJECT_CHUNK_SIZE), floori(float(data.get("z", 0.0)) / OBJECT_CHUNK_SIZE))
 		var key := "%s|%d|%d" % [kind, chunk.x, chunk.y]
@@ -102,11 +115,13 @@ func _build_group(key: String, entries: Array) -> void:
 		var instance := MultiMeshInstance3D.new()
 		instance.name = "%s_Part%d" % [key.replace("|", "_"), part_index]
 		instance.multimesh = multimesh
-		instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if _obstacle_types.has(kind) else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_DOUBLE_SIDED
 		# Trees must remain visible from the elevated isometric camera. A zero end
 		# range disables distance culling while retaining regular frustum culling.
 		instance.visibility_range_end = 0.0
 		instance.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+		instance.ignore_occlusion_culling = true
+		instance.extra_cull_margin = 8.0
 		add_child(instance)
 	if _create_collisions and _obstacle_types.has(kind):
 		_build_collisions(key, entries)
@@ -115,29 +130,66 @@ func _get_parts(kind: String) -> Array:
 	if _part_cache.has(kind):
 		return _part_cache[kind]
 	var parts: Array = []
-	if kind.begins_with("grass_"):
-		if _grass_proxy == null:
-			_grass_proxy = _create_grass_proxy()
-		parts.append({"mesh": _grass_proxy, "transform": Transform3D.IDENTITY})
-	elif kind == "bush":
-		if _bush_proxy == null:
-			_bush_proxy = _create_bush_proxy()
-		parts.append({"mesh": _bush_proxy, "transform": Transform3D.IDENTITY})
-	elif kind == "arena_soil":
+	if kind == "arena_soil":
 		if _soil_proxy == null:
 			_soil_proxy = _create_soil_proxy()
 		parts.append({"mesh": _soil_proxy, "transform": Transform3D.IDENTITY})
 	else:
 		var resource := load(_assets[kind])
 		if resource is Mesh:
-			parts.append({"mesh": resource as Mesh, "transform": Transform3D.IDENTITY})
+			var source_mesh := resource as Mesh
+			parts.append({"mesh": _apply_premium_pbr(kind, source_mesh), "transform": Transform3D.IDENTITY})
 		elif resource is PackedScene:
 			var source := (resource as PackedScene).instantiate() as Node3D
 			if source != null:
 				_collect_parts(source, Transform3D.IDENTITY, parts, str(MESH_FILTERS.get(kind, "")))
 				source.free()
+	if kind.begins_with("premium_tree_"):
+		for part: Dictionary in parts:
+			part["mesh"] = _apply_premium_tree_materials(part["mesh"] as Mesh)
 	_part_cache[kind] = parts
 	return parts
+
+func _apply_premium_tree_materials(source: Mesh) -> Mesh:
+	var mesh := source.duplicate(true) as Mesh
+	var bark := StandardMaterial3D.new()
+	bark.albedo_texture = load("res://assets/environment/premium_imports/forest_trees/Forest_Tree_Starter_Kit/Textures/Bark_GreenVariant.png") as Texture2D
+	bark.normal_enabled = true
+	bark.normal_texture = load("res://assets/environment/premium_imports/forest_trees/Forest_Tree_Starter_Kit/Textures/Bark_Normal.png") as Texture2D
+	bark.roughness = 0.88
+	bark.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	var leaves := StandardMaterial3D.new()
+	leaves.albedo_texture = load("res://assets/environment/premium_imports/forest_trees/Forest_Tree_Starter_Kit/Textures/Leave/Tree_Leaves_SummerVariant.png") as Texture2D
+	leaves.normal_enabled = true
+	leaves.normal_texture = load("res://assets/environment/premium_imports/forest_trees/Forest_Tree_Starter_Kit/Textures/Leave/Leave_Normal.png") as Texture2D
+	leaves.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	leaves.alpha_scissor_threshold = 0.42
+	leaves.cull_mode = BaseMaterial3D.CULL_DISABLED
+	leaves.roughness = 0.82
+	leaves.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	if mesh.get_surface_count() > 0:
+		mesh.surface_set_material(0, bark)
+	if mesh.get_surface_count() > 1:
+		mesh.surface_set_material(1, leaves)
+	return mesh
+
+
+func _apply_premium_pbr(kind: String, source: Mesh) -> Mesh:
+	if not PREMIUM_PBR.has(kind):
+		return source
+	var mesh := source.duplicate(true) as Mesh
+	var maps: Dictionary = PREMIUM_PBR[kind]
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = load(str(maps["albedo"])) as Texture2D
+	material.normal_enabled = true
+	material.normal_texture = load(str(maps["normal"])) as Texture2D
+	material.roughness_texture = load(str(maps["roughness"])) as Texture2D
+	material.roughness = 1.0
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	for surface_index: int in range(mesh.get_surface_count()):
+		mesh.surface_set_material(surface_index, material)
+	return mesh
+
 
 func _collect_parts(node: Node, parent_transform: Transform3D, output: Array, mesh_filter: String = "") -> void:
 	var local_transform := parent_transform
@@ -146,9 +198,23 @@ func _collect_parts(node: Node, parent_transform: Transform3D, output: Array, me
 	if node is MeshInstance3D and (mesh_filter.is_empty() or node.name == mesh_filter):
 		var mesh_instance := node as MeshInstance3D
 		if mesh_instance.mesh != null:
-			output.append({"mesh": mesh_instance.mesh, "transform": local_transform})
+			output.append({"mesh": _make_editor_safe_mesh(mesh_instance), "transform": local_transform})
 	for child: Node in node.get_children():
 		_collect_parts(child, local_transform, output, mesh_filter)
+
+func _make_editor_safe_mesh(source: MeshInstance3D) -> Mesh:
+	var mesh := source.mesh.duplicate(true) as Mesh
+	for surface_index: int in range(mesh.get_surface_count()):
+		var material := source.get_surface_override_material(surface_index)
+		if material == null:
+			material = mesh.surface_get_material(surface_index)
+		if material is BaseMaterial3D:
+			var safe_material := (material as BaseMaterial3D).duplicate(true) as BaseMaterial3D
+			safe_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+			mesh.surface_set_material(surface_index, safe_material)
+		elif material != null:
+			mesh.surface_set_material(surface_index, material)
+	return mesh
 
 func _resolved_base_position(data: Dictionary) -> Vector3:
 	var result := Vector3(float(data.get("x", 0.0)), 0.0, float(data.get("z", 0.0)))
@@ -165,8 +231,6 @@ func _object_transform(data: Dictionary) -> Transform3D:
 	var kind := str(data.get("type", ""))
 	var resolved_position := _resolved_base_position(data)
 	var scale_value := _effective_scale(data)
-	if _obstacle_types.has(kind):
-		resolved_position.y += scale_value
 	var flip_sign := -1.0 if bool(data.get("flipped", false)) else 1.0
 	var object_basis := Basis.from_euler(Vector3(0.0, deg_to_rad(float(data.get("rotation", 0.0))), 0.0))
 	object_basis = object_basis.scaled(Vector3(scale_value * flip_sign, scale_value, scale_value))
