@@ -22,7 +22,9 @@ const PAINT_TEXTURES: Array[Dictionary] = [
 	{"name": "Marmurowy klif 05", "path": GLHF_ROOT + "marble_cliff_05/marble_cliff_05_diff_4k.jpg", "normal": GLHF_ROOT + "marble_cliff_05/marble_cliff_05_nor_gl_4k.jpg", "uv_scale": 0.15, "roughness": 0.88},
 	{"name": "Marmurowa skała 03", "path": GLHF_ROOT + "marble_rock_03/marble_rock_03_diff_4k.jpg", "normal": GLHF_ROOT + "marble_rock_03/marble_rock_03_nor_gl_4k.jpg", "uv_scale": 0.16, "roughness": 0.87},
 	{"name": "Droga brukowana", "path": PBR_ROOT + "PavingStones138_2K-PNG/PavingStones138_2K-PNG_Color.png", "normal": PBR_ROOT + "PavingStones138_2K-PNG/PavingStones138_2K-PNG_NormalGL.png", "uv_scale": 0.18, "roughness": 0.82},
+	{"name": "Biała plansza", "generated_white": true, "uv_scale": 0.20, "roughness": 0.94},
 ]
+const BLANK_TEXTURE_ID := 13
 
 var terrain: Terrain3D
 var _region: Terrain3DRegion
@@ -191,13 +193,39 @@ func reset_blank() -> void:
 		for x: int in range(MAP_SIZE.x):
 			var point := Vector3(float(x), 0.0, float(z))
 			terrain.data.set_height(point, 0.0)
-			terrain.data.set_control_base_id(point, 0)
-			terrain.data.set_control_overlay_id(point, 0)
+			terrain.data.set_control_base_id(point, BLANK_TEXTURE_ID)
+			terrain.data.set_control_overlay_id(point, BLANK_TEXTURE_ID)
 			terrain.data.set_control_blend(point, 0.0)
 			terrain.data.set_control_auto(point, false)
 			terrain.data.set_color(point, Color.WHITE)
 	_region.calc_height_range()
 	terrain.data.update_maps(Terrain3DRegion.TYPE_MAX, true, false)
+
+func capture_state() -> Dictionary:
+	if _region == null:
+		return {}
+	return {
+		"height": _region.get_height_map().duplicate(),
+		"control": _region.get_control_map().duplicate(),
+		"color": _region.get_color_map().duplicate(),
+	}
+
+
+func restore_state(state: Dictionary) -> void:
+	if _region == null or state.is_empty():
+		return
+	var height_map := state.get("height") as Image
+	var control_map := state.get("control") as Image
+	var color_map := state.get("color") as Image
+	if height_map != null:
+		_region.set_height_map(height_map.duplicate())
+	if control_map != null:
+		_region.set_control_map(control_map.duplicate())
+	if color_map != null:
+		_region.set_color_map(color_map.duplicate())
+	_region.calc_height_range()
+	terrain.data.update_maps(Terrain3DRegion.TYPE_MAX, true, false)
+
 
 func save_to_directory(directory: String) -> void:
 	if terrain == null:
@@ -212,7 +240,13 @@ func get_data_directory() -> String:
 func _initialize_base_height() -> void:
 	for z: int in range(MAP_SIZE.y):
 		for x: int in range(MAP_SIZE.x):
-			terrain.data.set_height(Vector3(float(x), 0.0, float(z)), 0.0)
+			var point := Vector3(float(x), 0.0, float(z))
+			terrain.data.set_height(point, 0.0)
+			terrain.data.set_control_base_id(point, BLANK_TEXTURE_ID)
+			terrain.data.set_control_overlay_id(point, BLANK_TEXTURE_ID)
+			terrain.data.set_control_blend(point, 0.0)
+			terrain.data.set_control_auto(point, false)
+			terrain.data.set_color(point, Color.WHITE)
 	_finish_height_edit()
 
 func _ensure_paintable_control() -> void:
@@ -355,8 +389,12 @@ func _configure_material() -> void:
 		var asset := Terrain3DTextureAsset.new()
 		asset.id = texture_id
 		asset.name = str(definition["name"])
-		asset.albedo_texture = _prepare_terrain_texture(str(definition["path"]), false)
-		asset.normal_texture = _prepare_terrain_texture(str(definition["normal"]), true)
+		if bool(definition.get("generated_white", false)):
+			asset.albedo_texture = _create_solid_texture(Color.WHITE)
+			asset.normal_texture = _create_solid_texture(Color(0.5, 0.5, 1.0, 1.0))
+		else:
+			asset.albedo_texture = _prepare_terrain_texture(str(definition["path"]), false)
+			asset.normal_texture = _prepare_terrain_texture(str(definition["normal"]), true)
 		asset.uv_scale = float(definition["uv_scale"])
 		asset.roughness = float(definition["roughness"])
 		texture_assets.append(asset)
@@ -367,6 +405,13 @@ func _configure_material() -> void:
 	terrain.material.update()
 	terrain.show_grey = false
 	terrain.material.world_background = Terrain3DMaterial.NONE
+
+func _create_solid_texture(color: Color) -> Texture2D:
+	var image := Image.create(TERRAIN_TEXTURE_SIZE, TERRAIN_TEXTURE_SIZE, false, Image.FORMAT_RGBA8)
+	image.fill(color)
+	image.generate_mipmaps(true)
+	return ImageTexture.create_from_image(image)
+
 
 func _prepare_terrain_texture(path: String, is_normal: bool) -> Texture2D:
 	var source := load(path) as Texture2D

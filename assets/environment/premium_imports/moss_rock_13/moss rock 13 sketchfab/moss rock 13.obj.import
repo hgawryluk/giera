@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cijxsm6hbxnft"
+path="res://.godot/imported/moss rock 13.obj-ff0eb3e5ee15f5ced2eb3049037dcc6a.mesh"
+
+[deps]
+
+files=["res://.godot/imported/moss rock 13.obj-ff0eb3e5ee15f5ced2eb3049037dcc6a.mesh"]
+
+source_file="res://assets/environment/premium_imports/moss_rock_13/moss rock 13 sketchfab/moss rock 13.obj"
+dest_files=["res://.godot/imported/moss rock 13.obj-ff0eb3e5ee15f5ced2eb3049037dcc6a.mesh", "res://.godot/imported/moss rock 13.obj-ff0eb3e5ee15f5ced2eb3049037dcc6a.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
